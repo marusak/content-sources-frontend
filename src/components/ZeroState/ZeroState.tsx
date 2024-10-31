@@ -112,7 +112,7 @@ export const ZeroState = () => {
               <Button
                 id='get-started-repositories-button'
                 ouiaId='get_started_repositories_button'
-                className='pf-c-button pf-m-primary pf-u-p-md pf-u-font-size-md'
+                className='pf-v5-u-p-md pf-v5-u-font-size-md'
                 onClick={() => handleMainButtonClick()}
               >
                 Add repositories now
