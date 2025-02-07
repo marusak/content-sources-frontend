@@ -1,0 +1,41 @@
+name: Delete old playwright reports
+
+on:
+  schedule:
+    # Run every Monday 2:30 at night
+    - cron: "30 2 * * 1"
+  workflow_dispatch:
+
+jobs:
+  delete_old_folders:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Delete all folders older than 7 days
+        run: |
+          current_time=$(date +%s)
+          for dir in `find ./ -maxdepth 1 -type d -name '20*'`; do
+              dir_creation_time=$(git log -1  --format='%at' "$dir")
+              time_diff=$((current_time - dir_creation_time))
+              # If the directory is older than 7 days
+              if [ "$time_diff" -gt 604800 ]; then
+                  echo "Deleting $dir"
+                  rm -rf "$dir"
+              else
+                  echo "Keeping $dir"
+              fi
+          done
+
+      - name: Commit all removed folders
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: gh-pages
+          commit_message: Delete folders older than 7 days
