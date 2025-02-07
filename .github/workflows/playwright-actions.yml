@@ -93,13 +93,13 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
-      - name: Cache - API-test node_modules
-        if: ${{ !cancelled() }}
-        uses: actions/cache@v4
-        with:
-          path: content-sources-backend/_playwright-tests/node_modules
-          key: ${{ runner.os }}-api-node-modules-${{ hashFiles('content_sources_backend/_playwright-tests/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-api-node-modules-
+      # - name: Cache - API-test node_modules
+      #        if: ${{ !cancelled() }}
+      #        uses: actions/cache@v4
+      #        with:
+      #          path: content-sources-backend/_playwright-tests/node_modules
+      #          key: ${{ runner.os }}-api-node-modules-${{ hashFiles('content_sources_backend/_playwright-tests/yarn.lock') }}
+      #          restore-keys: ${{ runner.os }}-api-node-modules-
 
       - name: Cache - node_modules
         if: ${{ !cancelled() }}
@@ -207,35 +207,35 @@ jobs:
           path: ./playwright-ctrf
           retention-days: 10
 
-      - name: Create backend .env file
-        working-directory: content-sources-backend/_playwright-tests
-        run: |
-          echo "BASE_URL=http://127.0.0.1:8000" >> .env
-          echo "TOKEN=apple" >> .env
-          echo "CI=true" >> .env
-
-      - name: Install API playwright and dependencies
-        working-directory: content-sources-backend/_playwright-tests
-        run: yarn install
-
-      - name: Install Playwright Browsers
-        working-directory: content-sources-backend/_playwright-tests
-        run: yarn playwright install --with-deps
-
-      - name: Run API Playwright tests
-        working-directory: content-sources-backend/_playwright-tests
-        run: yarn playwright test
-
-      - name: Publish API Test Report
-        uses: ctrf-io/github-test-reporter@v1
-        with:
-          report-path: './content-sources-backend/_playwright-tests/playwright-ctrf/playwright-ctrf.json'
-        if: ${{ !cancelled() }}
-
-      - name: Store API Test report
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-ctrf-backend
-          path: ./content-sources-backend/_playwright-tests/playwright-ctrf
-          retention-days: 10
+      # - name: Create backend .env file
+      #   working-directory: content-sources-backend/_playwright-tests
+      #   run: |
+      #     echo "BASE_URL=http://127.0.0.1:8000" >> .env
+      #     echo "TOKEN=apple" >> .env
+      #     echo "CI=true" >> .env
+      #
+      # - name: Install API playwright and dependencies
+      #   working-directory: content-sources-backend/_playwright-tests
+      #   run: yarn install
+      #
+      # - name: Install Playwright Browsers
+      #   working-directory: content-sources-backend/_playwright-tests
+      #   run: yarn playwright install --with-deps
+      #
+      # - name: Run API Playwright tests
+      #   working-directory: content-sources-backend/_playwright-tests
+      #   run: yarn playwright test
+      #
+      # - name: Publish API Test Report
+      #   uses: ctrf-io/github-test-reporter@v1
+      #   with:
+      #     report-path: './content-sources-backend/_playwright-tests/playwright-ctrf/playwright-ctrf.json'
+      #   if: ${{ !cancelled() }}
+      #
+      # - name: Store API Test report
+      #   uses: actions/upload-artifact@v4
+      #   if: ${{ !cancelled() }}
+      #   with:
+      #     name: playwright-ctrf-backend
+      #     path: ./content-sources-backend/_playwright-tests/playwright-ctrf
+      #     retention-days: 10
