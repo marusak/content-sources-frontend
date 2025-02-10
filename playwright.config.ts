@@ -12,12 +12,11 @@ export default defineConfig({
   workers: 1,
   reporter: process.env.CI
     ? [
-        ['list'],
+        ['html', { outputFolder: 'playwright-report' }],
         [
           'playwright-ctrf-json-reporter',
-          { useDetails: true, outputDir: 'playwright-ctrf', outputFile: 'playwright-ctrf.json' },
+          { outputDir: 'playwright-ctrf', outputFile: 'playwright-ctrf.json' },
         ],
-        ['html', { outputFolder: 'playwright-report' }],
         ['./ci-reporter'],
       ]
     : 'list',

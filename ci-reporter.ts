@@ -18,6 +18,8 @@ class MyReporter implements Reporter {
 
     this.suite.suites.forEach((project) => {
         project.allTests().forEach((test) => {
+            if (!test.results[0])
+                return;
             if (test.results[0].status === "passed")
                 passed += 1;
             else if (test.results[0].status === "skipped")

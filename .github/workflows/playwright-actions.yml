@@ -191,11 +191,11 @@ jobs:
           .github/workflowScripts/waitForBackend.sh
 
       - name: Run front-end Playwright tests
-        run: yarn playwright test > pw-output
+        run: yarn playwright test | tee pw-output
 
       - name: Store test summary
         if: ${{ !cancelled() }}
-        run: tail -1 pw-output > playwright-report/summary
+        run: tail -2 pw-output | head -1 > playwright-report/summary
 
       - name: Publish front-end Test Report
         uses: ctrf-io/github-test-reporter@v1
@@ -241,13 +241,13 @@ jobs:
           destination_dir: ${{ steps.timestampid.outputs.timestamp }}
 
       - name: Write URL in summary
-        run: echo "### Test results - https://${{ github.repository_owner }}.github.io/pw-test/${{ steps.timestampid.outputs.timestamp }}/" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Test result - https://${{ github.repository_owner }}.github.io/content-sources-frontend/${{ steps.timestampid.outputs.timestamp }}/" >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v3
         with:
-          message: ${{steps.summaryid.outputs.summary}} - [results](https://${{ github.repository_owner }}.github.io/pw-test/${{ steps.timestampid.outputs.timestamp }})
+          message: ${{steps.summaryid.outputs.summary}} - [results](https://${{ github.repository_owner }}.github.io/content-sources-frontend/${{ steps.timestampid.outputs.timestamp }})
           comment-tag: pw-summary
           mode: recreate
 # Running API tests as part of `playwright-tests`
