@@ -9,7 +9,7 @@ test.describe('Templates', () => {
     await navigateToTemplates(page);
     await closePopupsIfExist(page);
 
-    const AddButton = page.locator('[data-ouia-component-id="create_content_template"]');
+    const AddButton = page.locator('[data-ouia-component-id="crexxate_content_template"]');
 
     // Wait for the Add button to become enabled (up to 10 seconds)
     await AddButton.first().isEnabled({ timeout: 10000 });
