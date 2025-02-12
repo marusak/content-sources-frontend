@@ -191,7 +191,7 @@ jobs:
 
       - name: Store test summary
         if: ${{ !cancelled() }}
-        run: tail -2 pw-output | head -1 > playwright-report/summary
+        run: grep "test(s)" pw-output > playwright-report/summary
 
       - name: Publish front-end Test Report
         uses: ctrf-io/github-test-reporter@v1
