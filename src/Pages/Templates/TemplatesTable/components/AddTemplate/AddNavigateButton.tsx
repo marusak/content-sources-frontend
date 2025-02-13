@@ -29,6 +29,7 @@ export const AddNavigateButton = ({ isAdding, add, onClose }: Props) => {
         menuToggleProps={{
           isFullWidth: false,
           variant: 'primary',
+          'aria-label': 'Create other options',
           splitButtonOptions: {
             variant: 'action',
             items: [

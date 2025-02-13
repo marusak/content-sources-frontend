@@ -118,6 +118,9 @@ export default function SnapshotErrataFilters({ isLoading, setFilterData, filter
           <DropdownSelect
             onSelect={(_, val) => addOrRemoveTypes(val as string)}
             multiSelect
+            menuToggleProps={{
+              'aria-label': 'Filter by type',
+            }}
             dropDownItems={
               ['Security', 'Bugfix', 'Enhancement', 'Other'].map((type) => ({
                 hasCheckbox: true,

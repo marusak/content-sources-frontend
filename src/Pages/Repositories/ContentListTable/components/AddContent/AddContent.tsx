@@ -391,6 +391,7 @@ const AddContent = ({ isEdit = false }: Props) => {
                 }
                 menuValue=''
                 menuToggleProps={{
+                  'aria-label': 'Save other options',
                   isFullWidth: false,
                   variant: 'primary',
                   splitButtonOptions: {
