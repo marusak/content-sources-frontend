@@ -52,10 +52,8 @@ const addRepository = async (page: Page, name: string, url: string) => {
   await expect(repositoryModal).toBeVisible();
 
   // Fill in the repository details
-  const nameInput = page.getByPlaceholder('Enter name');
-  const urlInput = page.getByPlaceholder('https://');
-  await nameInput.fill(name);
-  await urlInput.fill(url);
+  await page.getByLabel('Name').fill(name);
+  await page.getByLabel('URL').fill(url);
 
   // Filter by architecture
   const architectureFilterButton = page.getByRole('button', { name: 'filter architecture' });

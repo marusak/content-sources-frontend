@@ -30,8 +30,8 @@ test.describe('Introspect Repositories', () => {
     });
 
     await test.step('Fill the create repository form', async () => {
-      await page.getByPlaceholder('Enter name').fill(repoName);
-      await page.getByPlaceholder('https://').fill(repoUrl);
+      await page.getByLabel('Name').fill(repoName);
+      await page.getByLabel('URL').fill(repoUrl);
     });
 
     await test.step('Submit the form and wait for modal to disappear', async () => {

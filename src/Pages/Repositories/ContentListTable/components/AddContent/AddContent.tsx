@@ -443,7 +443,7 @@ const AddContent = ({ isEdit = false }: Props) => {
         <Loader />
       ) : (
         <Form>
-          <FormGroup label='Name' isRequired fieldId='namegroup'>
+          <FormGroup label='Name' isRequired fieldId='name'>
             <TextInput
               isRequired
               id='name'
@@ -575,7 +575,7 @@ const AddContent = ({ isEdit = false }: Props) => {
                 <OutlinedQuestionCircleIcon className='pf-u-ml-xs' color={global_Color_200.value} />
               </Tooltip>
             }
-            fieldId='arch'
+            fieldId='archSelection'
           >
             <DropdownSelect
               onSelect={(_, val) =>
@@ -610,9 +610,10 @@ const AddContent = ({ isEdit = false }: Props) => {
                 <OutlinedQuestionCircleIcon className='pf-u-ml-xs' color={global_Color_200.value} />
               </Tooltip>
             }
-            fieldId='version'
+            fieldId='versionSelection'
           >
             <DropdownSelect
+              id='version'
               onSelect={(_, val) => {
                 setVersionSelected(
                   versions.includes(val as string)
@@ -688,7 +689,7 @@ const AddContent = ({ isEdit = false }: Props) => {
                 <OutlinedQuestionCircleIcon className='pf-u-ml-xs' color={global_Color_200.value} />
               </Tooltip>
             }
-            fieldId='gpgKey'
+            fieldId='gpgKey-uploader'
           >
             <FileUpload
               className={classes.gpgKeyInput}

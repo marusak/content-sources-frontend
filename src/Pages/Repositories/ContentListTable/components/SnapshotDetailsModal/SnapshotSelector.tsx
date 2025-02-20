@@ -53,6 +53,7 @@ export function SnapshotSelector() {
         fieldId='snapshot'
       >
         <DropdownSelect
+          id='snapshot'
           onSelect={(_, val) => setSelected(val as string)}
           selected={uuidMapper[snapshotUUID]}
           menuToggleProps={{
