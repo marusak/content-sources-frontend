@@ -39,10 +39,10 @@ export const clearFilters = async (page: Page) => {
   await page.getByRole('button', { name: 'Clear filters' }).click();
 };
 
-export const getRowByNameOrUrl = async (page: Page, filterValue: string) => {
+export const getRowByNameOrUrl = async (page: Page, name: string): Promise<Locator> => {
   await clearFilters(page);
-  await filterByNameOrUrl(page, filterValue);
-  return page.getByRole('row').filter({ has: page.getByText(filterValue) });
+  await filterByNameOrUrl(page, name);
+  return page.getByRole('row').filter({ has: page.getByText(name) });
 };
 
 export const getRowCellByHeader = async (page: Page, row: Locator, name: string) => {
