@@ -11,10 +11,16 @@ const navigateToRepositoriesFunc = async (page: Page) => {
   const repositoriesListPage = page.getByText('View all repositories within your organization.');
 
   // Wait for either list page or zerostate
-  await Promise.race([
-    repositoriesListPage.waitFor({ state: 'visible' }),
-    zeroState.waitFor({ state: 'visible' }),
-  ]);
+  try {
+    await Promise.race([
+      repositoriesListPage.waitFor({ state: 'visible' }),
+      zeroState.waitFor({ state: 'visible' }),
+    ]);
+  } catch (error) {
+    throw new Error(
+      `Neither repositories list nor zero state appeared: ${(error as Error)?.message}`,
+    );
+  }
 
   if (await zeroState.isVisible()) {
     await page.getByRole('button', { name: 'Add repositories now' }).click();
@@ -28,12 +34,10 @@ export const navigateToRepositories = async (page: Page) => {
 const navigateToTemplatesFunc = async (page: Page) => {
   await page.goto('/insights/content/templates');
 
-  const repositoriesListPage = page.getByText(
-    'View all content templates within your organization.',
-  );
+  const templateText = page.getByText('View all content templates within your organization.');
 
   // Wait for either list page or zerostate
-  await repositoriesListPage.waitFor({ state: 'visible' });
+  await templateText.waitFor({ state: 'visible' });
 };
 
 export const navigateToTemplates = async (page: Page) => {
