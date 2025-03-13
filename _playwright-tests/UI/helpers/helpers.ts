@@ -24,6 +24,9 @@ export const closePopupsIfExist = async (page: Page) => {
 };
 export const filterByNameOrUrl = async (page: Page, name: string) => {
   await page.getByPlaceholder(/^Filter by name.*$/).fill(name);
+  // We are expecting the first item in the table to contain the name
+  // Ensure that your filter is unique to your repository!
+  await expect(page.getByRole('row').filter({ has: page.getByText(name) })).toBeVisible();
 };
 
 export const clearFilters = async (page: Page) => {
