@@ -4,9 +4,7 @@ import { retry } from './helpers';
 const navigateToRepositoriesFunc = async (page: Page) => {
   await page.goto('/insights/content/repositories');
 
-  const zeroState = page.locator(
-    'div.pf-v5-l-grid__item.bannerBefore > div > div.pf-v5-u-pt-lg > h1',
-  );
+  const zeroState = page.getByText('Start using Content management now');
 
   const repositoriesListPage = page.getByText('View all repositories within your organization.');
 
