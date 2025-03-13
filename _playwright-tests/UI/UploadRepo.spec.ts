@@ -54,8 +54,10 @@ test.describe('Upload Repositories', () => {
       ),
     ]);
 
+    const dragBoxSelector = page.locator('#pf-modal-part-1  > div');
+
     // Handle the file chooser and upload the file
-    await page
+    await dragBoxSelector
       .locator('input[type=file]')
       .setInputFiles(path.join(__dirname, './fixtures/libreOffice.rpm'));
 
