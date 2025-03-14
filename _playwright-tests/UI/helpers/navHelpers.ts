@@ -2,7 +2,7 @@ import { type Page } from '@playwright/test';
 import { retry } from './helpers';
 
 const navigateToRepositoriesFunc = async (page: Page) => {
-  await page.goto('/insights/content/repositories');
+  await page.goto('/insights/content/repositories', { timeout: 5000 });
 
   const zeroState = page.getByText('Start using Content management now');
 
@@ -11,8 +11,8 @@ const navigateToRepositoriesFunc = async (page: Page) => {
   // Wait for either list page or zerostate
   try {
     await Promise.race([
-      repositoriesListPage.waitFor({ state: 'visible' }),
-      zeroState.waitFor({ state: 'visible' }),
+      repositoriesListPage.waitFor({ state: 'visible', timeout: 20000 }),
+      zeroState.waitFor({ state: 'visible', timeout: 20000 }),
     ]);
   } catch (error) {
     throw new Error(
