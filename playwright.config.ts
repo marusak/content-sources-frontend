@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: false,
   retries: process.env.CI ? 1 : 0,
-  workers: 1,
+  workers: process.env.CI ? 1 : 4, // This makes tests run parellel locally
   reporter: process.env.CI
     ? [
         ['html', { outputFolder: 'playwright-report' }],
