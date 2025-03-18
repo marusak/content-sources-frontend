@@ -64,7 +64,8 @@ test.describe('Snapshot Repositories', () => {
     });
 
     await test.step('Verify that snapshot is in snapshots list', async () => {
-      await page.getByRole('button', { name: 'Kebab toggle' }).click();
+      const row = await getRowByNameOrUrl(page, repoName);
+      await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
       await expect(page.getByLabel('SnapshotsView list of').locator('tbody')).toBeVisible();
       const snapshotTimestamp = await page
