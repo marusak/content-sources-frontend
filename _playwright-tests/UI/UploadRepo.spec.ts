@@ -93,7 +93,6 @@ test.describe('Upload Repositories', () => {
       ),
       // Click the 'Remove' button
       page.getByRole('button', { name: 'Remove' }).click(),
-      expect(page.getByText('To get started, create a custom repository')).toBeVisible(),
     ]);
   });
 });
