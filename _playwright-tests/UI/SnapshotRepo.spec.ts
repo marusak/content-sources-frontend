@@ -66,6 +66,14 @@ test.describe('Snapshot Repositories', () => {
     await test.step('Verify that snapshot is in snapshots list', async () => {
       const row = await getRowByNameOrUrl(page, repoName);
       await row.getByLabel('Kebab toggle').click();
+      await page.waitForTimeout(500);
+      const menu = row.locator('.pf-v5-c-menu__content');
+      while (!(await menu.isVisible())) {
+        // Occasionally a re-render will cause the menu to close unexpectedly
+        // this fix makes it so that if that occurs the menu will be re-opened.
+        await row.getByLabel('Kebab toggle').click();
+        await page.waitForTimeout(500);
+      }
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
       await expect(page.getByLabel('SnapshotsView list of').locator('tbody')).toBeVisible();
       const snapshotTimestamp = await page
