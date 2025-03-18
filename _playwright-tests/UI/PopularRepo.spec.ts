@@ -3,6 +3,8 @@ import { navigateToRepositories } from './helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 import { deleteAllPopularRepos } from './helpers/deletePopularRepositories';
 
+const repoName = 'EPEL 9 Everything x86_64';
+
 test.describe('Popular Repositories', () => {
   test('Add popular repos', async ({ page }) => {
     // Ensure no popular repos are selected.
@@ -52,8 +54,7 @@ test.describe('Popular Repositories', () => {
     });
 
     await test.step('Apply filter and clear it', async () => {
-      const searchInput = page.getByRole('textbox', { name: 'Filter by name/url' });
-      await searchInput.fill('EPEL 8 Everything x86_64');
+      await page.getByRole('textbox', { name: 'Filter by name/url' }).fill('EPEL 8 Everything x86_64');
       const rows = page.locator('table tbody tr');
       await expect(rows).toHaveCount(1);
       await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
@@ -66,7 +67,9 @@ test.describe('Popular Repositories', () => {
     });
 
     await test.step('Use kebab menu to delete a repo', async () => {
-      await page.getByRole('textbox', { name: 'Filter by name/url' }).fill('EPEL');
+      await page
+        .getByRole('textbox', { name: 'Filter by name/url' })
+        .fill('EPEL 8 Everything x86_64');
       await page.getByRole('checkbox', { name: 'Select row 0' }).check();
 
       await page.getByTestId('custom_repositories_kebab_toggle').click();
@@ -76,7 +79,7 @@ test.describe('Popular Repositories', () => {
     });
 
     await test.step('Use kebab menu to delete a repo', async () => {
-      await page.getByRole('textbox', { name: 'Filter by name/url' }).fill('EPEL');
+      await page.getByRole('textbox', { name: 'Filter by name/url' }).fill(repoName);
       const row = await getRowByNameOrUrl(page, repoName);
       await row.getByRole('checkbox', { name: 'Select row 0' }).check();
       await page.getByTestId('custom_repositories_kebab_toggle').click();
