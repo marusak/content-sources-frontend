@@ -95,4 +95,8 @@ test.describe('Upload Repositories', () => {
       page.getByRole('button', { name: 'Remove' }).click(),
     ]);
   });
+
+  test('Clean - Double check upload repo for deletion', async ({ page }) => {
+    await deleteAllRepos(page, `&search=${uploadRepoName}`);
+  });
 });
