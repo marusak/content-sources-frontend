@@ -77,7 +77,6 @@ test.describe('Upload Repositories', () => {
 
   test('Delete one upload repository', async ({ page }) => {
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
     const row = await getRowByNameOrUrl(page, uploadRepoName);
     // Check if the 'Kebab toggle' button is disabled
     await row.getByLabel('Kebab toggle').click();

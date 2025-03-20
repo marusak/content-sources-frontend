@@ -33,7 +33,6 @@ test.describe('Templates', () => {
 
     await test.step('Navigate to the templates page', async () => {
       await navigateToTemplates(page);
-      await closePopupsIfExist(page);
     });
 
     await test.step(`Click the 'Learn more about templates' link and verify the destination`, async () => {
