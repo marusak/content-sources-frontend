@@ -44,9 +44,7 @@ export default defineConfig({
           }
       } : {},
     testIdAttribute: 'data-ouia-component-id',
-    trace: 'on',
     screenshot: 'on',
-    video: 'on',
   },
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
