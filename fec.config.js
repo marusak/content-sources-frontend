@@ -35,18 +35,9 @@ module.exports = {
       },
     ],
   },
-  /**
-   * Add additional webpack plugins
-   */
-  //   plugins: [...(process.env.VERBOSE ? [new WatchRunPlugin()] : []), new webpack.ProgressPlugin()],
   resolve: {
     modules: [srcDir, path.resolve(__dirname, './node_modules')],
   },
   routes: {
-    ...(process.env.BACKEND_PORT && {
-      '/api/content-sources/': {
-        host: `http://127.0.0.1:${process.env.BACKEND_PORT}`,
-      },
-    }),
   },
 };

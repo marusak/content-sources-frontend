@@ -1,0 +1,4 @@
+{
+  "/apps/content-sources*": "http://host.docker.internal:8003",
+  "/api/content-sources/*": "http://host.docker.internal:8000"
+}

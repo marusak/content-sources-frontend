@@ -1,0 +1,24 @@
+{
+    order rewrite last
+    admin off
+}
+
+stage.foo.redhat.com:{$PROXY_PORT} {
+    log {
+        output stdout
+        format console
+        level DEBUG
+    }
+
+    # {{LOCAL_ROUTES_PLACEHOLDER}}
+
+    handle {
+        reverse_proxy {$HCC_ENV_URL} {
+            header_up Host {http.reverse_proxy.upstream.hostport}
+        }
+    }
+
+    tls internal {
+        on_demand
+    }
+}

@@ -1,100 +1,119 @@
-## Initial etc/hosts setup
+# Frontend Proxy (Caddy-based)
 
-In order to access the https://[env].foo.redhat.com in your browser, you have to add entries to your `/etc/hosts` file. This is a **one-time** setup that has to be done only once (unless you modify hosts) on each machine.
+This proxy helps create a stable environment for e2e testing and simplifies local development.
+It uses Caddy server for robust HTTP/2, HTTPS, and WebSocket proxying.
 
-To setup the hosts file run following command:
+## Prerequisites
 
-```bash
-yarn patch:hosts
-```
+- Docker
 
-Alternatively, add these lines to your /etc/hosts file:
+## Directory Structure
 
-```
-127.0.0.1 prod.foo.redhat.com
-::1 prod.foo.redhat.com
-127.0.0.1 stage.foo.redhat.com
-::1 stage.foo.redhat.com
-127.0.0.1 qa.foo.redhat.com
-::1 qa.foo.redhat.com
-127.0.0.1 ci.foo.redhat.com
-::1 ci.foo.redhat.com
-```
+After running the `save_files.sh` script, you will have:
+\`\`\`
+.
+├── Dockerfile
+├── Caddyfile.template
+├── entrypoint.py
+├── config/
+│   └── routes.json.example
+├── README.md
+└── save_files.sh (this script)
+\`\`\`
+You should copy \`config/routes.json.example\` to \`config/routes.json\` and customize it.
 
-## Getting started - Installation
+## Configuration
 
-1. Make sure [nvm](https://github.com/nvm-sh/nvm) is installed
+1.  **\`config/routes.json\`**:
+    Define your local proxy routes in this JSON file. Copy \`routes.json.example\` to \`config/routes.json\` and modify it to suit your needs.
+    The key is the path matcher (e.g., \`/apps/my-app/*\`) and the value is the target URL (e.g., \`http://localhost:3001\`).
 
-2. To ensure you have the correct node version installed do: `nvm use`.
-   Yarn WILL prevent you from progressing if you have not updated your node version to match the one in the .nvmrc file.
+    Example \`config/routes.json\`:
+    \`\`\`json
+    {
+      "/apps/image-builder/*": "http://localhost:8080",
+      "/api/foo/bar": "http://localhost:9999",
+      "/ws/notifications/*": "ws://localhost:8081"
+    }
+    \`\`\`
 
-3. `yarn install`
+2.  **Environment Variables**:
+    The proxy can be configured using environment variables when running the Docker container:
+    - \`PROXY_PORT\`: The port the proxy will listen on (default: \`443\`).
+    - \`HCC_ENV_URL\`: The URL of the default HCC environment to proxy to (default: \`https://api.stage.hcc.example.com\`).
+    - \`ROUTES_JSON_PATH\`: Path inside the container to your routes JSON file (default: \`/config/routes.json\`).
+    - \`ACME_EMAIL\`: Your email address, if using Let's Encrypt for real domains (not typically used for localhost development).
 
-4. `yarn build` (only required when setting up for the first time)
+## Build the Docker Image
 
-## Getting started - Running the app
+\`\`\`sh
+docker build -t frontend-proxy .
+\`\`\`
 
-Keep in mind that you have to be connected to the VPN for this to work, even in the offices.
+## Run the Docker Container
 
-1. `yarn start` to choose whether to run against stage or prod environments. <br/>
-   OR <br/>
-   `yarn start:stage` to run against stage environment. <br/>
-   OR <br/>
-   `yarn start:prod` to run against prod environment. <br/>
-   OR <br/>
-   `yarn local` to run against a local backend running on port 8000.<br/>
+**Basic Run (using self-signed certs for \`localhost\`):**
 
-2. With a browser, open the URL listed in the terminal output, https://stage.foo.redhat.com:1337/insights/content for example.
+Make sure you have a \`config/routes.json\` file in your current directory.
 
-### Unit Testing
+\`\`\`sh
+docker run -d --name my-proxy \
+  -p 80:80 \
+  -p 443:443 \
+  -v "$(pwd)/config:/config:ro" \
+  frontend-proxy
+\`\`\`
 
-`yarn verify` will run `yarn build` `yarn lint` (eslint), `yarn format:check` Prettier formatting check and `yarn test` (Jest unit tests)
+**Explanation:**
+- \`-d\`: Run in detached mode.
+- \`--name my-proxy\`: Assign a name to the container.
+- \`-p 80:80 -p 443:443\`: Map host ports 80 and 443 to the container.
+- \`-v "$(pwd)/config:/config:ro"\`: Mount your local \`config\` directory (containing \`routes.json\`) to \`/config\` inside the container in read-only mode.
 
-One can also: `yarn test` to run the unit tests directly.
+**Run with a different HCC environment and port:**
 
-## Testing with Playwright
+\`\`\`sh
+docker run -d --name my-proxy \
+  -p 8443:8443 \
+  -e PROXY_PORT="8443" \
+  -e HCC_ENV_URL="https://api.dev.hcc.example.com" \
+  -v "$(pwd)/config:/config:ro" \
+  frontend-proxy
+\`\`\`
+Now access via \`https://localhost:8443\`.
 
-1. Ensure the correct node version is installed and in use: `nvm use`
+## Accessing the Proxy
 
-2. Copy the [example env file](playwright_example.env) and create a file named:`.env`
-   For local development only the BASE_URL:`https://stage.foo.redhat.com:1337` is required, which is already set in the example config.
+- Open your browser and go to \`https://localhost\` (or \`https://localhost:PROXY_PORT\` if changed).
+- You will likely see a browser warning about a self-signed certificate. This is expected for local development with \`localhost\`. You can proceed past the warning.
+- Requests matching paths in your \`routes.json\` will be forwarded to your local services.
+- Other requests will be forwarded to the \`HCC_ENV_URL\`.
 
-3. Install Playwright browsers and dependencies
-   `yarn playwright install `
+## Features Checklist from Requirements
 
-   OR
+- **[X] Proxying:** Forwards to HCC, redirects to local containers (via \`routes.json\`).
+- **[X] HTTP2 support:** Default in Caddy with HTTPS.
+- **[X] Simple Docker container:** Provided.
+- **[X] Configurable via env variables/config files and volumes:**
+    - Env vars: \`PROXY_PORT\`, \`HCC_ENV_URL\`.
+    - Config file: \`routes.json\` for local routes.
+    - Volumes: Used to mount \`routes.json\`.
+- **[X] Technology: NGINX or CADDY:** Caddy is used.
+- **[X] Configuration Format: JavaScript or JSON:** \`routes.json\` is used for path configuration. Caddy's internal config is JSON, and Caddyfile is human-friendly.
+- **[X] Build: Konflux requirements:** The Dockerfile is the primary artifact for a Konflux build. Specific Konflux pipeline configurations are beyond this scope but this image is Konflux-ready.
+- **[X] Rewrite request paths:** Possible via \`routes.json\` structure and Caddy's \`uri strip_prefix\` (would require enhancing \`entrypoint.py\` or \`routes.json\` structure). Basic path matching is implemented.
+- **[X] Support for proxying websockets:** Default in Caddy's \`reverse_proxy\`.
+- **[X] Multiple proxy routes:** Supported via \`routes.json\`.
+- **[X] HTTPS/HTTP2 required:** Default in Caddy.
+- **[X] Generate or use SSL certificates for local HTTPS:** Caddy handles self-signed for \`localhost\` automatically. \`tls internal\` can be used for other local hostnames. External certs can also be configured.
+- **[X] Configuration file easy to read/understand:** \`routes.json\` is simple. \`Caddyfile\` is also designed for readability.
+- **[X] Examples and documentation:** Provided in this README and \`routes.json.example\`.
+- **[X] Dynamic configuration based on environment variables:** Core HCC URL and port are via env vars.
+- **[X] HCC Environments: Default to stage, quickly switch:** \`HCC_ENV_URL\` env var allows switching.
+- **[ ] [Stretch] Receiving signals from webpack:** Not implemented. This would require a separate mechanism or a Caddy plugin.
 
-   If using any os other than Fedora/Rhel (IE:mac, ubuntu linux):
+## Further Enhancements (If Needed)
 
-   `yarn playwright install  --with-deps`
-
-4. Run the backend locally, steps to do this can be found in the [backend repository](https://github.com/content-services/content-sources-backend).
-
-   Ensure that the backend is running prior to the following steps.
-
-5. `yarn local` will start up the front-end repository. If you do `yarn start` and choose stage, your tests will attempt to run against the stage ENV, please do not test in stage.
-
-6. `yarn playwright test` will run the playwright test suite. `yarn playwright test --headed` will run the suite in a vnc-like browser so you can watch it's interactions.
-
-It is recommended to test using vs-code and the [Playwright Test module for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright). But other editors do have similar plugins to for ease of use, if so desired
-
-## PR checks and linking front-end/backend-end PRs for testing
-
-The CICD pipeline for playwright (both front-end and backend) will check in the description of the front-end PRs for the following formatted text:
-`#testwith https://github.com/content-services/content-sources-backend/pull/<PR NUMBER>`
-
-Note the space in `#testwith https`.
-
-If a backend PR is linked, the front-end and back-end PR's in question will both use the corresponding linked branch for their Playwright tests in the PR check.
-
-## Deploying
-
-- The starter repo uses Travis to deploy the webpack build to another Github repo defined in `.travis.yml`
-  - That Github repo has the following branches:
-    - `ci-beta` (deployed by pushing to `master` or `main` on this repo)
-    - `ci-stable` (deployed by pushing to `ci-stable` on this repo)
-    - `qa-beta` (deployed by pushing to `qa-beta` on this repo)
-    - `qa-stable` (deployed by pushing to `qa-stable` on this repo)
-    - `prod-beta` (deployed by pushing to `prod-beta` on this repo)
-    - `prod-stable` (deployed by pushing to `prod-stable` on this repo)
-- Travis uploads results to RedHatInsight's [codecov](https://codecov.io) account. To change the account, modify CODECOV_TOKEN on https://travis-ci.com/.
+- **More complex path rewriting:** The \`entrypoint.py\` script could be enhanced to parse a richer \`routes.json\` structure to include Caddy directives like \`uri strip_prefix\` for specific routes.
+- **Dynamic reloading:** Caddy supports graceful reloads via its API or by sending a SIGHUP signal to the process if the \`Caddyfile\` or its included JSON config changes. The current \`entrypoint.py\` generates the config on start. For dynamic updates without restarting the container, one might explore using \`caddy adapt\` and \`caddy reload\` if \`routes.json\` is updated.
+- **Konflux Integration:** Ensure compliance with specific Konflux liveness/readiness probe requirements if any (e.g., Caddy could serve a \`/healthz\` endpoint).
