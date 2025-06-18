@@ -93,6 +93,6 @@ jobs:
           SLACK_ICON: https://jlsherrill.fedorapeople.org/nightly.png
           SLACK_TITLE: Nightly Stage Test
           SLACK_USERNAME: Content Sources
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOOK }}
           SLACK_MESSAGE_ON_SUCCESS: 'Nightly stage tests successful!'
           SLACK_MESSAGE_ON_FAILURE: 'Nightly stage tests FAILED :('
