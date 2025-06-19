@@ -86,7 +86,7 @@ jobs:
           retention-days: 10
 
       - name: Slack Notification
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' && !cancelled() }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_COLOR: ${{ job.status }}
