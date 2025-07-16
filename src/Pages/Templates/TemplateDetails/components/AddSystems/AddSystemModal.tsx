@@ -2,6 +2,9 @@ import {
   AlertVariant,
   Bullseye,
   Button,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
   Flex,
   FlexItem,
   Grid,
@@ -11,6 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalVariant,
+  MenuToggle,
   Pagination,
   PaginationVariant,
   Spinner,
@@ -22,7 +26,7 @@ import { InnerScrollContainer } from '@patternfly/react-table';
 import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import Hide from 'components/Hide/Hide';
-import { SearchIcon, SyncAltIcon } from '@patternfly/react-icons';
+import { FilterIcon, SearchIcon, SyncAltIcon } from '@patternfly/react-icons';
 import useDebounce from 'Hooks/useDebounce';
 import { useNavigate, useParams } from 'react-router-dom';
 import useRootPath from 'Hooks/useRootPath';
@@ -45,6 +49,7 @@ import {
 import ModalSystemsTable from './ModalSystemsTable';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import useNotification from 'Hooks/useNotification';
+import TagsFilter from 'components/TagsFilter/TagsFilter';
 
 const useStyles = createUseStyles({
   mainContainer: {
@@ -70,9 +75,14 @@ const useStyles = createUseStyles({
     paddingTop: '0',
     paddingBottom: '0',
   },
+  fullWidth: {
+    width: 'auto',
+    maxWidth: 'unset',
+  },
 });
 
 const perPageKey = 'templatesPerPage';
+type FilterType = 'Name' | 'Tags';
 
 export default function AddSystemModal() {
   const queryClient = useQueryClient();
@@ -90,6 +100,9 @@ export default function AddSystemModal() {
   const { notify } = useNotification();
   const [pollCount, setPollCount] = useState(0);
   const [polling, setPolling] = useState(false);
+  const [filterType, setFilterType] = useState<FilterType>('Name');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
     if (!selectedList.size) {
@@ -119,6 +132,7 @@ export default function AddSystemModal() {
     os: version,
     arch: arch,
     ids: toggled ? debouncedSelected : undefined,
+    tags: selectedTags,
   });
 
   const {
@@ -237,6 +251,30 @@ export default function AddSystemModal() {
 
   const loadingOrZeroCount = fetchingOrLoading || !total_items;
 
+  const filters: FilterType[] = ['Name', 'Tags'];
+
+  const Filter = useMemo(() => {
+    switch (filterType) {
+      case 'Name':
+        return (
+          <TextInput
+            id='search'
+            type='search'
+            className={classes.fullWidth}
+            customIcon={<SearchIcon />}
+            ouiaId='filter_search'
+            placeholder='Filter by name'
+            value={searchQuery}
+            onChange={(_event, value) => {
+              setSearchQuery(value);
+            }}
+          />
+        );
+      case 'Tags':
+        return <TagsFilter selectedTags={selectedTags} setSelectedTags={setSelectedTags} />;
+    }
+  }, [filterType, selectedTags, searchQuery]);
+
   return (
     <Modal
       key={uuid}
@@ -274,15 +312,45 @@ export default function AddSystemModal() {
         <Grid className={classes.mainContainer}>
           <InputGroup className={classes.topContainer}>
             <InputGroupItem>
-              <TextInput
-                id='search'
-                ouiaId='name_search'
-                placeholder='Filter by name'
-                value={searchQuery}
-                onChange={(_event, value) => setSearchQuery(value)}
-                type='search'
-                customIcon={<SearchIcon />}
-              />
+              <InputGroup>
+                <Dropdown
+                  key='filtertype'
+                  onSelect={(_, val) => {
+                    setFilterType(val as FilterType);
+                    setFilterOpen(false);
+                  }}
+                  toggle={(toggleRef) => (
+                    <MenuToggle
+                      icon={<FilterIcon />}
+                      ref={toggleRef}
+                      className={classes.fullWidth}
+                      aria-label='filterSelectionDropdown'
+                      id='typeSelect'
+                      onClick={() => setFilterOpen((prev) => !prev)}
+                    >
+                      {filterType}
+                    </MenuToggle>
+                  )}
+                  onOpenChange={(isOpen) => setFilterOpen(isOpen)}
+                  isOpen={filterOpen}
+                  aria-label='filter type'
+                >
+                  <DropdownList>
+                    {filters.map((filter) => (
+                      <DropdownItem
+                        key={filter}
+                        value={filter}
+                        isSelected={filterType === filter}
+                        component='button'
+                        data-ouia-component-id={`filter_${filter}`}
+                      >
+                        {filter}
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+                {Filter}
+              </InputGroup>
               <Hide hide={!total_items}>
                 <FlexItem className={classes.leftMargin}>
                   <ToggleGroup aria-label='Default with single selectable'>
@@ -324,7 +392,7 @@ export default function AddSystemModal() {
           <Hide hide={!!total_items || fetchingOrLoading}>
             <Bullseye data-ouia-component-id='systems_list_page'>
               <EmptyTableState
-                notFiltered={!searchQuery}
+                notFiltered={!searchQuery && !!selectedTags}
                 clearFilters={() => setSearchQuery('')}
                 itemName='relevant systems'
                 notFilteredBody='It appears as though you have no systems registered for the associated OS.'

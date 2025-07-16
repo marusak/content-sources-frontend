@@ -98,6 +98,24 @@ export interface SystemsFilters {
   stale?: string;
   arch?: string;
   ids?: string[];
+  tags?: string[];
+}
+
+export interface Tag {
+  namespace: string;
+  key: string;
+  value: string;
+}
+
+export interface TagItem {
+  count: number;
+  tag: Tag;
+}
+
+export interface TagsResponse {
+  data: Array<TagItem>;
+  links: Links;
+  meta: SystemMeta;
 }
 
 const patchApiVersionUrl = '/api/patch/v3';
@@ -116,6 +134,7 @@ export const getSystemsList: (
       offset: ((page - 1) * limit).toString(),
       sort: sortBy,
       search,
+      tags: filter.tags?.map((tag) => encodeURIComponent(tag)) || '',
       [encodeURI('filter[id]')]: filter.ids ? encodeURI(`in:${filter.ids.join(',')}`) : '',
       [encodeURI('filter[stale]')]: filter.stale
         ? encodeURI(`in:${filter.stale}`)
@@ -124,6 +143,7 @@ export const getSystemsList: (
       [encodeURI('filter[osmajor]')]: filter.os,
       [encodeURI('filter[arch]')]: filter?.arch,
     })}`,
+    {},
   );
   return data;
 };
@@ -169,6 +189,22 @@ export const deleteTemplateFromSystems: (systemUUIDs: string[]) => Promise<void>
   const { data } = await axios.delete(`${patchApiVersionUrl}/templates/systems`, {
     data: { systems: systemUUIDs },
   });
+
+  return data;
+};
+
+export const listTags: (
+  page: number,
+  limit: number,
+  search?: string,
+) => Promise<TagsResponse> = async (page: number = 1, limit: number = 10, search?: string) => {
+  const { data } = await axios.get(
+    `${patchApiVersionUrl}/tags?${objectToUrlParams({
+      offset: ((page - 1) * limit).toString(),
+      limit: limit?.toString(),
+      search,
+    })}`,
+  );
 
   return data;
 };

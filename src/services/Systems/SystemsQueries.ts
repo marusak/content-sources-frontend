@@ -7,6 +7,8 @@ import {
   type IDSystemsCollectionResponse,
   type SystemsCollectionResponse,
   type SystemsFilters,
+  TagsResponse,
+  listTags,
 } from './SystemsApi';
 import { useMutation, useQuery, type QueryClient } from 'react-query';
 import useNotification from 'Hooks/useNotification';
@@ -33,6 +35,21 @@ export const useSystemsListQuery = (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError: (err: any) => {
         errorNotifier('Unable to get systems.', 'An error occurred', err, 'systems-list-error');
+      },
+    },
+  );
+};
+
+export const useTagsQuery = (page: number, limit: number, search?: string) => {
+  const errorNotifier = useErrorNotification();
+  return useQuery<TagsResponse>(
+    ['TAGS', page, limit, search],
+    () => listTags(page, limit, search),
+    {
+      keepPreviousData: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (err: any) => {
+        errorNotifier('Unable to get tags', 'An error occurred', err, 'tags-err');
       },
     },
   );

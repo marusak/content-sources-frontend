@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 
 // Removes null values and builds url params from a given object.
-export const objectToUrlParams = (obj: { [key: string]: string | undefined }): string => {
+export const objectToUrlParams = (obj: {
+  [key: string]: string | string[] | undefined;
+}): string => {
   const keyList = Object.keys(obj).filter((key) => !!obj[key]);
   // Check each item for falsey value and filter
 
@@ -9,7 +11,12 @@ export const objectToUrlParams = (obj: { [key: string]: string | undefined }): s
 
   let items = '';
   keyList.forEach((key, index) => {
-    items += `${key}=${obj[key]}${index !== keyList.length - 1 ? '&' : ''}`;
+    const toAdd =
+      obj[key] instanceof Array
+        ? obj[key].map((value) => `${key}=${value}`).join('&')
+        : `${key}=${obj[key]}`;
+
+    items += `${toAdd}${index !== keyList.length - 1 ? '&' : ''}`;
   });
   return items;
 };
