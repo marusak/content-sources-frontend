@@ -532,11 +532,11 @@ const ContentListTable = () => {
                   <Button
                     id='createContentSourceButton'
                     ouiaId='create_content_source'
-                    variant='primary'
+                    variant='secondary'
                     isDisabled={isLoading}
                     onClick={() => navigate(ADD_ROUTE)}
                   >
-                    Add repositories
+                    Create repositories
                   </Button>
                 </ConditionalTooltip>
               }
@@ -701,11 +701,11 @@ const ContentListTable = () => {
                     <Button
                       id='createContentSourceButton'
                       ouiaId='create_content_source'
-                      variant='primary'
+                      variant='secondary'
                       isDisabled={isLoading}
                       onClick={() => navigate(ADD_ROUTE)}
                     >
-                      Add repositories
+                      Create repositories
                     </Button>
                   </ConditionalTooltip>
                 }
