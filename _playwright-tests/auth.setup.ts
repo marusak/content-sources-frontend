@@ -106,6 +106,7 @@ setup.describe('Setup Authentication States', async () => {
 
     await storeStorageStateAndToken(page, 'rhel-only-user.json');
     await logout(page);
+  });
 
   setup('Authenticate no-subs user and save state', async ({ page }) => {
     setup.skip(
