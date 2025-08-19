@@ -5,11 +5,14 @@ import {
   Grid,
   InputGroup,
   InputGroupItem,
+  Modal,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
   Pagination,
   PaginationVariant,
   TextInput,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { InnerScrollContainer } from '@patternfly/react-table';
 import { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
@@ -102,20 +105,19 @@ export default function PackageModal() {
     <Modal
       key={uuid}
       position='top'
-      hasNoBodyWrapper
-      aria-label='RPM package modal'
       ouiaId='rpm_package_modal'
       variant={ModalVariant.medium}
-      title='Packages'
-      description='View list of packages'
       isOpen
       onClose={onClose}
-      footer={
-        <Button key='close' variant='secondary' onClick={onClose}>
-          Close
-        </Button>
-      }
+      aria-labelledby='rpm-package-modal-title'
+      aria-describedby='rpm-package-modal-description'
     >
+      <ModalHeader
+        title='Packages'
+        labelId='rpm-package-modal-title'
+        description='View list of packages'
+        descriptorId='rpm-package-modal-description'
+      />
       <InnerScrollContainer>
         <Grid className={classes.mainContainer}>
           <InputGroup className={classes.topContainer}>
@@ -170,6 +172,11 @@ export default function PackageModal() {
           </Flex>
         </Grid>
       </InnerScrollContainer>
+      <ModalFooter>
+        <Button key='close' variant='secondary' onClick={onClose}>
+          Close
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 }

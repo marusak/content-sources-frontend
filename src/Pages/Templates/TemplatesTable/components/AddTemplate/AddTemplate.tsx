@@ -1,12 +1,13 @@
 import {
   Bullseye,
+  Modal,
+  ModalVariant,
   Spinner,
   Wizard,
   WizardFooterWrapper,
   WizardHeader,
   WizardStep,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 
 import useRootPath from 'Hooks/useRootPath';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -85,11 +86,10 @@ const AddTemplateBase = () => {
     <Modal
       ouiaId={`${isEdit ? 'edit' : 'add'}_template_modal`}
       aria-label={`${isEdit ? 'edit' : 'add'} template modal`}
+      aria-describedby='edit-add-template-modal-wizard-description'
       variant={ModalVariant.large}
-      showClose={isEdit && isEmpty(templateRequest)}
       isOpen
-      onClose={onClose}
-      hasNoBodyWrapper
+      onClose={isEdit && isEmpty(templateRequest) ? onClose : undefined}
       disableFocusTrap
     >
       {isEdit && isEmpty(templateRequest) ? (
@@ -104,6 +104,7 @@ const AddTemplateBase = () => {
               titleId={`${isEdit ? 'edit' : 'create'}_content_template`}
               data-ouia-component-id={`${isEdit ? 'edit' : 'create'}_content_template`}
               description='Prepare for your next patching cycle with a content template.'
+              descriptionId='edit-add-template-modal-wizard-description'
               onClose={onClose}
               closeButtonAriaLabel={`close_${isEdit ? 'edit' : 'create'}_content_template`}
             />

@@ -1,5 +1,15 @@
-import { Alert, Bullseye, Flex, Spinner, Content } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Alert,
+  Bullseye,
+  Content,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Spinner,
+} from '@patternfly/react-core';
 
 import { createUseStyles } from 'react-jss';
 import Hide from 'components/Hide/Hide';
@@ -59,44 +69,52 @@ export default function DeleteTemplateModal() {
 
   return (
     <Modal
-      titleIconVariant='warning'
       position='top'
       variant={ModalVariant.medium}
-      title='Delete template?'
       ouiaId='delete_template'
       isOpen
       onClose={onClose}
-      footer={<ActionButtons isAction={actionTakingPlace} onSave={onSave} onClose={onClose} />}
+      aria-labelledby='delete-template-modal-title'
     >
-      <Hide hide={!isLoading && !isTemplateLoading}>
-        <Bullseye>
-          <Spinner />
-        </Bullseye>
-      </Hide>
-      <Hide hide={systems.data.length <= 0}>
-        <Alert variant='warning' isInline title='This template is in use.'>
-          <Flex direction={{ default: 'column' }}>
-            <a
-              href={`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}/${SYSTEMS_ROUTE}`}
-              className={classes.link}
-            >
-              This template is assigned to {systems.data.length}{' '}
-              {systems.data.length === 1 ? 'system' : 'systems'}.
-            </a>
-            <span>
-              Deleting this template will cause all associated systems to stop receiving custom
-              content and snapshotted Red Hat content; they will still receive the latest Red Hat
-              content updates.
-            </span>
-          </Flex>
-        </Alert>
-      </Hide>
-      <Hide hide={isLoading || isTemplateLoading}>
-        <Content component='p' className={classes.description}>
-          Template <b>{templateData?.name}</b> and all its data will be deleted. This action cannot
-          be undone.
-        </Content>
-      </Hide>
+      <ModalHeader
+        title='Delete template?'
+        labelId='delete-template-modal-title'
+        titleIconVariant='warning'
+      />
+      <ModalBody>
+        <Hide hide={!isLoading && !isTemplateLoading}>
+          <Bullseye>
+            <Spinner />
+          </Bullseye>
+        </Hide>
+        <Hide hide={systems.data.length <= 0}>
+          <Alert variant='warning' isInline title='This template is in use.'>
+            <Flex direction={{ default: 'column' }}>
+              <a
+                href={`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}/${SYSTEMS_ROUTE}`}
+                className={classes.link}
+              >
+                This template is assigned to {systems.data.length}{' '}
+                {systems.data.length === 1 ? 'system' : 'systems'}.
+              </a>
+              <span>
+                Deleting this template will cause all associated systems to stop receiving custom
+                content and snapshotted Red Hat content; they will still receive the latest Red Hat
+                content updates.
+              </span>
+            </Flex>
+          </Alert>
+        </Hide>
+        <Hide hide={isLoading || isTemplateLoading}>
+          <Content component='p' className={classes.description}>
+            Template <b>{templateData?.name}</b> and all its data will be deleted. This action
+            cannot be undone.
+          </Content>
+        </Hide>
+      </ModalBody>
+      <ModalFooter>
+        <ActionButtons isAction={actionTakingPlace} onSave={onSave} onClose={onClose} />
+      </ModalFooter>
     </Modal>
   );
 }

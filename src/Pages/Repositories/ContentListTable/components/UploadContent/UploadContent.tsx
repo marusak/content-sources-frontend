@@ -1,5 +1,14 @@
-import { Button, Flex, Stack, StackItem } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 import { createUseStyles } from 'react-jss';
 import { useNavigate, useParams } from 'react-router-dom';
 import useRootPath from 'Hooks/useRootPath';
@@ -54,12 +63,22 @@ const UploadContent = () => {
         position='top'
         className={classes.modalSize}
         variant={ModalVariant.medium}
-        title='Upload content'
         ouiaId='upload_content_modal'
-        description='Use the form below to upload content to your repository.'
         isOpen={!!uuid}
         onClose={onCloseClick}
-        footer={
+        aria-labelledby='upload-content-modal-title'
+        aria-describedby='upload-content-modal-description'
+      >
+        <ModalHeader
+          title='Upload content'
+          labelId='upload-content-modal-title'
+          description='Use the form below to upload content to your repository.'
+          descriptorId='upload-content-modal-description'
+        />
+        <ModalBody>
+          <FileUploader {...{ isLoading, setFileUUIDs, setChildLoading }} />
+        </ModalBody>
+        <ModalFooter>
           <Stack>
             <StackItem>
               <Button
@@ -82,19 +101,26 @@ const UploadContent = () => {
               </Button>
             </StackItem>
           </Stack>
-        }
-      >
-        <FileUploader {...{ isLoading, setFileUUIDs, setChildLoading }} />
+        </ModalFooter>
       </Modal>
+
       <Modal
         isOpen={confirmModal}
         position='default'
         variant={ModalVariant.small}
-        title='You have unsaved uploaded items.'
         ouiaId='are_you_sure'
         onClose={() => setConfirmModal(false)}
-        description='Are you sure you want to quit without saving these changes?'
-        footer={
+        aria-labelledby='confirm-upload-content-modal-title'
+        aria-describedby='confirm-upload-content-modal-description'
+      >
+        <ModalHeader
+          title='You have unsaved uploaded items.'
+          labelId='confirm-upload-content-modal-title'
+          description='Are you sure you want to quit without saving these changes?'
+          descriptorId='confirm-upload-content-modal-description'
+        />
+        <ModalBody />
+        <ModalFooter>
           <Flex gap={{ default: 'gap' }}>
             <Button variant='secondary' onClick={onClose}>
               Close without saving
@@ -108,9 +134,7 @@ const UploadContent = () => {
               Go Back
             </Button>
           </Flex>
-        }
-      >
-        <></>
+        </ModalFooter>
       </Modal>
     </>
   );

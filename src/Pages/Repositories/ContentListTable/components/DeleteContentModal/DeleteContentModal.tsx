@@ -2,15 +2,19 @@ import {
   Alert,
   Bullseye,
   Button,
+  Content,
   ExpandableSection,
   ExpandableSectionToggle,
   List,
   ListItem,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
   Spinner,
-  Content,
   Stack,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { useEffect, useState } from 'react';
@@ -153,146 +157,159 @@ export default function DeleteContentModal() {
 
   return (
     <Modal
-      titleIconVariant='warning'
       position='top'
       variant={ModalVariant.large}
-      title='Delete repositories?'
       ouiaId='delete_custom_repositories'
-      description={
-        <Stack hasGutter>
-          <Hide hide={templates.data.length <= 0}>
-            <Alert variant='warning' isInline title='Some repositories have associated templates.'>
-              Deleting these repositories will delete that content from their associated templates.
-            </Alert>
-          </Hide>
-          <div className={spacing.pxLg}>
-            <Content component='p'>Are you sure you want to delete these repositories?</Content>
-          </div>
-        </Stack>
-      }
       isOpen
       onClose={onClose}
-      footer={<ActionButtons isAction={actionTakingPlace} onSave={onSave} onClose={onClose} />}
+      aria-labelledby='delete_custom_repositories'
     >
-      <Hide hide={!isLoading}>
-        <Bullseye>
-          <Spinner />
-        </Bullseye>
-      </Hide>
-      <Hide hide={isLoading}>
-        <Table variant='compact'>
-          <Thead>
-            <Tr>
-              {columnHeaders.map((columnHeader) => (
-                <Th key={columnHeader + 'column'}>{columnHeader}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {repos.data?.map((repo: ContentItem, index) => {
-              const templatesWithRepos = templates.data.filter((template: TemplateItem) =>
-                template.repository_uuids.includes(repo.uuid),
-              );
+      <ModalHeader
+        title='Delete repositories?'
+        labelId='delete-custom-repositories-modal-title'
+        titleIconVariant='warning'
+        description={
+          <Stack hasGutter>
+            <Hide hide={templates.data.length <= 0}>
+              <Alert
+                variant='warning'
+                isInline
+                title='Some repositories have associated templates.'
+              >
+                Deleting these repositories will delete that content from their associated
+                templates.
+              </Alert>
+            </Hide>
+            <div className={spacing.pxLg}>
+              <Content component='p'>Are you sure you want to delete these repositories?</Content>
+            </div>
+          </Stack>
+        }
+      />
+      <ModalBody>
+        <Hide hide={!isLoading}>
+          <Bullseye>
+            <Spinner />
+          </Bullseye>
+        </Hide>
+        <Hide hide={isLoading}>
+          <Table variant='compact'>
+            <Thead>
+              <Tr>
+                {columnHeaders.map((columnHeader) => (
+                  <Th key={columnHeader + 'column'}>{columnHeader}</Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {repos.data?.map((repo: ContentItem, index) => {
+                const templatesWithRepos = templates.data.filter((template: TemplateItem) =>
+                  template.repository_uuids.includes(repo.uuid),
+                );
 
-              return (
-                <Tr key={repo.uuid + index}>
-                  <Td>{repo.name}</Td>
-                  <Td>{repo.url}</Td>
-                  <Td className={classes.templateColumnMinWidth}>
-                    {templatesWithRepos.length > 0 ? (
-                      <List isPlain>
-                        {templatesWithRepos
-                          .slice(0, maxTemplatesToShow)
-                          .map((template: TemplateItem, index) => (
-                            <ListItem key={template.uuid + index}>
-                              <Button
-                                ouiaId='template_with_repo_button'
-                                className={classes.link}
-                                variant='link'
-                                component='a'
-                                href={
-                                  pathname +
-                                  '/' +
-                                  TEMPLATES_ROUTE +
-                                  `/${template.uuid}/edit?tab=custom_repositories`
-                                }
-                                target='_blank'
-                              >
-                                {template.name}
-                              </Button>
-                            </ListItem>
-                          ))}
-                        <Hide hide={templatesWithRepos.length <= maxTemplatesToShow}>
-                          <ExpandableSection
-                            isExpanded={expandState[index]}
-                            isDetached
-                            toggleId={
-                              expandState[index]
-                                ? 'detached-expandable-section-toggle-open'
-                                : 'detached-expandable-section-toggle'
-                            }
-                            contentId={
-                              expandState[index]
-                                ? 'detached-expandable-section-content-open'
-                                : 'detached-expandable-section-content'
-                            }
-                            className={classes.expandableSectionMargin}
-                          >
-                            {templatesWithRepos
-                              .slice(maxTemplatesToShow, templatesWithRepos.length)
-                              .map((template: TemplateItem, index) => (
-                                <ListItem key={template.uuid + index}>
-                                  <Button
-                                    ouiaId='template_with_repo_button'
-                                    className={classes.link}
-                                    variant='link'
-                                    component='a'
-                                    href={
-                                      pathname +
-                                      '/' +
-                                      TEMPLATES_ROUTE +
-                                      `/${template.uuid}/edit?tab=custom_repositories`
-                                    }
-                                    target='_blank'
-                                  >
-                                    {template.name}
-                                  </Button>
-                                </ListItem>
-                              ))}
-                          </ExpandableSection>
-                          <ExpandableSectionToggle
-                            isExpanded={expandState[index]}
-                            onToggle={() =>
-                              setExpandState((prev) => ({ ...prev, [index]: !prev[index] }))
-                            }
-                            toggleId={
-                              expandState[index]
-                                ? 'detached-expandable-section-toggle-open'
-                                : 'detached-expandable-section-toggle'
-                            }
-                            contentId={
-                              expandState[index]
-                                ? 'detached-expandable-section-content-open'
-                                : 'detached-expandable-section-content'
-                            }
-                            direction='up'
-                          >
-                            {expandState[index]
-                              ? 'Show less'
-                              : `and ${templatesWithRepos.length - maxTemplatesToShow} more`}
-                          </ExpandableSectionToggle>
-                        </Hide>
-                      </List>
-                    ) : (
-                      'None'
-                    )}
-                  </Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </Hide>
+                return (
+                  <Tr key={repo.uuid + index}>
+                    <Td>{repo.name}</Td>
+                    <Td>{repo.url}</Td>
+                    <Td className={classes.templateColumnMinWidth}>
+                      {templatesWithRepos.length > 0 ? (
+                        <List isPlain>
+                          {templatesWithRepos
+                            .slice(0, maxTemplatesToShow)
+                            .map((template: TemplateItem, index) => (
+                              <ListItem key={template.uuid + index}>
+                                <Button
+                                  ouiaId='template_with_repo_button'
+                                  className={classes.link}
+                                  variant='link'
+                                  component='a'
+                                  href={
+                                    pathname +
+                                    '/' +
+                                    TEMPLATES_ROUTE +
+                                    `/${template.uuid}/edit?tab=custom_repositories`
+                                  }
+                                  target='_blank'
+                                >
+                                  {template.name}
+                                </Button>
+                              </ListItem>
+                            ))}
+                          <Hide hide={templatesWithRepos.length <= maxTemplatesToShow}>
+                            <ExpandableSection
+                              isExpanded={expandState[index]}
+                              isDetached
+                              toggleId={
+                                expandState[index]
+                                  ? 'detached-expandable-section-toggle-open'
+                                  : 'detached-expandable-section-toggle'
+                              }
+                              contentId={
+                                expandState[index]
+                                  ? 'detached-expandable-section-content-open'
+                                  : 'detached-expandable-section-content'
+                              }
+                              className={classes.expandableSectionMargin}
+                            >
+                              {templatesWithRepos
+                                .slice(maxTemplatesToShow, templatesWithRepos.length)
+                                .map((template: TemplateItem, index) => (
+                                  <ListItem key={template.uuid + index}>
+                                    <Button
+                                      ouiaId='template_with_repo_button'
+                                      className={classes.link}
+                                      variant='link'
+                                      component='a'
+                                      href={
+                                        pathname +
+                                        '/' +
+                                        TEMPLATES_ROUTE +
+                                        `/${template.uuid}/edit?tab=custom_repositories`
+                                      }
+                                      target='_blank'
+                                    >
+                                      {template.name}
+                                    </Button>
+                                  </ListItem>
+                                ))}
+                            </ExpandableSection>
+                            <ExpandableSectionToggle
+                              isExpanded={expandState[index]}
+                              onToggle={() =>
+                                setExpandState((prev) => ({ ...prev, [index]: !prev[index] }))
+                              }
+                              toggleId={
+                                expandState[index]
+                                  ? 'detached-expandable-section-toggle-open'
+                                  : 'detached-expandable-section-toggle'
+                              }
+                              contentId={
+                                expandState[index]
+                                  ? 'detached-expandable-section-content-open'
+                                  : 'detached-expandable-section-content'
+                              }
+                              direction='up'
+                            >
+                              {expandState[index]
+                                ? 'Show less'
+                                : `and ${templatesWithRepos.length - maxTemplatesToShow} more`}
+                            </ExpandableSectionToggle>
+                          </Hide>
+                        </List>
+                      ) : (
+                        'None'
+                      )}
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </Hide>
+      </ModalBody>
+      <ModalFooter>
+        <ActionButtons isAction={actionTakingPlace} onSave={onSave} onClose={onClose} />
+      </ModalFooter>
     </Modal>
   );
 }

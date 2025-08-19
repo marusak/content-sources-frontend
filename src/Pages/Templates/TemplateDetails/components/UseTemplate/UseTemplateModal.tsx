@@ -1,5 +1,14 @@
-import { Button, Tab, Tabs, TabTitleText } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Tab,
+  Tabs,
+  TabTitleText,
+} from '@patternfly/react-core';
 import React from 'react';
 import InsightsTab, { INSIGHTS_TAB } from './InsightsTab';
 import CurlTab, { CURL_TAB } from './CurlTab';
@@ -33,43 +42,46 @@ const UseTemplateModal = () => {
       <Modal
         tabIndex={0}
         variant={ModalVariant.large}
-        title='Use template'
         isOpen={isModalOpen}
         onClose={handleModalToggle}
-        footer={
+        aria-labelledby='use-template-modal-title'
+      >
+        <ModalHeader title='Use template' labelId='use-template-modal-title' />
+        <ModalBody>
+          <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label='Use template tabs'>
+            <Tab
+              eventKey={INSIGHTS_TAB}
+              title={<TabTitleText>Insights (Preferred)</TabTitleText>}
+              tabContentId={INSIGHTS_TAB}
+              tabContentRef={contentRefInsights}
+              aria-label='insights-tab'
+            />
+            <Tab
+              eventKey={CURL_TAB}
+              title={<TabTitleText>Curl</TabTitleText>}
+              tabContentId={CURL_TAB}
+              tabContentRef={contentRefCurl}
+              aria-label='curl-tab'
+            />
+            <Tab
+              eventKey={ANSIBLE_TAB}
+              title={<TabTitleText>Ansible</TabTitleText>}
+              tabContentId={ANSIBLE_TAB}
+              tabContentRef={contentRefAnsible}
+              aria-label='ansible-tab'
+            />
+          </Tabs>
+          <div>
+            <InsightsTab tabContentRef={contentRefInsights} />
+            <CurlTab tabContentRef={contentRefCurl} />
+            <AnsibleTab tabContentRef={contentRefAnsible} />
+          </div>
+        </ModalBody>
+        <ModalFooter>
           <Button key='close' variant='secondary' onClick={handleModalToggle}>
             Close
           </Button>
-        }
-      >
-        <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label='Use template tabs'>
-          <Tab
-            eventKey={INSIGHTS_TAB}
-            title={<TabTitleText>Insights (Preferred)</TabTitleText>}
-            tabContentId={INSIGHTS_TAB}
-            tabContentRef={contentRefInsights}
-            aria-label='insights-tab'
-          />
-          <Tab
-            eventKey={CURL_TAB}
-            title={<TabTitleText>Curl</TabTitleText>}
-            tabContentId={CURL_TAB}
-            tabContentRef={contentRefCurl}
-            aria-label='curl-tab'
-          />
-          <Tab
-            eventKey={ANSIBLE_TAB}
-            title={<TabTitleText>Ansible</TabTitleText>}
-            tabContentId={ANSIBLE_TAB}
-            tabContentRef={contentRefAnsible}
-            aria-label='ansible-tab'
-          />
-        </Tabs>
-        <div>
-          <InsightsTab tabContentRef={contentRefInsights} />
-          <CurlTab tabContentRef={contentRefCurl} />
-          <AnsibleTab tabContentRef={contentRefAnsible} />
-        </div>
+        </ModalFooter>
       </Modal>
     </div>
   );

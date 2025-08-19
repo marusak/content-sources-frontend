@@ -1,5 +1,15 @@
-import { Bullseye, Spinner, Tab, TabContent, TabTitleText, Tabs } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Bullseye,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalVariant,
+  Spinner,
+  Tab,
+  TabContent,
+  Tabs,
+  TabTitleText,
+} from '@patternfly/react-core';
 import { createUseStyles } from 'react-jss';
 import { createRef, useEffect, useMemo, useState } from 'react';
 import { AdminTask } from 'services/Admin/AdminTaskApi';
@@ -102,7 +112,8 @@ const ViewPayloadModal = () => {
       aria-label='Task details'
       isOpen
       onClose={onClose}
-      header={
+    >
+      <ModalHeader>
         <Hide hide={isLoading}>
           <Tabs
             activeKey={activeTabKey}
@@ -132,32 +143,33 @@ const ViewPayloadModal = () => {
             ]}
           </Tabs>
         </Hide>
-      }
-    >
-      <Hide hide={!showLoading}>
-        <Bullseye>
-          <Spinner />
-        </Bullseye>
-      </Hide>
-      <Hide hide={showLoading}>
-        <TabContent aria-label='Task details' eventKey={0} id='task-details' ref={detailRef}>
-          {/* Hide "isLoading" checks if adminTask is not null */}
-          <AdminTaskInfo adminTask={adminTask as AdminTask} />
-        </TabContent>
-        {tabs.map(({ title, data, contentRef }, index) => (
-          <TabContent
-            key={index}
-            eventKey={title}
-            aria-label={title}
-            id={title}
-            className={classes.jsonView}
-            ref={contentRef}
-            hidden
-          >
-            <ReactJson src={data} enableClipboard theme='atom' />
+      </ModalHeader>
+      <ModalBody>
+        <Hide hide={!showLoading}>
+          <Bullseye>
+            <Spinner />
+          </Bullseye>
+        </Hide>
+        <Hide hide={showLoading}>
+          <TabContent aria-label='Task details' eventKey={0} id='task-details' ref={detailRef}>
+            {/* Hide "isLoading" checks if adminTask is not null */}
+            <AdminTaskInfo adminTask={adminTask as AdminTask} />
           </TabContent>
-        ))}
-      </Hide>
+          {tabs.map(({ title, data, contentRef }, index) => (
+            <TabContent
+              key={index}
+              eventKey={title}
+              aria-label={title}
+              id={title}
+              className={classes.jsonView}
+              ref={contentRef}
+              hidden
+            >
+              <ReactJson src={data} enableClipboard theme='atom' />
+            </TabContent>
+          ))}
+        </Hide>
+      </ModalBody>
     </Modal>
   );
 };

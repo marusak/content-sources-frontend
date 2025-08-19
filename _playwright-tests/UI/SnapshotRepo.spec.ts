@@ -1,4 +1,4 @@
-import { test, expect } from 'test-utils';
+import { expect, test } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 import { navigateToRepositories, navigateToTemplates } from './helpers/navHelpers';
 import {
@@ -71,9 +71,9 @@ test.describe('Snapshot Repositories', () => {
       await edited_row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
       // Verify that snapshot is in snapshots list
-      await expect(page.getByLabel('SnapshotsView list of').locator('tbody')).toBeVisible();
+      await expect(page.getByRole('dialog', { name: 'Snapshots' }).locator('tbody')).toBeVisible();
       const snapshotTimestamp = await page
-        .getByLabel('SnapshotsView list of')
+        .getByRole('dialog', { name: 'Snapshots' })
         .locator('tbody')
         .textContent();
       if (snapshotTimestamp != null) {
@@ -194,7 +194,7 @@ test.describe('Snapshot Repositories', () => {
       const row = await getRowByNameOrUrl(page, repoName);
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
-      await expect(page.getByLabel('SnapshotsView list of').locator('tbody')).toBeVisible();
+      await expect(page.getByRole('dialog', { name: 'Snapshots' }).locator('tbody')).toBeVisible();
       await page
         .getByTestId('snapshot_list_table')
         .locator('tbody tr')
@@ -217,7 +217,7 @@ test.describe('Snapshot Repositories', () => {
       const row = await getRowByNameOrUrl(page, repoName);
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
-      await expect(page.getByLabel('SnapshotsView list of').locator('tbody')).toBeVisible();
+      await expect(page.getByRole('dialog', { name: 'Snapshots' }).locator('tbody')).toBeVisible();
       await page.getByRole('row', { name: 'select-snapshot-checkbox' }).locator('label').click();
       // Verify that you can't delete all snapshots
       // Bulk delete button is disabled

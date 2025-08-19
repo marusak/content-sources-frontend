@@ -7,6 +7,10 @@ import {
   Grid,
   InputGroup,
   InputGroupItem,
+  Modal,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
   Pagination,
   PaginationVariant,
   Spinner,
@@ -14,7 +18,6 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { InnerScrollContainer } from '@patternfly/react-table';
 import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
@@ -35,9 +38,9 @@ import { FETCH_TEMPLATE_KEY, useFetchTemplate } from 'services/Templates/Templat
 import Loader from 'components/Loader';
 import {
   DETAILS_ROUTE,
+  PATCH_SYSTEMS_ROUTE,
   SYSTEMS_ROUTE,
   TEMPLATES_ROUTE,
-  PATCH_SYSTEMS_ROUTE,
 } from 'Routes/constants';
 import ModalSystemsTable from './ModalSystemsTable';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
@@ -238,60 +241,35 @@ export default function AddSystemModal() {
     <Modal
       key={uuid}
       position='top'
-      hasNoBodyWrapper
-      aria-label='system modal'
+      aria-labelledby='system-modal-title'
       ouiaId='system_modal'
       ouiaSafe={!fetchingOrLoading}
       variant={ModalVariant.medium}
-      title='Assign template to systems'
-      description={
-        <>
-          Choose the systems to apply <b>{name}</b> template to now. Be aware that assigning a
-          template to a system with an existing template will overwrite the previous one. The
-          available systems are filtered by the template&apos;s content definition.
-          <Button
-            id='refreshSystemsList'
-            ouiaId='refresh_systems_list'
-            variant='link'
-            className={classes.refreshSystemsList}
-            icon={isFetching ? <Spinner isInline /> : <SyncAltIcon />}
-            isDisabled={isLoading || isFetching}
-            onClick={() => queryClient.invalidateQueries(GET_SYSTEMS_KEY)}
-          >
-            Refresh systems list
-          </Button>
-        </>
-      }
       isOpen
       onClose={onClose}
-      footer={
-        <Flex gap={{ default: 'gapMd' }}>
-          <ConditionalTooltip
-            content='Cannot assign this template to a system yet.'
-            show={!template?.rhsm_environment_created}
-            setDisabled
-          >
-            <Button
-              isLoading={isAdding}
-              isDisabled={
-                isAdding ||
-                !selected.length ||
-                (!template?.rhsm_environment_created &&
-                  template?.last_update_task?.status !== 'completed')
-              }
-              key='add_system'
-              variant='primary'
-              onClick={() => addSystems().then(onClose)}
-            >
-              Assign
-            </Button>
-          </ConditionalTooltip>
-          <Button key='close' variant='secondary' onClick={onClose}>
-            Close
-          </Button>
-        </Flex>
-      }
     >
+      <ModalHeader
+        title='Assign template to systems'
+        labelId='system-modal-title'
+        description={
+          <>
+            Choose the systems to apply <b>{name}</b> template to now. Be aware that assigning a
+            template to a system with an existing template will overwrite the previous one. The
+            available systems are filtered by the template&apos;s content definition.
+            <Button
+              id='refreshSystemsList'
+              ouiaId='refresh_systems_list'
+              variant='link'
+              className={classes.refreshSystemsList}
+              icon={isFetching ? <Spinner isInline /> : <SyncAltIcon />}
+              isDisabled={isLoading || isFetching}
+              onClick={() => queryClient.invalidateQueries(GET_SYSTEMS_KEY)}
+            >
+              Refresh systems list
+            </Button>
+          </>
+        }
+      />
       <InnerScrollContainer>
         <Grid className={classes.mainContainer}>
           <InputGroup className={classes.topContainer}>
@@ -400,6 +378,33 @@ export default function AddSystemModal() {
           </Flex>
         </Grid>
       </InnerScrollContainer>
+      <ModalFooter>
+        <Flex gap={{ default: 'gapMd' }}>
+          <ConditionalTooltip
+            content='Cannot assign this template to a system yet.'
+            show={!template?.rhsm_environment_created}
+            setDisabled
+          >
+            <Button
+              isLoading={isAdding}
+              isDisabled={
+                isAdding ||
+                !selected.length ||
+                (!template?.rhsm_environment_created &&
+                  template?.last_update_task?.status !== 'completed')
+              }
+              key='add_system'
+              variant='primary'
+              onClick={() => addSystems().then(onClose)}
+            >
+              Assign
+            </Button>
+          </ConditionalTooltip>
+          <Button key='close' variant='secondary' onClick={onClose}>
+            Close
+          </Button>
+        </Flex>
+      </ModalFooter>
     </Modal>
   );
 }

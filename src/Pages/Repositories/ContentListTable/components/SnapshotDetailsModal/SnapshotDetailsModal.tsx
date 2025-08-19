@@ -1,5 +1,15 @@
-import { Button, Stack, StackItem, Tab, TabTitleText, Tabs } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Modal,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Stack,
+  StackItem,
+  Tab,
+  Tabs,
+  TabTitleText,
+} from '@patternfly/react-core';
 import { InnerScrollContainer } from '@patternfly/react-table';
 import { ContentOrigin } from 'services/Content/ContentApi';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -66,19 +76,13 @@ export default function SnapshotDetailsModal() {
     <Modal
       key={snapshotUUID}
       position='top'
-      hasNoBodyWrapper
-      aria-label='snapshot details modal'
       ouiaId='snapshot_details_modal'
       variant={ModalVariant.large}
-      title='Snapshot detail'
       isOpen
       onClose={onClose}
-      footer={
-        <Button key='close' variant='secondary' onClick={onClose}>
-          Close
-        </Button>
-      }
+      aria-labelledby='snapshot-details-modal-title'
     >
+      <ModalHeader title='Snapshot detail' labelId='snapshot-details-modal-title' />
       <InnerScrollContainer>
         <Stack className={classes.modalBody}>
           <StackItem className={classes.topContainer}>
@@ -113,6 +117,11 @@ export default function SnapshotDetailsModal() {
           </StackItem>
         </Stack>
       </InnerScrollContainer>
+      <ModalFooter>
+        <Button key='close' variant='secondary' onClick={onClose}>
+          Close
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 }

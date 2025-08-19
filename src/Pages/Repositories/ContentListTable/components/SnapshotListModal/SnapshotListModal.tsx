@@ -3,15 +3,18 @@ import {
   Flex,
   FlexItem,
   Grid,
+  Modal,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
   Pagination,
   PaginationVariant,
 } from '@patternfly/react-core';
-import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import {
   ActionsColumn,
   IAction,
   InnerScrollContainer,
-  Table /* data-codemods */,
+  Table,
   TableVariant,
   Tbody,
   Td,
@@ -31,7 +34,7 @@ import useRootPath from 'Hooks/useRootPath';
 import ChangedArrows from './components/ChangedArrows';
 import { useAppContext } from 'middleware/AppContext';
 import RepoConfig from './components/RepoConfig';
-import { REPOSITORIES_ROUTE, DELETE_ROUTE } from 'Routes/constants';
+import { DELETE_ROUTE, REPOSITORIES_ROUTE } from 'Routes/constants';
 import { SnapshotDetailTab } from '../SnapshotDetailsModal/SnapshotDetailsModal';
 import { formatDateDDMMMYYYY } from 'helpers';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
@@ -215,20 +218,19 @@ const SnapshotListModal = () => {
       <Modal
         key={uuid}
         position='top'
-        hasNoBodyWrapper
-        aria-label='Snapshot list modal'
+        aria-labelledby='snapshot-list-modal-title'
+        aria-describedby='snapshot-list-modal-description'
         ouiaId='snapshot_list_modal'
         variant={ModalVariant.medium}
-        title='Snapshots'
-        description={`View list of snapshots for ${contentData?.name ? contentData.name : 'a repository'}.`}
         isOpen
         onClose={onClose}
-        footer={
-          <Button key='close' variant='secondary' onClick={onClose}>
-            Close
-          </Button>
-        }
       >
+        <ModalHeader
+          title='Snapshots'
+          labelId='snapshot-list-modal-title'
+          description={`View list of snapshots for ${contentData?.name ? contentData.name : 'a repository'}.`}
+          descriptorId='snapshot-list-modal-description'
+        />
         <InnerScrollContainer>
           <Grid className={classes.mainContainer}>
             <Hide hide={loadingOrZeroCount}>
@@ -421,6 +423,11 @@ const SnapshotListModal = () => {
             </Flex>
           </Grid>
         </InnerScrollContainer>
+        <ModalFooter>
+          <Button key='close' variant='secondary' onClick={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );
