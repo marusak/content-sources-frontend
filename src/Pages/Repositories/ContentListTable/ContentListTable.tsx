@@ -68,9 +68,6 @@ const useStyles = createUseStyles({
   bottomContainer: {
     justifyContent: 'space-between',
   },
-  invisible: {
-    opacity: 0,
-  },
   checkboxMinWidth: {
     minWidth: '45px!important',
   },
@@ -111,7 +108,6 @@ const ContentListTable = () => {
   const {
     archesDisplay,
     versionDisplay,
-    isLoading: repositoryParamsLoading,
     isError: repositoryParamsIsError,
     error: repositoryParamsError,
   } = useArchVersion();
@@ -177,6 +173,8 @@ const ContentListTable = () => {
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
   } = useContentListQuery(page, perPage, filterData, sortString, contentOrigin, true, polling);
 
+  const actionTakingPlace = isFetching;
+
   useEffect(() => {
     if (isError) {
       setPolling(false);
@@ -200,15 +198,14 @@ const ContentListTable = () => {
     return setPolling(containsPending);
   }, [data?.data]);
 
-  const { mutateAsync: introspectRepository, isLoading: isIntrospecting } =
-    useIntrospectRepositoryMutate(
-      queryClient,
-      page,
-      perPage,
-      contentOrigin,
-      filterData,
-      sortString,
-    );
+  const { mutateAsync: introspectRepository } = useIntrospectRepositoryMutate(
+    queryClient,
+    page,
+    perPage,
+    contentOrigin,
+    filterData,
+    sortString,
+  );
 
   const introspectRepoForUuid = (uuid: string): Promise<void> =>
     introspectRepository({ uuid: uuid, reset_count: true } as IntrospectRepositoryRequestItem);
@@ -219,7 +216,7 @@ const ContentListTable = () => {
     triggerSnapshotMutation(uuid);
   };
 
-  const { isLoading: isDeletingItems } = useBulkDeleteContentItemMutate(
+  useBulkDeleteContentItemMutate(
     queryClient,
     checkedRepositories,
     page,
@@ -234,10 +231,6 @@ const ContentListTable = () => {
     await introspectRepoForUuid(repoUuid);
     await triggerSnapshot(repoUuid);
   };
-
-  // Other update actions will be added to this later.
-  const actionTakingPlace =
-    isFetching || repositoryParamsLoading || isIntrospecting || isDeletingItems;
 
   const onSetPage = (_, newPage) => setPage(newPage);
 
@@ -582,7 +575,7 @@ const ContentListTable = () => {
                         ),
                       )}
                       <Th aria-label='loading-spinner'>
-                        <Spinner size='md' className={actionTakingPlace ? '' : classes.invisible} />
+                        {actionTakingPlace && <Spinner size='md' />}
                       </Th>
                     </Tr>
                   </Thead>
