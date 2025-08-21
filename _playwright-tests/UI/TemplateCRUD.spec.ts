@@ -71,7 +71,7 @@ test.describe('Templates CRUD', () => {
       ).toBeVisible();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(
-        page.getByRole('heading', { name: 'Custom repositories', exact: true }),
+        page.getByRole('heading', { name: 'Other repositories', exact: true }),
       ).toBeVisible();
       await expect(page.getByText(`${repoName}`)).toBeVisible();
       await page.getByRole('button', { name: 'Next', exact: true }).click();

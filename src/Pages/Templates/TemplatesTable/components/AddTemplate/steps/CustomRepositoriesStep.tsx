@@ -34,7 +34,8 @@ import { ADD_ROUTE, REPOSITORIES_ROUTE } from 'Routes/constants';
 import TdWithTooltip from 'components/TdWithTooltip/TdWithTooltip';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import { reduceStringToCharsWithEllipsis } from 'helpers';
-import UploadRepositoryLabel from 'components/UploadRepositoryLabel/UploadRepositoryLabel';
+import UploadRepositoryLabel from 'components/RepositoryLabels/UploadRepositoryLabel';
+import CommunityRepositoryLabel from 'components/RepositoryLabels/CommunityRepositoryLabel';
 
 const useStyles = createUseStyles({
   topBottomContainers: {
@@ -121,7 +122,7 @@ export default function CustomRepositoriesStep() {
       uuids: toggled ? [...selectedCustomRepos] : undefined,
     },
     sortString(),
-    [ContentOrigin.CUSTOM],
+    [ContentOrigin.CUSTOM, ContentOrigin.COMMUNITY],
   );
 
   const {
@@ -130,6 +131,18 @@ export default function CustomRepositoriesStep() {
   } = data;
   const countIsZero = count === 0;
   const showLoader = countIsZero && !isLoading;
+
+  const isEPELRepository = (repo: ContentItem): boolean => {
+    if (repo.origin === ContentOrigin.COMMUNITY) {
+      return true;
+    }
+
+    return repo.url?.includes('epel');
+  };
+
+  const isAnyEPELRepoSelected = (): boolean =>
+    contentList.some((repo) => selectedCustomRepos.has(repo.uuid) && isEPELRepository(repo));
+
   return (
     <Grid data-ouia-component-id='custom_repositories_step' hasGutter>
       <Flex
@@ -137,7 +150,7 @@ export default function CustomRepositoriesStep() {
         justifyContent={{ default: 'justifyContentSpaceBetween' }}
       >
         <Title ouiaId='custom_repositories' headingLevel='h1'>
-          Custom repositories
+          Other repositories
         </Title>
         <Button
           id='refreshContentList'
@@ -153,7 +166,7 @@ export default function CustomRepositoriesStep() {
       </Flex>
       <Flex direction={{ default: 'row' }}>
         <Content component={ContentVariants.p} className={classes.reduceTrailingMargin}>
-          Select custom repositories.
+          Select custom or EPEL repositories.
         </Content>
         <UrlWithExternalIcon
           href={pathname + '/' + REPOSITORIES_ROUTE}
@@ -275,6 +288,11 @@ export default function CustomRepositoriesStep() {
               <Tbody>
                 {contentList.map((rowData: ContentItem, rowIndex) => {
                   const { uuid, name, url, origin } = rowData;
+                  const shouldDisableOtherEPEL =
+                    isEPELRepository(rowData) &&
+                    isAnyEPELRepoSelected() &&
+                    !selectedCustomRepos.has(uuid);
+
                   return (
                     <Tr key={uuid}>
                       <TdWithTooltip
@@ -286,7 +304,9 @@ export default function CustomRepositoriesStep() {
                           rowIndex,
                           onSelect: () => setUUIDForList(uuid),
                           isSelected: selectedCustomRepos.has(uuid),
-                          isDisabled: !(rowData.snapshot && rowData.last_snapshot_uuid),
+                          isDisabled:
+                            !(rowData.snapshot && rowData.last_snapshot_uuid) ||
+                            shouldDisableOtherEPEL,
                         }}
                       />
                       <Td>
@@ -295,6 +315,9 @@ export default function CustomRepositoriesStep() {
                             {reduceStringToCharsWithEllipsis(name, 60)}
                             <Hide hide={origin !== ContentOrigin.UPLOAD}>
                               <UploadRepositoryLabel />
+                            </Hide>
+                            <Hide hide={origin !== ContentOrigin.COMMUNITY}>
+                              <CommunityRepositoryLabel />
                             </Hide>
                           </>
                         </ConditionalTooltip>

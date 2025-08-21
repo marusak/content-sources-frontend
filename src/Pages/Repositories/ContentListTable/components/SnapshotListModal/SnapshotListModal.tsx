@@ -184,14 +184,15 @@ const SnapshotListModal = () => {
 
   const loadingOrZeroCount = fetchingOrLoading || !count;
 
-  const isRedHatRepository =
-    contentOrigin.length === 1 && contentOrigin[0] === ContentOrigin.REDHAT;
+  const isRedHatRepository = contentData?.origin == ContentOrigin.REDHAT;
+
+  const isEPELRepository = contentData?.origin == ContentOrigin.COMMUNITY;
 
   const latestSnapshotUUID = snapshotsList[0]?.uuid;
 
   const rowActions = useCallback(
     (snap_uuid: string): IAction[] =>
-      isRedHatRepository
+      isRedHatRepository || isEPELRepository
         ? []
         : [
             {
@@ -200,7 +201,7 @@ const SnapshotListModal = () => {
               onClick: () => navigate(`${DELETE_ROUTE}?snapshotUUID=${snap_uuid}`),
             },
           ],
-    [isRedHatRepository, data, count],
+    [isRedHatRepository, isEPELRepository, data, count],
   );
 
   return (
@@ -235,7 +236,7 @@ const SnapshotListModal = () => {
           <Grid className={classes.mainContainer}>
             <Hide hide={loadingOrZeroCount}>
               <Flex className={classes.topContainer}>
-                <Hide hide={isRedHatRepository}>
+                <Hide hide={isRedHatRepository || isEPELRepository}>
                   <FlexItem>
                     <ConditionalTooltip
                       content='You do not have the required permissions to perform this action.'
@@ -299,7 +300,11 @@ const SnapshotListModal = () => {
                 <Hide hide={loadingOrZeroCount}>
                   <Thead>
                     <Tr>
-                      <Hide hide={!rbac?.repoWrite || isRedHatRepository || count < 2}>
+                      <Hide
+                        hide={
+                          !rbac?.repoWrite || isRedHatRepository || isEPELRepository || count < 2
+                        }
+                      >
                         <Th
                           aria-label='select-snapshot-checkbox'
                           className={classes.checkboxMinWidth}
@@ -333,7 +338,11 @@ const SnapshotListModal = () => {
                       index: number,
                     ) => (
                       <Tr key={created_at + index} data-uuid={snap_uuid}>
-                        <Hide hide={!rbac?.repoWrite || isRedHatRepository || count < 2}>
+                        <Hide
+                          hide={
+                            !rbac?.repoWrite || isRedHatRepository || isEPELRepository || count < 2
+                          }
+                        >
                           <Td
                             select={{
                               rowIndex: index,
@@ -391,7 +400,11 @@ const SnapshotListModal = () => {
                                   ? `You can't delete the last snapshot in a repository`
                                   : 'You do not have the required permissions to perform this action.'
                               }
-                              show={!isRedHatRepository && (!rbac?.repoWrite || count < 2)}
+                              show={
+                                !isRedHatRepository &&
+                                !isEPELRepository &&
+                                (!rbac?.repoWrite || count < 2)
+                              }
                               setDisabled
                             >
                               <ActionsColumn items={rowActions(snap_uuid)} />

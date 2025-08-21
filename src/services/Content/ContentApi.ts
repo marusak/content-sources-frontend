@@ -306,7 +306,7 @@ export enum ContentOrigin {
   'UPLOAD' = 'upload',
   'COMMUNITY' = 'community',
   'CUSTOM' = 'external,upload',
-  'ALL' = 'red_hat,external,upload',
+  'ALL' = 'red_hat,external,upload,community',
 }
 
 export const getContentList: (

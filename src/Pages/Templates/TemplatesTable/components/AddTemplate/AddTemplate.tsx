@@ -143,7 +143,7 @@ const AddTemplateBase = () => {
               </WizardStep>,
               <WizardStep
                 isDisabled={checkIfCurrentStepValid(2)}
-                name='Custom repositories'
+                name='Other repositories'
                 id='custom_repositories'
                 key='custom_repositories_key'
                 footer={{ ...sharedFooterProps, isNextDisabled: checkIfCurrentStepValid(3) }}

@@ -101,6 +101,12 @@ const ContentListFilters = ({
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const isRedHatRepository =
     contentOrigin.length === 1 && contentOrigin[0] === ContentOrigin.REDHAT;
+  const isCommunityRepository =
+    contentOrigin.length === 1 && contentOrigin[0] === ContentOrigin.COMMUNITY;
+  const isRedHatOrCommunity =
+    contentOrigin.length === 2 &&
+    contentOrigin.includes(ContentOrigin.COMMUNITY) &&
+    contentOrigin.includes(ContentOrigin.REDHAT);
 
   const { distribution_arches = [], distribution_versions = [] } =
     queryClient.getQueryData<RepositoryParamsResponse>(REPOSITORY_PARAMS_KEY) || {};
@@ -471,7 +477,9 @@ const ContentListFilters = ({
               id='createContentSourceButton'
               ouiaId='create_content_source'
               variant='primary'
-              isDisabled={isLoading || isRedHatRepository}
+              isDisabled={
+                isLoading || isRedHatRepository || isCommunityRepository || isRedHatOrCommunity
+              }
               onClick={() => navigate(ADD_ROUTE)}
             >
               Add repositories
