@@ -10,6 +10,7 @@ import {
   logInWithLayeredRepoUser,
   logInWithRHELOnlyUser,
   logInWithNoSubsUser,
+  logInWithStableSamStageUser,
 } from './helpers/loginHelpers';
 
 import { existsSync, mkdirSync } from 'fs';
@@ -127,6 +128,30 @@ setup.describe('Setup Authentication States', async () => {
     process.env.NO_SUBS_TOKEN = `Bearer ${noSubsToken}`;
 
     await storeStorageStateAndToken(page, 'no_subs_user.json');
+    await logout(page);
+  });
+
+  setup('Authenticate stable_sam_stage user and save state', async ({ page }) => {
+    setup.skip(
+      !process.env.INTEGRATION ||
+        !process.env.STABLE_SAM_STAGE_USERNAME ||
+        !process.env.STABLE_SAM_STAGE_PASSWORD,
+      'Skipping as INTEGRATION is not set or stable_sam_stage credentials are not configured.',
+    );
+    setup.setTimeout(60_000);
+
+    // Login stable_sam_stage user
+    await logInWithStableSamStageUser(page);
+
+    // Save state for stable_sam_stage user
+    const { cookies } = await page
+      .context()
+      .storageState({ path: path.join(__dirname, '../../.auth', 'stable_sam_stage.json') });
+    const stableSamStageToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+
+    process.env.STABLE_SAM_STAGE_TOKEN = `Bearer ${stableSamStageToken}`;
+
+    await storeStorageStateAndToken(page, 'stable_sam_stage.json');
     await logout(page);
   });
 

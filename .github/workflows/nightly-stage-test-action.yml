@@ -74,6 +74,8 @@ jobs:
           echo "LAYERED_REPO_ACCESS_ORG_ID=$LAYERED_REPO_ACCESS_ORG_ID" >> .env
           echo "LAYERED_REPO_ACCESS_ACTIVATION_KEY=$LAYERED_REPO_ACCESS_ACTIVATION_KEY" >> .env
           echo "DOCKER_SOCKET=/var/run/docker.sock" >> .env
+          echo "STABLE_SAM_STAGE_USERNAME=$STABLE_SAM_STAGE_USERNAME" >> .env
+          echo "STABLE_SAM_STAGE_PASSWORD=$STABLE_SAM_STAGE_PASSWORD" >> .env
 
       - name: Set up Node.js
         uses: actions/setup-node@v2

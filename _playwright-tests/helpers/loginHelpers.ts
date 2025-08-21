@@ -102,6 +102,13 @@ export const logInWithNoSubsUser = async (page: Page) =>
     process.env.NO_SUBS_USER_PASSWORD,
   );
 
+export const logInWithStableSamStageUser = async (page: Page) =>
+  await logInWithUsernameAndPassword(
+    page,
+    process.env.STABLE_SAM_STAGE_USERNAME,
+    process.env.STABLE_SAM_STAGE_PASSWORD,
+  );
+
 export const getUserAuthToken = (name: string) => {
   const userPath = path.join(__dirname, `../../.auth/${name}.json`);
   const fileContent = readFileSync(userPath, { encoding: 'utf8' });
@@ -142,6 +149,9 @@ export const throwIfMissingEnvVariables = () => {
           'RHEL_ONLY_ACCESS_PASSWORD',
           'LAYERED_REPO_ACCESS_ORG_ID',
           'LAYERED_REPO_ACCESS_ACTIVATION_KEY',
+          ...(process.env.STABLE_SAM_STAGE_USERNAME && process.env.STABLE_SAM_STAGE_PASSWORD
+            ? ['STABLE_SAM_STAGE_USERNAME', 'STABLE_SAM_STAGE_PASSWORD']
+            : []),
         ]
       : []),
   ];
