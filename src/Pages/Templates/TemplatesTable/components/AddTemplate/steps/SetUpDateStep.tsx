@@ -1,16 +1,17 @@
 import {
   Alert,
+  Content,
+  ContentVariants,
   DatePicker,
   ExpandableSection,
+  Flex,
+  FlexItem,
   Form,
   FormAlert,
   FormGroup,
   Grid,
   Radio,
-  Content,
-  ContentVariants,
   Title,
-  Flex,
 } from '@patternfly/react-core';
 import { useAddTemplateContext } from '../AddTemplateContext';
 import { useContentListQuery, useGetSnapshotsByDates } from 'services/Content/ContentQueries';
@@ -19,6 +20,7 @@ import Hide from 'components/Hide/Hide';
 import { ContentOrigin } from 'services/Content/ContentApi';
 import { formatDateForPicker, formatTemplateDate, isDateValid } from 'helpers';
 import { createUseStyles } from 'react-jss';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 const useStyles = createUseStyles({
   snapshotInfoText: {
@@ -102,20 +104,22 @@ export default function SetUpDateStep() {
       <Form>
         <FormGroup>
           <Flex direction={{ default: 'column' }} gap={{ default: 'gapLg' }}>
-            <Radio
-              id='use latest snapshot radio'
-              ouiaId='use-latest-snapshot-radio'
-              name='use-latest-snapshot'
-              label='Use the latest content'
-              description='Always use the latest content from repositories. Snapshots might be updated daily.'
-              isChecked={templateRequest.use_latest}
-              onChange={() => {
-                if (!templateRequest.use_latest) {
-                  setTemplateRequest((prev) => ({ ...prev, use_latest: true, date: '' }));
-                }
-              }}
-            />
-            <Flex direction={{ default: 'column' }} gap={{ default: 'gapSm' }}>
+            <FlexItem>
+              <Radio
+                id='use latest snapshot radio'
+                ouiaId='use-latest-snapshot-radio'
+                name='use-latest-snapshot'
+                label='Use the latest content'
+                description='Always use the latest content from repositories. Snapshots might be updated daily.'
+                isChecked={templateRequest.use_latest}
+                onChange={() => {
+                  if (!templateRequest.use_latest) {
+                    setTemplateRequest((prev) => ({ ...prev, use_latest: true, date: '' }));
+                  }
+                }}
+              />
+            </FlexItem>
+            <FlexItem>
               <Radio
                 id='use snapshot date radio'
                 ouiaId='use-snapshot-date-radio'
@@ -128,6 +132,7 @@ export default function SetUpDateStep() {
                     setTemplateRequest((prev) => ({ ...prev, use_latest: false, date: '' }));
                   }
                 }}
+                className={spacing.mbSm}
               />
               <Hide hide={templateRequest.use_latest ?? false}>
                 <DatePicker
@@ -147,7 +152,7 @@ export default function SetUpDateStep() {
                   }}
                 />
               </Hide>
-            </Flex>
+            </FlexItem>
           </Flex>
         </FormGroup>
       </Form>
