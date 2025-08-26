@@ -1,24 +1,24 @@
 import {
+  Alert,
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  FileUpload,
+  Flex,
+  Form,
+  FormAlert,
+  FormGroup,
   Label,
   LabelGroup,
-  Button,
-  Switch,
-  FileUpload,
-  Form,
-  FormGroup,
-  Popover,
-  Radio,
-  TextInput,
-  Flex,
-  FormAlert,
-  Alert,
-  Dropdown,
   MenuToggle,
   MenuToggleAction,
-  DropdownList,
-  DropdownItem,
+  Popover,
+  Radio,
   Stack,
   StackItem,
+  Switch,
+  TextInput,
 } from '@patternfly/react-core';
 import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
@@ -26,15 +26,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import Hide from 'components/Hide/Hide';
 import {
-  isValidURL,
-  mapFormikToAPIValues,
-  validationSchema,
-  maxUploadSize,
   failedFileUpload,
-  getDefaultValues,
-  mapValidationData,
-  mapContentItemToDefaultFormikValues,
   type FileRejection,
+  getDefaultValues,
+  isValidURL,
+  mapContentItemToDefaultFormikValues,
+  mapFormikToAPIValues,
+  mapValidationData,
+  maxUploadSize,
+  validationSchema,
 } from './helpers';
 import useNotification from 'Hooks/useNotification';
 import {
@@ -56,7 +56,7 @@ import { useContentListOutletContext } from '../../ContentListTable';
 import useRootPath from 'Hooks/useRootPath';
 import CustomHelperText from 'components/CustomHelperText/CustomHelperText';
 import { ADD_ROUTE, REPOSITORIES_ROUTE, UPLOAD_ROUTE } from 'Routes/constants';
-import { useFormik, type FormikValues } from 'formik';
+import { type FormikValues, useFormik } from 'formik';
 import Loader from 'components/Loader';
 
 const useStyles = createUseStyles({
@@ -595,7 +595,7 @@ const AddContent = ({ isEdit = false }: Props) => {
               )}
               onOpenChange={(isOpen) => setArchOpen(isOpen)}
               isOpen={archOpen}
-              popperProps={archOpen ? { appendTo: 'inline' } : undefined}
+              popperProps={{ appendTo: 'inline' }}
             >
               <DropdownList>
                 {Object.keys(distributionArches).map((option) => (
@@ -678,7 +678,7 @@ const AddContent = ({ isEdit = false }: Props) => {
               )}
               onOpenChange={(isOpen) => setVersionOpen(isOpen)}
               isOpen={versionOpen}
-              popperProps={versionOpen ? { appendTo: 'inline' } : undefined}
+              popperProps={{ appendTo: 'inline' }}
             >
               <DropdownList>
                 {Object.keys(distributionVersions).map((option) => (
