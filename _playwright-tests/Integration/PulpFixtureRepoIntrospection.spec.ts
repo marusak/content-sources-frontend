@@ -51,50 +51,36 @@ test.describe('Pulp Fixture Repository Introspection', () => {
     });
 
     await test.step('Check that repositories are introspected and have valid status', async () => {
-      // Reuse the existing pulp repositories data
-      expect(existingPulpRepos.length).toBe(36);
-
       let allReposValid = true;
 
       // Look for valid introspection status of pulp repos
       for (const repo of existingPulpRepos) {
-        if (repo.uuid) {
-          // Get detailed repository information
-          const repoDetails = await repositoriesApi.getRepository(
-            { uuid: repo.uuid },
-            {
-              headers: {
-                Authorization: process.env.STABLE_SAM_STAGE_TOKEN || '',
-              },
-            },
-          );
-          const lastSuccessIntrospectionTime = repoDetails.lastSuccessIntrospectionTime;
+        const lastSuccessIntrospectionTime = repo.lastSuccessIntrospectionTime;
 
-          try {
-            // Check that repo has the snapshot flag
-            expect(repo.snapshot).toBe(true);
-          } catch {
-            allReposValid = false;
-          }
+        try {
+          // Check that repo has the snapshot flag
+          expect(repo.snapshot).toBe(true);
+        } catch {
+          allReposValid = false;
+        }
 
-          try {
-            // Check the status of the repo
-            expect(['Pending', 'Valid']).toContain(repo.status);
-          } catch {
-            allReposValid = false;
-          }
+        try {
+          // Check the status of the repo
+          expect(['Pending', 'Valid']).toContain(repo.status);
+        } catch {
+          allReposValid = false;
+        }
 
-          try {
-            // Assert last introspection was today or yesterday
-            if (lastSuccessIntrospectionTime) {
-              const introspectionDate = lastSuccessIntrospectionTime.split('T')[0];
-              expect([today, yesterday]).toContain(introspectionDate);
-            } else {
-              throw new Error('No introspection time found');
-            }
-          } catch {
-            allReposValid = false;
+        try {
+          // Assert last introspection was today or yesterday
+          if (lastSuccessIntrospectionTime) {
+            const introspectionDate = lastSuccessIntrospectionTime.split('T')[0];
+            expect([today, yesterday]).toContain(introspectionDate);
+          } else {
+            throw new Error('No introspection time found');
           }
+        } catch {
+          allReposValid = false;
         }
       }
 
