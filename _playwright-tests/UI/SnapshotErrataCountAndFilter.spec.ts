@@ -100,9 +100,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
 
-      await expect(snapshotListModal.getByRole('table', { name: 'errata table' })).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(snapshotListModal.getByLabel('errata table')).toBeVisible();
       await expect(snapshotListModal.getByRole('grid')).toBeVisible();
 
       const matchingErrata = snapshotListModal
