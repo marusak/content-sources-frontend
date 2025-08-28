@@ -42,12 +42,10 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
 
-      await expect(page.getByLabel('SnapshotsView list of').locator('tbody')).toBeVisible();
+      await expect(page.getByRole('dialog', { name: 'Snapshots' })).toBeVisible();
 
-      const errataCountButton = page.getByTestId('snapshot_advisory_count_button');
+      const errataCountButton = page.getByRole('button', { name: '4' });
       await expect(errataCountButton).toBeVisible();
-      const errataCount = await errataCountButton.textContent();
-      expect(errataCount?.trim()).toBe('4');
 
       await page
         .getByRole('dialog', { name: 'Snapshots' })
@@ -77,20 +75,18 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await editedRow.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
 
-      const errataCountButton = page.getByTestId('snapshot_advisory_count_button').first();
+      const errataCountButton = page.getByRole('button', { name: '6' });
       await expect(errataCountButton).toBeVisible();
-      const errataCount = await errataCountButton.textContent();
-      expect(errataCount?.trim()).toBe('6');
     });
 
     await test.step('Test errata name filtering', async () => {
-      const errataCountButton = page.getByTestId('snapshot_advisory_count_button').first();
+      const errataCountButton = page.getByRole('button', { name: '6' });
       await errataCountButton.click();
 
       const snapshotListModal = page.getByRole('dialog', { name: 'Snapshot detail' });
       await expect(snapshotListModal).toBeVisible();
 
-      await snapshotListModal.getByTestId('advisories_tab').first().click();
+      await snapshotListModal.getByRole('tab', { name: 'Advisories' }).click();
 
       await expect(
         page.getByRole('tabpanel', { name: 'Snapshot errata detail tab' }),
@@ -104,7 +100,10 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
 
-      await expect(page.getByTestId('errata_table')).toBeVisible();
+      await expect(snapshotListModal.getByRole('table', { name: 'errata table' })).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(snapshotListModal.getByRole('grid')).toBeVisible();
 
       const matchingErrata = snapshotListModal
         .getByRole('gridcell', { name: 'RHSA-2012:' })
@@ -133,7 +132,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await expect(snapshotListModal.getByRole('button', { name: 'Clear filters' })).toBeVisible();
 
-      await expect(page.getByRole('grid')).toBeVisible();
+      await expect(snapshotListModal.getByRole('grid')).toBeVisible();
 
       // Wait for Enhancement errata (RHEA) to be filtered out before checking counts
       await expect(page.getByRole('gridcell').filter({ hasText: /RHEA-/ })).toHaveCount(0, {
@@ -165,7 +164,8 @@ test.describe('Snapshot Errata Count and Filter', () => {
     });
 
     await test.step('Test errata severity filtering', async () => {
-      const snapshotListModal = page.getByRole('dialog', { name: 'Snapshot details' });
+      const snapshotListModal = page.getByRole('dialog', { name: 'Snapshot detail' });
+      await expect(snapshotListModal).toBeVisible();
 
       await snapshotListModal.getByLabel('filterSelectionDropdown').click();
       await page.getByRole('menuitem', { name: 'Severity' }).click();
@@ -177,7 +177,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await expect(snapshotListModal.getByRole('button', { name: 'Clear filters' })).toBeVisible();
 
-      await expect(page.getByRole('grid')).toBeVisible();
+      await expect(snapshotListModal.getByRole('grid')).toBeVisible();
 
       // Wait for Moderate severity errata to be filtered out before checking remaining errata
       await expect(page.getByRole('gridcell', { name: 'Moderate' })).toHaveCount(0, {
@@ -209,7 +209,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
     await test.step('Close snapshot details modal', async () => {
       await page
-        .getByRole('dialog', { name: 'Snapshot details' })
+        .getByRole('dialog', { name: 'Snapshot detail' })
         .getByRole('contentinfo')
         .getByRole('button', { name: 'Close' })
         .click();
