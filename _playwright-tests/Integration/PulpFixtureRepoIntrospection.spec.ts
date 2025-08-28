@@ -51,41 +51,24 @@ test.describe('Pulp Fixture Repository Introspection', () => {
     });
 
     await test.step('Check that repositories are introspected and have valid status', async () => {
-      let allReposValid = true;
-
       // Look for valid introspection status of pulp repos
       for (const repo of existingPulpRepos) {
         const lastSuccessIntrospectionTime = repo.lastSuccessIntrospectionTime;
 
-        try {
-          // Check that repo has the snapshot flag
-          expect(repo.snapshot).toBe(true);
-        } catch {
-          allReposValid = false;
-        }
+        // Check that repo has the snapshot flag
+        expect(repo.snapshot).toBe(true);
 
-        try {
-          // Check the status of the repo
-          expect(['Pending', 'Valid']).toContain(repo.status);
-        } catch {
-          allReposValid = false;
-        }
+        // Check the status of the repo
+        expect(['Pending', 'Valid']).toContain(repo.status);
 
-        try {
-          // Assert last introspection was today or yesterday
-          if (lastSuccessIntrospectionTime) {
-            const introspectionDate = lastSuccessIntrospectionTime.split('T')[0];
-            expect([today, yesterday]).toContain(introspectionDate);
-          } else {
-            throw new Error('No introspection time found');
-          }
-        } catch {
-          allReposValid = false;
+        // Assert last introspection was today or yesterday
+        if (lastSuccessIntrospectionTime) {
+          const introspectionDate = lastSuccessIntrospectionTime.split('T')[0];
+          expect([today, yesterday]).toContain(introspectionDate);
+        } else {
+          throw new Error('No introspection time found');
         }
       }
-
-      // After all repos are checked in the loop, then assert they all passed the checks
-      expect(allReposValid).toBe(true);
     });
   });
 });
