@@ -86,7 +86,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
       const snapshotListModal = page.getByRole('dialog', { name: 'Snapshot detail' });
       await expect(snapshotListModal).toBeVisible();
 
-      await snapshotListModal.getByRole('tab', { name: 'Advisories' }).click();
+      await snapshotListModal.getByRole('tab', { name: 'Snapshot errata detail tab' }).click();
 
       await expect(
         page.getByRole('tabpanel', { name: 'Snapshot errata detail tab' }),
