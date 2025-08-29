@@ -8,7 +8,7 @@ import {
   TooltipPosition,
 } from '@patternfly/react-core';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { DELETE_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { DELETE_ROUTE, DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import { useAppContext } from 'middleware/AppContext';
 import { createUseStyles } from 'react-jss';
@@ -41,7 +41,8 @@ export default function TemplateActionDropdown() {
         setIsOpen(false);
         break;
       case 'delete':
-        navigate(`${baseRoute}/${uuid}/${DELETE_ROUTE}`);
+        navigate(`${baseRoute}/${uuid}/${DETAILS_ROUTE}/${DELETE_ROUTE}`);
+        setIsOpen(false);
         break;
 
       default:

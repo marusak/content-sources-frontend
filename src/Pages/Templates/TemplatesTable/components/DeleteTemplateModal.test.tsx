@@ -4,6 +4,7 @@ import { ReactQueryTestWrapper, defaultSystemsListItem, defaultTemplateItem } fr
 import DeleteTemplateModal from './DeleteTemplateModal';
 import { useListSystemsByTemplateId } from 'services/Systems/SystemsQueries';
 import { useFetchTemplate } from 'services/Templates/TemplateQueries';
+import { DETAILS_ROUTE } from 'Routes/constants';
 
 jest.mock('react-query', () => ({
   ...jest.requireActual('react-query'),
@@ -15,6 +16,9 @@ jest.mock('react-router-dom', () => ({
     templateUUID: `${defaultTemplateItem.uuid}`,
   }),
   useNavigate: () => jest.fn,
+  useLocation: () => ({
+    pathname: `/mocked/${DETAILS_ROUTE}`,
+  }),
 }));
 
 jest.mock('Hooks/useRootPath', () => () => 'someUrl');

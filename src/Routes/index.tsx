@@ -143,9 +143,7 @@ export default function RepositoriesRoutes() {
         </Route>
         {!rbac?.templateRead ? (
           <Route path={TEMPLATES_ROUTE} element={<NoPermissionsPage />} />
-        ) : (
-          ''
-        )}
+        ) : null}
         <Route
           path={`${TEMPLATES_ROUTE}/:templateUUID/${DETAILS_ROUTE}`}
           element={<TemplateDetails />}
@@ -161,10 +159,11 @@ export default function RepositoriesRoutes() {
           <Route path={SYSTEMS_ROUTE} element={<TemplateSystemsTab />}>
             {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
               <Route path={ADD_ROUTE} element={<AddSystemModal />} />
-            ) : (
-              ''
-            )}
+            ) : null}
           </Route>
+          {rbac?.templateWrite ? (
+            <Route path={`${DELETE_ROUTE}`} element={<DeleteTemplateModal />} />
+          ) : null}
         </Route>
         <Route path={TEMPLATES_ROUTE} element={<TemplatesTable />}>
           {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
@@ -177,17 +176,14 @@ export default function RepositoriesRoutes() {
                 element={<DeleteTemplateModal />}
               />
             </>
-          ) : rbac?.templateWrite ? (
-            <>
-              <Route
-                key='3'
-                path={`:templateUUID/${DELETE_ROUTE}`}
-                element={<DeleteTemplateModal />}
-              />
-            </>
-          ) : (
-            ''
-          )}
+          ) : null}
+          {rbac?.templateWrite ? (
+            <Route
+              key='3'
+              path={`:templateUUID/${DELETE_ROUTE}`}
+              element={<DeleteTemplateModal />}
+            />
+          ) : null}
           <Route path='*' element={<Navigate to='' replace />} />
         </Route>
         <Route path='*' element={<Navigate to={REPOSITORIES_ROUTE} replace />} />

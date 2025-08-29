@@ -14,7 +14,7 @@ import {
 import { createUseStyles } from 'react-jss';
 import Hide from 'components/Hide/Hide';
 import { useQueryClient } from 'react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useRootPath from 'Hooks/useRootPath';
 import {
   GET_TEMPLATES_KEY,
@@ -44,6 +44,9 @@ export default function DeleteTemplateModal() {
   const rootPath = useRootPath();
   const queryClient = useQueryClient();
 
+  // delete template modal can be placed over templates list page or the template details page
+  const isOverTemplateDetail = useLocation().pathname.includes('details');
+
   const { templateUUID: uuid } = useParams();
 
   const { data: templateData, isLoading: isTemplateLoading } = useFetchTemplate(uuid!);
@@ -53,10 +56,14 @@ export default function DeleteTemplateModal() {
 
   const onClose = () => navigate(`${rootPath}/${TEMPLATES_ROUTE}`);
 
+  const onCancel = isOverTemplateDetail
+    ? () => navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}`)
+    : onClose;
+
   const onSave = async () => {
     deleteTemplate(uuid as string).then(() => {
-      onClose();
       queryClient.invalidateQueries(GET_TEMPLATES_KEY);
+      onClose();
     });
   };
 
@@ -73,7 +80,7 @@ export default function DeleteTemplateModal() {
       variant={ModalVariant.medium}
       ouiaId='delete_template'
       isOpen
-      onClose={onClose}
+      onClose={onCancel}
       aria-labelledby='delete-template-modal-title'
     >
       <ModalHeader
@@ -113,7 +120,7 @@ export default function DeleteTemplateModal() {
         </Hide>
       </ModalBody>
       <ModalFooter>
-        <ActionButtons isAction={actionTakingPlace} onSave={onSave} onClose={onClose} />
+        <ActionButtons isAction={actionTakingPlace} onSave={onSave} onClose={onCancel} />
       </ModalFooter>
     </Modal>
   );
