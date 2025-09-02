@@ -11,11 +11,9 @@ test.describe('Pulp Fixture Repository Introspection', () => {
   test('should validate pulp fixture repository introspection for stable_sam_stage user', async ({
     client,
   }) => {
-    // Initialize APIs once for the entire test
     const repositoriesApi = new RepositoriesApi(client);
     const featuresApi = new FeaturesApi(client);
 
-    // Date constants for introspection validation
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
@@ -26,15 +24,11 @@ test.describe('Pulp Fixture Repository Introspection', () => {
         },
       });
 
-      // Check if snapshots feature exists
       expect(features.snapshots).toBeDefined();
-      // Check if snapshots are accessible
       expect(features.snapshots?.accessible).toBe(true);
-      // Assert that snapshots are enabled
       expect(features.snapshots?.enabled).toBe(true);
     });
 
-    // Get pulp repositories once and reuse across steps
     const pulpReposResponse = await repositoriesApi.listRepositories(
       { search: 'fixtures.pulpproject.org' },
       {
@@ -55,10 +49,8 @@ test.describe('Pulp Fixture Repository Introspection', () => {
       for (const repo of existingPulpRepos) {
         const lastSuccessIntrospectionTime = repo.lastSuccessIntrospectionTime;
 
-        // Check that repo has the snapshot flag
         expect(repo.snapshot).toBe(true);
 
-        // Check the status of the repo
         expect(['Pending', 'Valid']).toContain(repo.status);
 
         // Assert last introspection was today or yesterday
