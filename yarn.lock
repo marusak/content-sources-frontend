@@ -1386,18 +1386,18 @@
     webpack-dev-server "5.1.0"
     yargs "^17.6.2"
 
-"@redhat-cloud-services/frontend-components-notifications@^6.1.5":
-  version "6.1.5"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-notifications/-/frontend-components-notifications-6.1.5.tgz#36a439aae9a37989ae4a636a134a75d312562976"
-  integrity sha512-CanlpBYpIKzLQZCD0Q3J5KezN0bCEeNW/rFclBPJ2CXuiyIwB0o0KRg6yfoF33V95LrDg1J3Q2DNHl8GhS+/mg==
+"@redhat-cloud-services/frontend-components-notifications@^6.1.6":
+  version "6.1.6"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-notifications/-/frontend-components-notifications-6.1.6.tgz#7d51639771dce32ff040e3b1f5f13069b49f5168"
+  integrity sha512-x0+NfsdU2xCa6FEXcC7SJTgNkmD0HOOnM7zKCLIpdc0ezUariU1i78+0h0Q2NfHNeENyYBZaQzaRcsqeAWIFdA==
   dependencies:
     "@redhat-cloud-services/frontend-components" "^7.0.0"
     "@redhat-cloud-services/frontend-components-utilities" "^7.0.0"
 
-"@redhat-cloud-services/frontend-components-utilities@^7.0.0", "@redhat-cloud-services/frontend-components-utilities@^7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-utilities/-/frontend-components-utilities-7.0.3.tgz#8edca787caa1a32b51374f20df953d3ef19c99f1"
-  integrity sha512-Z7ET3BGcniHRC1x2zeHVqsA9JX+selMmgs80SyurXzGNYl+684lKqnBfB1KVt58fbSNjRYPU19TzbFlZ3vYaTQ==
+"@redhat-cloud-services/frontend-components-utilities@^7.0.0", "@redhat-cloud-services/frontend-components-utilities@^7.0.4":
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components-utilities/-/frontend-components-utilities-7.0.4.tgz#038d85355c8896590c2063ef6527fc36da1b7a34"
+  integrity sha512-UI9fR8NjTGLyPxhzsQGJa22XFHAs3+Xl9mIDCE8humMA+u/2YNvhXeiQBQpK3K8Y+I54g806qjo2xXNvc7BYdg==
   dependencies:
     "@redhat-cloud-services/rbac-client" "^4.0.2"
     "@redhat-cloud-services/types" "^3.0.0"
@@ -1409,10 +1409,10 @@
     p-map "^7.0.2"
     react-content-loader "^6.2.0"
 
-"@redhat-cloud-services/frontend-components@^7.0.0", "@redhat-cloud-services/frontend-components@^7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-7.0.3.tgz#1b6dd5083c5e5e2781d0936aee94568cd27c0e1c"
-  integrity sha512-kEEZVN49Dwk2j7MNmLKxGrfJYGxFh2whZJi6TmpqSmgDkNNVZaoCpdWZJiMZQ0Jun6QQ1rEUmarfLV1VrZfujA==
+"@redhat-cloud-services/frontend-components@^7.0.0", "@redhat-cloud-services/frontend-components@^7.0.4":
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/frontend-components/-/frontend-components-7.0.4.tgz#ce4a5781af8da4127c9ec3de6084ff9dedc1cd4a"
+  integrity sha512-3WSR5JIQpaYOO0CDB/ckvfd5t0mzvXOGU6Y9P0rp3mmce3guxvII0IoSjs8znMWdk9kreSafrisHNb8j+1sRFw==
   dependencies:
     "@patternfly/react-component-groups" "^6.0.0"
     "@redhat-cloud-services/frontend-components-utilities" "^7.0.0"
@@ -1446,10 +1446,10 @@
   dependencies:
     glob "10.3.3"
 
-"@redhat-cloud-services/types@^3.0.0", "@redhat-cloud-services/types@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-3.0.1.tgz#015dbc559b5d6e023930d231eb4e3b0cfc0a1778"
-  integrity sha512-GXw72DDOtKCkl2NlqkjGYVWjfm81LSA75jzbdMqKuefkxMvV4SsA0uNcauGiqZKUhq20RlNz3xBlKF3lvsfD1Q==
+"@redhat-cloud-services/types@^3.0.0", "@redhat-cloud-services/types@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@redhat-cloud-services/types/-/types-3.1.0.tgz#2ead8ffd3a007119bd088b9ec451a7a1ca0cc8a8"
+  integrity sha512-Cw+ACLg5KA7jLS9vYJe3j9jOZIh+hOG6Y/46ohUrVVhtMU+Xk0LgGgw1qGul1rT5Zl4gFtNTQvM/FogqdYWG7g==
 
 "@remix-run/router@1.23.0":
   version "1.23.0"
@@ -3892,10 +3892,10 @@ date-fns@^4.1.0:
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-4.1.0.tgz#64b3d83fff5aa80438f5b1a633c2e83b8a1c2d14"
   integrity sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==
 
-dayjs@^1.11.13:
-  version "1.11.13"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
-  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
+dayjs@^1.11.18:
+  version "1.11.18"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.18.tgz#835fa712aac52ab9dec8b1494098774ed7070a11"
+  integrity sha512-zFBQ7WFRvVRhKcWoUh+ZA1g2HVgUbsZm9sbddh8EC5iv93sui8DVVz1Npvz+r6meo9VKfa8NyLWBsQK1VvIKPA==
 
 debounce-promise@^3.1.0:
   version "3.1.2"
