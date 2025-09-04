@@ -4,7 +4,7 @@ import {
   cleanupTemplates,
   randomName,
 } from '../test-utils/_playwright-tests/test-utils/src';
-import { RHSMClient } from './helpers/rhsmClient';
+import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 
@@ -72,8 +72,7 @@ test.describe('Associated Template CRUD', async () => {
       }
       expect(reg?.exitCode).toBe(0);
 
-      const subManRefresh = await regClient.Exec(['subscription-manager', 'refresh', '--force']);
-      expect(subManRefresh?.exitCode).toBe(0);
+      await refreshSubscriptionManager(regClient);
     });
 
     await test.step('Attempt to delete template and verify warning appears', async () => {

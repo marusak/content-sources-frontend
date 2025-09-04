@@ -149,6 +149,40 @@ export class RHSMClient {
   }
 }
 
+/**
+ * Refreshes subscription-manager with retry logic to handle intermittent failures
+ * @param client The RHSMClient instance to execute the refresh command on
+ * @param maxAttempts Maximum number of retry attempts (default: 3)
+ * @returns Promise that resolves when refresh succeeds or throws on final failure
+ */
+export async function refreshSubscriptionManager(
+  client: RHSMClient,
+  maxAttempts: number = 3,
+): Promise<void> {
+  let subManRefresh;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      subManRefresh = await client.Exec(['subscription-manager', 'refresh']);
+      if (subManRefresh?.exitCode === 0) {
+        return; // Success, exit early
+      }
+      if (subManRefresh?.stderr || subManRefresh?.stdout) {
+        console.log(`subscription-manager refresh attempt ${attempt} failed:`);
+        console.log('STDOUT:', subManRefresh?.stdout);
+        console.log('STDERR:', subManRefresh?.stderr);
+      }
+    } catch (error) {
+      console.log(`subscription-manager refresh attempt ${attempt} error:`, error);
+      if (attempt === maxAttempts) throw error;
+    }
+  }
+
+  // If we get here, all attempts failed but didn't throw
+  throw new Error(
+    `subscription-manager refresh failed after ${maxAttempts} attempts. Exit code: ${subManRefresh?.exitCode}`,
+  );
+}
+
 const stageConfigureCommand = (): string[] => {
   const command = [
     'subscription-manager',

@@ -1,5 +1,5 @@
 import { test, expect, cleanupTemplates, randomName } from 'test-utils';
-import { RHSMClient } from './helpers/rhsmClient';
+import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 
@@ -75,9 +75,7 @@ test.describe('Test System With Template', async () => {
       }
       expect(reg?.exitCode).toBe(0);
 
-      // refresh subscription-manager
-      const subManRefresh = await regClient.Exec(['subscription-manager', 'refresh', '--force']);
-      expect(subManRefresh?.exitCode).toBe(0);
+      await refreshSubscriptionManager(regClient);
 
       // clean cached metadata
       const dnfCleanAll = await regClient.Exec(['dnf', 'clean', 'all']);
@@ -125,9 +123,7 @@ test.describe('Test System With Template', async () => {
     });
 
     await test.step('Refresh system', async () => {
-      // refresh subscription-manager
-      const subManRefresh = await regClient.Exec(['subscription-manager', 'refresh', '--force']);
-      expect(subManRefresh?.exitCode).toBe(0);
+      await refreshSubscriptionManager(regClient);
 
       // clean cached metadata
       const dnfCleanAll = await regClient.Exec(['dnf', 'clean', 'all']);
