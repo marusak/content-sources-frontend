@@ -122,14 +122,14 @@ test.describe('Associated Template CRUD', async () => {
         const modal = page.getByRole('dialog');
 
         await expect(
-          modal.getByRole('link', { name: /This template is assigned to \d+ system/i }),
-        ).not.toBeVisible();
-
-        await expect(
           modal.getByText(
             `Template ${templateName} and all its data will be deleted. This action cannot be undone.`,
           ),
         ).toBeVisible();
+
+        await expect(
+          modal.getByRole('link', { name: /This template is assigned to \d+ system/i }),
+        ).not.toBeVisible();
 
         const removeButton = modal.getByRole('button', { name: 'Delete' });
         await expect(removeButton).toBeEnabled();
