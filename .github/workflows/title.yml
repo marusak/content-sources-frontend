@@ -22,6 +22,7 @@ jobs:
 
   title-validate:
     name: Title
+    needs: rename-konflux-pr
     runs-on: ubuntu-latest
     steps:
       - uses: deepakputhraya/action-pr-title@master
