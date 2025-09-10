@@ -12,12 +12,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Add "Build:" to PR title
-        if: github.event.pull_request.user.login == 'red-hat-konflux' && !startsWith(github.event.pull_request.title, 'Build:')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
+          echo "Inside"
+          echo "$AUTHOR"
           gh pr edit $PR_NUMBER --title "Build: $PR_TITLE"
 
   title-validate:
