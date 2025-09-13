@@ -38,7 +38,7 @@
     "@testing-library/dom": "^10.4.1",
     "@types/dockerode": "^3.3.43",
     "@unleash/proxy-client-react": "^5.0.1",
-    "axios": "^1.11.0",
+    "axios": "^1.12.0",
     "classnames": "^2.5.1",
     "content-sources-test-utils": "file:./_playwright-tests/test-utils/_playwright-tests/test-utils",
     "crypto-js": "^4.2.0",
