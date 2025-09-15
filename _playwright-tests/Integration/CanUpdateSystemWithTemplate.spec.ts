@@ -43,7 +43,7 @@ test.describe('Test System With Template', async () => {
       await rowHARepo.getByLabel('Select row').click();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(
-        page.getByRole('heading', { name: 'Custom repositories', exact: true }),
+        page.getByRole('heading', { name: 'Other repositories', exact: true }),
       ).toBeVisible();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByText('Use up to a specific date', { exact: true }).click();
@@ -111,7 +111,7 @@ test.describe('Test System With Template', async () => {
       ).toBeVisible();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(
-        page.getByRole('heading', { name: 'Custom repositories', exact: true }),
+        page.getByRole('heading', { name: 'Other repositories', exact: true }),
       ).toBeVisible();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByText('Use the latest content', { exact: true }).click();
