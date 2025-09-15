@@ -47,6 +47,9 @@ test.describe('Custom Repositories CRUD', () => {
 
     await test.step('Update the repository', async () => {
       await page.getByPlaceholder('Enter name', { exact: true }).fill(`${repoName}-Edited`);
+      // Remove trailing slash from URL to test URL normalization (HMS-1118 regression)
+      const urlWithoutSlash = url.endsWith('/') ? url.slice(0, -1) : url;
+      await page.getByPlaceholder('https://', { exact: true }).fill(urlWithoutSlash);
       await page.getByLabel('Snapshotting').click();
       await page.getByRole('button', { name: 'Save changes', exact: true }).click();
     });
