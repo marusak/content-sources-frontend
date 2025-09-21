@@ -20,9 +20,9 @@ test.describe('Custom Repositories CRUD', () => {
       await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
 
       // Fill in the repository details
-      await page.getByLabel('Name').fill(`${repoName}`);
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill(`${repoName}`);
       await page.getByLabel('Introspect only').click();
-      await page.getByLabel('URL').fill(url);
+      await page.getByRole('textbox', { name: 'URL', exact: true }).fill(url);
       await page.getByRole('button', { name: 'Save', exact: true }).click();
     });
 
@@ -32,8 +32,6 @@ test.describe('Custom Repositories CRUD', () => {
     });
 
     await test.step('Read the repo', async () => {
-      // Search for the created repo
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill(repoName);
       const row = await getRowByNameOrUrl(page, repoName);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();
@@ -60,7 +58,6 @@ test.describe('Custom Repositories CRUD', () => {
     });
 
     await test.step('Confirm repo was updated', async () => {
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill(`${repoName}-Edited`);
       const row = await getRowByNameOrUrl(page, `${repoName}-Edited`);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();
@@ -76,7 +73,6 @@ test.describe('Custom Repositories CRUD', () => {
     });
 
     await test.step('Delete one custom repository', async () => {
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill(`${repoName}-Edited`);
       const row = await getRowByNameOrUrl(page, `${repoName}-Edited`);
       await row.getByRole('button', { name: 'Kebab toggle' }).click();
       await page.getByRole('menuitem', { name: 'Delete' }).click();

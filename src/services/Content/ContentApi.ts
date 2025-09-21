@@ -124,7 +124,7 @@ export type NameLabel = {
 };
 
 export type FilterData = Partial<{
-  searchQuery: string;
+  search: string;
   versions: Array<string>;
   arches: Array<string>;
   statuses: Array<string>;
@@ -284,7 +284,7 @@ export const getPopularRepositories: (
   filterData?: Partial<FilterData>,
   sortBy?: string,
 ) => Promise<PopularRepositoriesResponse> = async (page, limit, filterData, sortBy) => {
-  const search = filterData?.searchQuery;
+  const search = filterData?.search;
   const versionParam = filterData?.versions?.join(',');
   const archParam = filterData?.arches?.join(',');
   const { data } = await axios.get(
@@ -316,7 +316,7 @@ export const getContentList: (
   sortBy: string,
   contentOrigin: string[],
 ) => Promise<ContentListResponse> = async (page, limit, filterData, sortBy, contentOrigin) => {
-  const search = filterData.searchQuery;
+  const search = filterData.search;
   const versionParam = filterData.versions?.join(',');
   const archParam = filterData.arches?.join(',');
   const statusParam = filterData.statuses?.join(',');

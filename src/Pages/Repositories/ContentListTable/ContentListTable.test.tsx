@@ -40,7 +40,7 @@ jest.mock('react-router-dom', () => ({
 
 (AddContent as jest.Mock).mockImplementation(() => 'Add content');
 
-it('expect ContentListTable to render with a loading skeleton', () => {
+it('displays empty state message when no repositories are present', () => {
   (useRepositoryParams as jest.Mock).mockImplementation(() => ({ isLoading: false }));
   (useContentListQuery as jest.Mock).mockImplementation(() => ({ isLoading: false }));
 
@@ -51,7 +51,7 @@ it('expect ContentListTable to render with a loading skeleton', () => {
   );
 
   expect(queryByText('No custom repositories')).toBeInTheDocument();
-  expect(queryByText('To get started, create a custom repository')).toBeInTheDocument();
+  expect(queryByText('To get started, create a custom repository.')).toBeInTheDocument();
 });
 
 it('Render a loading state', () => {
@@ -63,14 +63,14 @@ it('Render a loading state', () => {
     isLoading: true,
   }));
 
-  const { queryByText, queryByLabelText } = render(
+  const { queryByText, queryByTestId } = render(
     <ReactQueryTestWrapper>
       <ContentListTable />
     </ReactQueryTestWrapper>,
   );
 
   expect(queryByText('Name/URL')).toBeInTheDocument();
-  expect(queryByLabelText('Loading')).toBeInTheDocument();
+  expect(queryByTestId('SkeletonTableBody-tbody')).toBeInTheDocument();
 });
 
 it('Render with a single row', async () => {

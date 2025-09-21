@@ -16,7 +16,7 @@ const useStyles = createUseStyles({
 });
 
 interface Props {
-  rowData: ContentItem;
+  rowData: Pick<ContentItem, 'uuid' | 'status' | 'package_count'>;
   href?: string;
   opensNewTab?: boolean;
 }

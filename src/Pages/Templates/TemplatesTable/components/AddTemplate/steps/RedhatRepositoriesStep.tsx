@@ -113,7 +113,7 @@ export default function RedhatRepositoriesStep() {
       page,
       perPage,
       {
-        searchQuery: searchQuery === '' ? searchQuery : debouncedSearch,
+        search: searchQuery === '' ? searchQuery : debouncedSearch,
         availableForArch: templateRequest.arch as string,
         availableForVersion: templateRequest.version as string,
         uuids: toggled ? [...selectedRedhatRepos] : undefined,

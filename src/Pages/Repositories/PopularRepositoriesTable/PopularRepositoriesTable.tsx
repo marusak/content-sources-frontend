@@ -137,7 +137,7 @@ const PopularRepositoriesTable = () => {
     isFetching,
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
   } = usePopularRepositoriesQuery(page, perPage, {
-    searchQuery: !searchValue ? searchValue : debouncedSearchValue,
+    search: !searchValue ? searchValue : debouncedSearchValue,
   });
 
   const { mutateAsync: addContentQuery, isLoading: isAdding } = useAddPopularRepositoryQuery(
@@ -145,7 +145,7 @@ const PopularRepositoriesTable = () => {
     selectedData,
     page,
     perPage,
-    { searchQuery: debouncedSearchValue } as FilterData,
+    { search: debouncedSearchValue } as FilterData,
   );
 
   const clearCheckedRepositories = () => {
@@ -238,7 +238,7 @@ const PopularRepositoriesTable = () => {
   }, [selectedData]);
 
   const { isLoading: isDeleting } = useDeletePopularRepositoryMutate(queryClient, page, perPage, {
-    searchQuery: debouncedSearchValue,
+    search: debouncedSearchValue,
   } as FilterData);
 
   const { isLoading: isDeletingItems } = useBulkDeleteContentItemMutate(
@@ -247,7 +247,7 @@ const PopularRepositoriesTable = () => {
     page,
     perPage,
     [ContentOrigin.CUSTOM],
-    { searchQuery: debouncedSearchValue } as FilterData,
+    { search: debouncedSearchValue } as FilterData,
     undefined, // sort string
   );
 

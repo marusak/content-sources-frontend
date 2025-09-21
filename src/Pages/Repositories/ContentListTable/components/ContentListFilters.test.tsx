@@ -33,7 +33,7 @@ it('Render loading state (disabled)', () => {
       isLoading={true}
       setFilterData={() => null}
       filterData={{
-        searchQuery: '',
+        search: '',
         versions: [],
         arches: [],
         statuses: [],
@@ -55,7 +55,7 @@ it('Select a filter of each type and ensure chips are present contentlistfilters
       setContentOrigin={() => null}
       setFilterData={() => null}
       filterData={{
-        searchQuery: '',
+        search: '',
         versions: [],
         arches: [],
         statuses: [],

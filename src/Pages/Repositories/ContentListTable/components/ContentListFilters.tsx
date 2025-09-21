@@ -117,7 +117,7 @@ const ContentListFilters = ({
     setSelectedVersions([]);
     setSelectedArches([]);
     setSelectedStatuses([]);
-    setFilterData({ searchQuery: '', versions: [], arches: [], statuses: [] });
+    setFilterData({ search: '', versions: [], arches: [], statuses: [] });
   };
 
   useEffect(() => {
@@ -126,7 +126,7 @@ const ContentListFilters = ({
       filterData.arches?.length === 0 &&
       filterData.versions?.length === 0 &&
       filterData.statuses?.length === 0 &&
-      filterData.searchQuery === '' &&
+      filterData.search === '' &&
       (searchQuery !== '' ||
         selectedArches.length !== 0 ||
         selectedVersions.length !== 0 ||
@@ -168,7 +168,7 @@ const ContentListFilters = ({
     );
 
     setFilterData({
-      searchQuery: debouncedSearchQuery,
+      search: debouncedSearchQuery,
       versions: getLabels('version', debouncedSelectedVersions),
       arches: getLabels('arch', debouncedSelectedArches),
       statuses: backendStatuses,

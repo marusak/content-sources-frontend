@@ -23,9 +23,9 @@ test.describe('Snapshot Repositories', () => {
     });
 
     await test.step('Fill in the repository details', async () => {
-      await page.getByLabel('Name').fill(repoName);
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill(repoName);
       await page.getByLabel('Introspect only').click();
-      await page.getByLabel('URL').fill(repoUrl);
+      await page.getByRole('textbox', { name: 'URL', exact: true }).fill(repoUrl);
     });
 
     await test.step('Filter by architecture', async () => {
@@ -56,7 +56,7 @@ test.describe('Snapshot Repositories', () => {
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'Edit' }).click({ timeout: 60000 });
-      await page.getByLabel('Name').fill(editedRepoName);
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill(editedRepoName);
       await page.getByLabel('Snapshotting').click();
       await page.getByRole('button', { name: 'Save changes', exact: true }).click();
     });
@@ -124,9 +124,11 @@ test.describe('Snapshot Repositories', () => {
     await test.step('Create a repository', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
       await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
-      await page.getByLabel('Name').fill(`${repoName}`);
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill(`${repoName}`);
       await page.getByLabel('Snapshotting').click();
-      await page.getByLabel('URL').fill('https://fedorapeople.org/groups/katello/fakerepos/zoo/');
+      await page
+        .getByRole('textbox', { name: 'URL', exact: true })
+        .fill('https://fedorapeople.org/groups/katello/fakerepos/zoo/');
       await page.getByRole('button', { name: 'Save', exact: true }).click();
       const row = await getRowByNameOrUrl(page, repoName);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 70000 });
@@ -141,7 +143,7 @@ test.describe('Snapshot Repositories', () => {
           await row.getByLabel('Kebab toggle').click();
           await page.getByRole('menuitem', { name: 'Edit' }).click({ timeout: 60000 });
           await page
-            .getByLabel('URL')
+            .getByRole('textbox', { name: 'URL', exact: true })
             .fill(`https://fedorapeople.org/groups/katello/fakerepos/zoo${i}/`);
           await page.getByRole('button', { name: 'Save changes', exact: true }).click();
           await expect(row.getByText('Valid')).toBeVisible({ timeout: 70000 });

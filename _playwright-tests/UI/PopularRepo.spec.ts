@@ -54,7 +54,7 @@ test.describe('Popular Repositories', () => {
     });
 
     await test.step('Apply filter and clear it', async () => {
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill(repoName8);
+      await page.getByRole('textbox', { name: 'Name/URL filter', exact: true }).fill(repoName8);
       const rows = page.locator('table tbody tr');
       await expect(rows).toHaveCount(1);
       await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
@@ -122,7 +122,7 @@ test.describe('Popular Repositories', () => {
     });
 
     await test.step('Apply filter and clear it', async () => {
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill(repoName10);
+      await page.getByRole('textbox', { name: 'Name/URL filter', exact: true }).fill(repoName10);
       const rows = page.locator('table tbody tr');
       await expect(rows).toHaveCount(1);
       await expect(page.getByRole('row', { name: repoName10 })).toBeVisible();

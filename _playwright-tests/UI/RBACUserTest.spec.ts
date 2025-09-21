@@ -21,9 +21,9 @@ test.describe('Create, update, and read a repo as admin user', () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
       await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
 
-      await page.getByLabel('Name').fill(repoName);
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill(repoName);
       await page.getByLabel('Introspect only').click();
-      await page.getByLabel('URL').fill(url);
+      await page.getByRole('textbox', { name: 'URL', exact: true }).fill(url);
       await page.getByRole('button', { name: 'Save', exact: true }).click();
     });
 

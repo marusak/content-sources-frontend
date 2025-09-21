@@ -40,7 +40,15 @@ const useStyles = createUseStyles({
 });
 
 interface Props {
-  rowData: ContentItem;
+  rowData: Pick<
+    ContentItem,
+    | 'uuid'
+    | 'status'
+    | 'failed_introspections_count'
+    | 'last_introspection_time'
+    | 'last_introspection_error'
+    | 'last_snapshot_task'
+  >;
   retryHandler?: (string) => Promise<void>;
 }
 

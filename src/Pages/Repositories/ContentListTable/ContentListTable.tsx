@@ -1,77 +1,75 @@
 import {
-  Bullseye,
-  Button,
-  Flex,
-  FlexItem,
-  Grid,
-  Pagination,
-  PaginationVariant,
-  Spinner,
-  Stack,
-  TooltipPosition,
-} from '@patternfly/react-core';
+  DataViewToolbar,
+  DataViewTable,
+  DataViewTh,
+  DataView,
+  DataViewState,
+  useDataViewSort,
+  useDataViewSelection,
+  DataViewTextFilter,
+  DataViewCheckboxFilter,
+  DataViewTd,
+} from '@patternfly/react-data-view';
+import { ThProps, Td, Tr, Tbody, ActionsColumn, IAction } from '@patternfly/react-table';
 import {
-  ActionsColumn,
-  IAction,
-  Table,
-  TableVariant,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  ThProps,
-  Tr,
-} from '@patternfly/react-table';
-
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { createUseStyles } from 'react-jss';
-import {
-  ContentItem,
-  FilterData,
-  IntrospectRepositoryRequestItem,
-  ContentOrigin,
-} from 'services/Content/ContentApi';
-import { SkeletonTable } from '@patternfly/react-component-groups';
-
-import {
-  useBulkDeleteContentItemMutate,
   useContentListQuery,
   useIntrospectRepositoryMutate,
   useTriggerSnapshot,
-} from 'services/Content/ContentQueries';
-import ContentListFilters from './components/ContentListFilters';
+  useBulkDeleteContentItemMutate,
+} from '../../../services/Content/ContentQueries';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  ContentItem,
+  ContentOrigin,
+  FilterData,
+  IntrospectRepositoryRequestItem,
+} from '../../../services/Content/ContentApi';
+import { useAppContext } from '../../../middleware/AppContext';
+import {
+  Pagination,
+  Button,
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateBody,
+  EmptyStateFooter,
+  Flex,
+  FlexItem,
+  TooltipPosition,
+} from '@patternfly/react-core';
+import { RepositoryIcon, CubesIcon } from '@patternfly/react-icons';
+import useArchVersion from 'Hooks/useArchVersion';
+import dayjs from 'dayjs';
+import { useSearchParams, useNavigate, Outlet, useOutletContext } from 'react-router-dom';
 import Hide from 'components/Hide/Hide';
-import EmptyTableState from 'components/EmptyTableState/EmptyTableState';
+import { ADD_ROUTE, EDIT_ROUTE, UPLOAD_ROUTE, DELETE_ROUTE } from 'Routes/constants';
+import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
+import {
+  BulkSelect,
+  BulkSelectValue,
+} from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+import flex from '@patternfly/react-styles/css/utilities/Flex/flex';
 import { useQueryClient } from 'react-query';
 import StatusIcon from './components/StatusIcon';
-import UrlWithExternalIcon from 'components/UrlWithLinkIcon/UrlWithLinkIcon';
-import PackageCount from './components/PackageCount';
-import { useAppContext } from 'middleware/AppContext';
-import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
-import dayjs from 'dayjs';
-import ChangedArrows from './components/SnapshotListModal/components/ChangedArrows';
-import { Outlet, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
-import useArchVersion from 'Hooks/useArchVersion';
-import { ADD_ROUTE, DELETE_ROUTE, EDIT_ROUTE, UPLOAD_ROUTE } from 'Routes/constants';
-import UploadRepositoryLabel from 'components/RepositoryLabels/UploadRepositoryLabel';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
-import CommunityRepositoryLabel from 'components/RepositoryLabels/CommunityRepositoryLabel';
+import { SkeletonTableBody } from '@patternfly/react-component-groups';
+import UploadRepositoryLabel from 'components/RepositoryLabels/UploadRepositoryLabel';
+import UrlWithExternalIcon from '../../../components/UrlWithLinkIcon/UrlWithLinkIcon';
+import ChangedArrows from './components/SnapshotListModal/components/ChangedArrows';
+import { createUseStyles } from 'react-jss';
+import PackageCount from './components/PackageCount';
+import DeleteKebab from '../../../components/DeleteKebab/DeleteKebab';
+import { DataViewFilters } from '@patternfly/react-data-view/dist/dynamic/DataViewFilters';
+import { useContentListFilters, FilterLabelsMap } from './hooks/useContentListFilters';
+import ContentOriginFilter from './components/ContentOriginFilter';
+import CommunityRepositoryLabel from '../../../components/RepositoryLabels/CommunityRepositoryLabel';
+import { DataViewTr } from '@patternfly/react-data-view/src/DataViewTable';
+
+type ActionRowData = Pick<
+  ContentItem,
+  'uuid' | 'origin' | 'status' | 'snapshot' | 'last_snapshot_uuid' | 'last_snapshot_task'
+>;
 
 const useStyles = createUseStyles({
-  mainContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  mainContainer100Height: {
-    composes: ['$mainContainer'], // This extends another class within this stylesheet
-    minHeight: '100%',
-  },
-  bottomContainer: {
-    justifyContent: 'space-between',
-  },
-  checkboxMinWidth: {
-    minWidth: '45px!important',
-  },
   snapshotInfoText: {
     marginRight: '16px',
   },
@@ -82,29 +80,16 @@ const useStyles = createUseStyles({
     pointerEvents: 'auto',
     cursor: 'default',
   },
-  uploadIcon: {
-    marginLeft: '8px',
-  },
 });
 
 export const perPageKey = 'contentListPerPage';
 
 const ContentListTable = () => {
-  const classes = useStyles();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { rbac, features, contentOrigin, setContentOrigin } = useAppContext();
+  const { contentOrigin, setContentOrigin, features, rbac } = useAppContext();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
-  const storedPerPage = Number(localStorage.getItem(perPageKey)) || 20;
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(storedPerPage);
-  const [activeSortIndex, setActiveSortIndex] = useState<number>(-1);
-  const [activeSortDirection, setActiveSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [checkedRepositories, setCheckedRepositories] = useState<Map<string, ContentItem>>(
-    new Map(),
-  );
-  const [polling, setPolling] = useState(false);
-  const [pollCount, setPollCount] = useState(0);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const classes = useStyles();
 
   const {
     archesDisplay,
@@ -112,6 +97,78 @@ const ContentListTable = () => {
     isError: repositoryParamsIsError,
     error: repositoryParamsError,
   } = useArchVersion();
+
+  // Column configuration combining display names and sort attributes
+  // Selection is handled by DataView selection system, not individual columns
+  const columns = [
+    { name: 'Name', sortAttribute: 'name' },
+    { name: 'Architecture', sortAttribute: 'distribution_arch' },
+    { name: 'OS versions', sortAttribute: 'distribution_versions' },
+    { name: 'Packages', sortAttribute: 'package_count' },
+    { name: 'Last Introspection', sortAttribute: 'last_introspection_time' },
+    { name: 'Status', sortAttribute: null }, // Non-sortable column
+  ];
+
+  const { sortBy, direction, onSort } = useDataViewSort({
+    defaultDirection: 'asc',
+  });
+
+  // Construct a sort string for the backend
+  const sortString = useMemo(() => {
+    if (!sortBy || !direction) return '';
+    const column = columns.find((col) => col.name === sortBy);
+    if (!column || !column.sortAttribute) return '';
+    return `${column.sortAttribute}:${direction}`;
+  }, [sortBy, direction]);
+
+  const getSortParams = (columnIndex: number): ThProps['sort'] => {
+    // Find the index of the currently active sort column
+    const activeSortIndex = sortBy ? columns.findIndex((col) => col.name === sortBy) : -1;
+
+    return {
+      sortBy: {
+        index: activeSortIndex,
+        direction: direction,
+      },
+      onSort: (_event, index, direction) => onSort(_event, columns[index].name, direction),
+      columnIndex,
+    };
+  };
+
+  const dataViewColumns: DataViewTh[] = columns.map((column, index) => ({
+    cell: column.name,
+    props: column.sortAttribute === null ? {} : { sort: getSortParams(index) },
+  }));
+
+  const [polling, setPolling] = useState(false);
+  const [pollCount, setPollCount] = useState(0);
+
+  const [page, setPage] = useState(1);
+  const storedPerPage = Number(localStorage.getItem(perPageKey)) || 20;
+  const [perPage, setPerPage] = useState(storedPerPage);
+
+  // Used to force-reset the active attribute of DataViewFilters back to the first item (Name/URL)
+  const [filtersActiveAttributeResetKey, setFiltersActiveAttributeResetKey] = useState(0);
+
+  const {
+    filters,
+    onSetFilters,
+    clearAllFilters,
+    osFilterOptions,
+    archFilterOptions,
+    statusFilterOptions,
+    isFiltered,
+  } = useContentListFilters(queryClient);
+
+  const resetFiltersAndPagination = useCallback(() => {
+    clearAllFilters();
+    // Nudge DataViewFilters to reinitialize the active attribute menu to the first filter
+    setFiltersActiveAttributeResetKey((current) => current + 1);
+    // Reset pagination when filters are cleared to avoid empty pages
+    setPage(1);
+  }, [clearAllFilters, setFiltersActiveAttributeResetKey, setPage]);
+
+  const originParam = urlSearchParams.get('origin');
 
   const isRedHatRepository =
     contentOrigin.length === 1 && contentOrigin[0] === ContentOrigin.REDHAT;
@@ -122,20 +179,14 @@ const ContentListTable = () => {
     contentOrigin.includes(ContentOrigin.COMMUNITY) &&
     contentOrigin.includes(ContentOrigin.REDHAT);
 
-  const [filterData, setFilterData] = useState<FilterData>({
-    searchQuery: '',
-    versions: [],
-    arches: [],
-    statuses: [],
-  });
-
-  const originParam = urlSearchParams.get('origin');
+  const hasReadOnlyAccess =
+    !rbac?.repoWrite || isRedHatRepository || isCommunityRepository || isRedHatOrCommunity;
 
   useEffect(() => {
     if (!features?.snapshots?.accessible) return;
 
     if (originParam === ContentOrigin.REDHAT) setContentOrigin([ContentOrigin.REDHAT]);
-  }, []);
+  }, [originParam, features?.snapshots?.accessible, setContentOrigin]);
 
   useEffect(() => {
     if (!features?.snapshots?.accessible) return;
@@ -145,42 +196,21 @@ const ContentListTable = () => {
     } else if (!isRedHatRepository && originParam) {
       setUrlSearchParams({});
     }
-  }, [contentOrigin, features?.snapshots?.accessible]);
-
-  const clearFilters = () =>
-    setFilterData({ searchQuery: '', versions: [], arches: [], statuses: [] });
-
-  const notFiltered =
-    !filterData.arches?.length &&
-    filterData.searchQuery === '' &&
-    !filterData.versions?.length &&
-    !filterData.statuses?.length;
-
-  const columnSortAttributes = [
-    'name',
-    'distribution_arch',
-    'distribution_versions',
-    'package_count',
-    'last_introspection_time',
-  ];
-
-  const sortString = useMemo(
-    () =>
-      activeSortIndex === -1
-        ? ''
-        : columnSortAttributes[activeSortIndex] + ':' + activeSortDirection,
-    [activeSortIndex, activeSortDirection],
-  );
+  }, [
+    contentOrigin,
+    features?.snapshots?.accessible,
+    isRedHatRepository,
+    originParam,
+    setUrlSearchParams,
+  ]);
 
   const {
     isLoading,
+    isFetching,
     error,
     isError,
-    isFetching,
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
-  } = useContentListQuery(page, perPage, filterData, sortString, contentOrigin, true, polling);
-
-  const actionTakingPlace = isFetching;
+  } = useContentListQuery(page, perPage, filters, sortString, contentOrigin, true, polling);
 
   useEffect(() => {
     if (isError) {
@@ -205,74 +235,6 @@ const ContentListTable = () => {
     return setPolling(containsPending);
   }, [data?.data]);
 
-  const { mutateAsync: introspectRepository } = useIntrospectRepositoryMutate(
-    queryClient,
-    page,
-    perPage,
-    contentOrigin,
-    filterData,
-    sortString,
-  );
-
-  const introspectRepoForUuid = (uuid: string): Promise<void> =>
-    introspectRepository({ uuid: uuid, reset_count: true } as IntrospectRepositoryRequestItem);
-
-  const { mutateAsync: triggerSnapshotMutation } = useTriggerSnapshot(queryClient);
-
-  const triggerSnapshot = async (uuid: string): Promise<void> => {
-    triggerSnapshotMutation(uuid);
-  };
-
-  useBulkDeleteContentItemMutate(
-    queryClient,
-    checkedRepositories,
-    page,
-    perPage,
-    contentOrigin,
-    filterData,
-    sortString,
-  );
-
-  const triggerIntrospectionAndSnapshot = async (repoUuid: string): Promise<void> => {
-    clearCheckedRepositories();
-    await introspectRepoForUuid(repoUuid);
-    await triggerSnapshot(repoUuid);
-  };
-
-  const onSetPage = (_, newPage) => setPage(newPage);
-
-  const onPerPageSelect = (_, newPerPage, newPage) => {
-    // Save this value through page refresh for use on next reload
-    localStorage.setItem(perPageKey, newPerPage.toString());
-    setPerPage(newPerPage);
-    setPage(newPage);
-  };
-
-  const sortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: activeSortIndex,
-      direction: activeSortDirection,
-      defaultDirection: 'asc', // starting sort direction when first sorting a column. Defaults to 'asc'
-    },
-    onSort: (_event, index, direction) => {
-      setActiveSortIndex(index);
-      setActiveSortDirection(direction);
-    },
-    columnIndex,
-  });
-
-  const columnHeaders = [
-    'Name',
-    'Architecture',
-    'OS versions',
-    'Packages',
-    'Last Introspection',
-    'Status',
-  ];
-
-  const lastIntrospectionDisplay = (time?: string): string =>
-    time === '' || time === undefined ? 'Never' : dayjs(time).fromNow();
-
   // Error is caught in the wrapper component
   if (isError) throw error;
   if (repositoryParamsIsError) throw repositoryParamsError;
@@ -282,8 +244,138 @@ const ContentListTable = () => {
     meta: { count = 0 },
   } = data;
 
+  // When Red Hat repositories return 0 without filters, raise an error
+  if (!isFiltered && count === 0 && !isFetching && isRedHatRepository) {
+    throw new Error('Unable to load Red Hat repositories');
+  }
+
+  const onSetPage = (_, newPage: number) => setPage(newPage);
+
+  const onPerPageSelect = (_, newPerPage: number, newPage: number) => {
+    localStorage.setItem(perPageKey, newPerPage.toString());
+    setPerPage(newPerPage);
+    setPage(newPage);
+  };
+
+  // Common pagination props to avoid duplication
+  const paginationProps = {
+    isDisabled: isLoading,
+    itemCount: count,
+    perPage,
+    page,
+    onSetPage,
+    onPerPageSelect,
+  };
+
+  const lastIntrospectionDisplay = (time?: string): string =>
+    time === '' || time === undefined ? 'Never' : dayjs(time).fromNow();
+
+  // Repository introspection status
+  const { mutateAsync: introspectRepository } = useIntrospectRepositoryMutate(
+    queryClient,
+    page,
+    perPage,
+    contentOrigin,
+    filters,
+    sortString,
+  );
+
+  // Ensure that repository statuses are properly displayed
+  const introspectRepoForUuid = (uuid: string): Promise<void> =>
+    introspectRepository({ uuid: uuid, reset_count: true } as IntrospectRepositoryRequestItem);
+
+  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
+  const { selected, onSelect, isSelected } = selection;
+
+  // Convert selected rows to selected repositories (required by Outlet context)
+  const selectedRepositories = useMemo(() => {
+    const selectedMap = new Map<string, ContentItem>();
+    selected.forEach((selectedRow) => {
+      const contentItem = contentList.find((item) => item.uuid === selectedRow.id);
+      if (contentItem) {
+        selectedMap.set(contentItem.uuid, contentItem);
+      }
+    });
+    return selectedMap;
+  }, [selected, contentList]);
+
+  // Function to clear selected repositories (required by Outlet context)
+  const clearSelectedRepositories = useMemo(() => () => onSelect(false), [onSelect]);
+
+  useBulkDeleteContentItemMutate(
+    queryClient,
+    selectedRepositories,
+    page,
+    perPage,
+    contentOrigin,
+    filters,
+    sortString,
+  );
+
+  const showPendingTooltip = (
+    snapshotStatus: string | undefined,
+    introspectStatus: string | undefined,
+  ) => {
+    if (!snapshotStatus && !introspectStatus) {
+      return 'Introspection or snapshotting is in progress';
+    } else if (snapshotStatus === 'running' || snapshotStatus === 'pending') {
+      return 'Snapshotting is in progress';
+    } else if (introspectStatus === 'Pending') {
+      return 'Introspection is in progress';
+    }
+  };
+
+  const ContentInformationCell = ({
+    rowData: { name, url, last_snapshot, origin },
+  }: {
+    rowData: Pick<ContentItem, 'name' | 'url' | 'last_snapshot' | 'origin'>;
+  }) => (
+    <>
+      {name}
+      <Hide hide={origin !== ContentOrigin.UPLOAD}>
+        <UploadRepositoryLabel />
+      </Hide>
+      <Hide hide={origin !== ContentOrigin.COMMUNITY}>
+        <CommunityRepositoryLabel />
+      </Hide>
+      <Hide hide={origin === ContentOrigin.UPLOAD}>
+        <UrlWithExternalIcon href={url} />
+      </Hide>
+      <Hide hide={!features?.snapshots?.accessible}>
+        <Flex>
+          <FlexItem className={classes.snapshotInfoText}>
+            {last_snapshot
+              ? `Last snapshot ${dayjs(last_snapshot?.created_at).fromNow()}`
+              : 'No snapshot yet'}
+          </FlexItem>
+          <Hide hide={!last_snapshot}>
+            <FlexItem className={classes.inline}>
+              <FlexItem className={classes.snapshotInfoText}>Changes:</FlexItem>
+              <ChangedArrows
+                addedCount={last_snapshot?.added_counts?.['rpm.package'] || 0}
+                removedCount={last_snapshot?.removed_counts?.['rpm.package'] || 0}
+              />
+            </FlexItem>
+          </Hide>
+        </Flex>
+      </Hide>
+    </>
+  );
+
+  const { mutateAsync: triggerSnapshotMutation } = useTriggerSnapshot(queryClient);
+
+  const triggerSnapshot = async (uuid: string): Promise<void> => {
+    await triggerSnapshotMutation(uuid);
+  };
+
+  const triggerIntrospectionAndSnapshot = async (repoUuid: string): Promise<void> => {
+    clearSelectedRepositories();
+    await introspectRepoForUuid(repoUuid);
+    await triggerSnapshot(repoUuid);
+  };
+
   const rowActions = useCallback(
-    (rowData: ContentItem): IAction[] =>
+    (rowData: ActionRowData): IAction[] =>
       isRedHatRepository ||
       rowData.origin === ContentOrigin.REDHAT ||
       rowData.origin === ContentOrigin.COMMUNITY
@@ -291,7 +383,7 @@ const ContentListTable = () => {
           ? [
               {
                 isDisabled:
-                  actionTakingPlace ||
+                  isFetching ||
                   !rowData.snapshot ||
                   !(rowData.snapshot && rowData.last_snapshot_uuid),
 
@@ -310,7 +402,7 @@ const ContentListTable = () => {
             ...(rbac?.repoWrite
               ? [
                   {
-                    isDisabled: actionTakingPlace || rowData?.status === 'Pending',
+                    isDisabled: isFetching || rowData?.status === 'Pending',
                     title: 'Edit',
                     ouiaId: 'kebab_edit',
                     onClick: () => {
@@ -320,7 +412,7 @@ const ContentListTable = () => {
                   ...(rowData.origin === ContentOrigin.UPLOAD
                     ? [
                         {
-                          isDisabled: actionTakingPlace || rowData?.status === 'Pending',
+                          isDisabled: isFetching || rowData?.status === 'Pending',
                           title: 'Upload content',
                           ouiaId: 'kebab_upload_content',
                           onClick: () => {
@@ -334,7 +426,7 @@ const ContentListTable = () => {
             ...(features?.snapshots?.accessible
               ? [
                   {
-                    isDisabled: actionTakingPlace || !rowData.last_snapshot_uuid,
+                    isDisabled: isFetching || !rowData.last_snapshot_uuid,
                     title: rowData.last_snapshot_uuid ? 'View all snapshots' : 'No snapshots yet',
                     ouiaId: 'kebab_view_snapshots',
                     onClick: () => {
@@ -346,11 +438,11 @@ const ContentListTable = () => {
                         {
                           id: 'actions-column-snapshot',
                           className:
-                            actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot
+                            isFetching || rowData?.status === 'Pending' || !rowData.snapshot
                               ? classes.disabledButton
                               : '',
                           isDisabled:
-                            actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot,
+                            isFetching || rowData?.status === 'Pending' || !rowData.snapshot,
                           title: 'Trigger snapshot',
                           ouiaId: 'kebab_trigger_snapshots',
                           onClick: () => {
@@ -373,11 +465,11 @@ const ContentListTable = () => {
             ...(rbac?.repoWrite && !rowData?.snapshot
               ? [
                   {
-                    isDisabled: actionTakingPlace || rowData?.status == 'Pending',
+                    isDisabled: isFetching || rowData?.status == 'Pending',
                     title: 'Introspect now',
                     ouiaId: 'kebab_introspect_now',
                     onClick: () =>
-                      introspectRepoForUuid(rowData?.uuid).then(clearCheckedRepositories),
+                      introspectRepoForUuid(rowData?.uuid).then(clearSelectedRepositories),
                   },
                 ]
               : []),
@@ -392,138 +484,286 @@ const ContentListTable = () => {
                 ]
               : []),
           ],
-    [actionTakingPlace, checkedRepositories, isRedHatRepository],
+    [isFetching, selectedRepositories, isRedHatRepository],
   );
 
-  const clearCheckedRepositories = () => setCheckedRepositories(new Map<string, ContentItem>());
+  const ContentListActionRow = ({ rowData }: { rowData: ActionRowData }) => (
+    <Hide hide={!rowActions(rowData)?.length}>
+      <ConditionalTooltip
+        content={showPendingTooltip(rowData?.last_snapshot_task?.status, rowData.status)}
+        show={!isRedHatRepository && rowData?.status === 'Pending'}
+      >
+        <ActionsColumn items={rowActions(rowData)} />
+      </ConditionalTooltip>
+    </Hide>
+  );
 
-  // Applied to all repos on current page
-  const selectAllRepos = (_, checked: boolean) => {
-    if (checked) {
-      const newMap = new Map<string, ContentItem>(checkedRepositories);
-      data.data.forEach((contentItem) => newMap.set(contentItem.uuid, contentItem));
-      setCheckedRepositories(newMap);
+  // Format rows for DataView using DataViewTd objects
+  // Selection is handled by DataView selection system using id and isSelected
+  const rows: DataViewTr[] = contentList.map(
+    ({
+      uuid,
+      name,
+      url,
+      origin,
+      last_snapshot,
+      snapshot,
+      last_snapshot_uuid,
+      distribution_arch,
+      distribution_versions,
+      last_introspection_time,
+      failed_introspections_count,
+      last_introspection_error,
+      last_snapshot_task,
+      package_count,
+      status,
+    }: ContentItem) => ({
+      id: uuid, // Used by useDataViewSelection for matching
+      origin: origin, // Used to determine if a repo is deletable
+      row: [
+        { cell: <ContentInformationCell rowData={{ name, url, last_snapshot, origin }} /> },
+        { cell: archesDisplay(distribution_arch) },
+        { cell: versionDisplay(distribution_versions) },
+        { cell: <PackageCount rowData={{ uuid, status, package_count }} /> },
+        { cell: lastIntrospectionDisplay(last_introspection_time) },
+        {
+          cell: (
+            <StatusIcon
+              rowData={{
+                uuid,
+                status,
+                failed_introspections_count,
+                last_introspection_time,
+                last_introspection_error,
+                last_snapshot_task,
+              }}
+              retryHandler={introspectRepoForUuid}
+            />
+          ),
+        },
+        {
+          cell: (
+            <ContentListActionRow
+              rowData={{
+                uuid,
+                origin,
+                status,
+                snapshot,
+                last_snapshot_uuid,
+                last_snapshot_task,
+              }}
+            />
+          ),
+          props: { isActionCell: true },
+        },
+      ] as DataViewTd[],
+    }),
+  );
+
+  const handleBulkSelect = (value: BulkSelectValue) => {
+    if (value === BulkSelectValue.none) {
+      onSelect(false);
+    } else if (value === BulkSelectValue.page) {
+      onSelect(
+        true,
+        contentList.map(({ uuid, origin }) => ({ id: uuid, origin })),
+      );
+    } else if (value === BulkSelectValue.nonePage) {
+      onSelect(
+        false,
+        contentList.map(({ uuid, origin }) => ({ id: uuid, origin })),
+      );
+    }
+  };
+
+  const pageSelected = rows.length > 0 && rows.every(isSelected);
+
+  const ouiaId = 'custom_repositories_table';
+
+  // We do not reuse the shared EmptyTableState component here. The DataView
+  // implementation needs slightly different behavior. EmptyTableState is also used by
+  // other tables that are not DataView-based, so changing it now would risk
+  // breaking existing logic in those components
+  const EmptyTable = () => {
+    const itemName =
+      contentOrigin.length >= 2 &&
+      contentOrigin.includes(ContentOrigin.EXTERNAL) &&
+      contentOrigin.includes(ContentOrigin.UPLOAD)
+        ? 'custom repositories'
+        : 'Red Hat repositories';
+
+    const titleText = isFiltered ? `No ${itemName} match the filter criteria` : `No ${itemName}`;
+
+    return (
+      <Tbody>
+        <Tr key='empty' ouiaId={`${ouiaId}-tr-empty`}>
+          <Td colSpan={columns.length}>
+            <EmptyState
+              icon={isFiltered ? CubesIcon : RepositoryIcon}
+              titleText={titleText}
+              headingLevel='h4'
+            >
+              <EmptyStateBody>
+                {isFiltered
+                  ? 'Clear all filters to show more results.'
+                  : 'To get started, create a custom repository.'}
+              </EmptyStateBody>
+              <EmptyStateFooter>
+                <EmptyStateActions>
+                  {isFiltered ? (
+                    <Button
+                      variant='primary'
+                      ouiaId='clear_filters'
+                      onClick={resetFiltersAndPagination}
+                    >
+                      Clear all filters
+                    </Button>
+                  ) : (
+                    <ConditionalTooltip
+                      content='You do not have the required permissions to perform this action.'
+                      show={!rbac?.repoWrite}
+                      setDisabled
+                    >
+                      <Button
+                        variant='primary'
+                        onClick={() => navigate(ADD_ROUTE)}
+                        isDisabled={isLoading || isRedHatOrCommunity}
+                      >
+                        Add repositories
+                      </Button>
+                    </ConditionalTooltip>
+                  )}
+                </EmptyStateActions>
+              </EmptyStateFooter>
+            </EmptyState>
+          </Td>
+        </Tr>
+      </Tbody>
+    );
+  };
+
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
     } else {
-      const newMap = new Map<string, ContentItem>(checkedRepositories);
-      for (const contentItem of data.data) {
-        newMap.delete(contentItem.uuid);
-      }
-      setCheckedRepositories(newMap);
+      setActiveState(count === 0 ? DataViewState.empty : undefined);
     }
-  };
+  }, [count, isLoading]);
 
-  const atLeastOneRepoChecked = useMemo(() => checkedRepositories.size >= 1, [checkedRepositories]);
+  const shouldEnableSelection =
+    !hasReadOnlyAccess &&
+    activeState !== DataViewState.empty &&
+    activeState !== DataViewState.loading;
 
-  const areAllReposSelected = useMemo(() => {
-    let atLeastOneSelectedOnPage = false;
-    const allSelectedOrPending = data.data.every((contentItem) => {
-      if (checkedRepositories.has(contentItem.uuid)) {
-        atLeastOneSelectedOnPage = true;
-      }
-      return checkedRepositories.has(contentItem.uuid);
-    });
-    // Returns false if all repos on current page are pending (none selected)
-    return allSelectedOrPending && atLeastOneSelectedOnPage;
-  }, [data, checkedRepositories]);
+  const isPartialSelection = rows.some(isSelected);
 
-  const onSelectRepo = (uuid: string, value: boolean, contentItem: ContentItem) => {
-    const newMap = new Map(checkedRepositories);
-    if (value) {
-      newMap.set(uuid, contentItem);
-    } else {
-      newMap.delete(uuid);
+  const allSelectedReposDeletable = [...selected.values()].every(
+    (repo) => repo.origin !== ContentOrigin.REDHAT && repo.origin !== ContentOrigin.COMMUNITY,
+  );
+
+  // Synchronize selection with the origin filter via targeted deselection (non-destructive)
+  useEffect(() => {
+    // Do nothing when nothing is selected or when no origin constraint is applied
+    if (!selected.length || contentOrigin.length === 0) return;
+
+    const isRedHatOnlySelected =
+      contentOrigin.includes(ContentOrigin.REDHAT) && contentOrigin.length === 1;
+
+    // If only Red Hat origin is active, don't modify selection
+    // Preserving selection avoids surprising clears of custom repositories the user may have selected previously
+    if (isRedHatOnlySelected) return;
+
+    // Remove only repositories whose origin does not match the active filter (keep valid selections)
+    const invalidSelections = selected.filter(
+      (selectedRepo) => !contentOrigin.includes(selectedRepo.origin),
+    );
+    if (invalidSelections.length) {
+      onSelect(false, invalidSelections);
     }
-    setCheckedRepositories(newMap);
-  };
-
-  const itemName =
-    contentOrigin.length >= 2 &&
-    contentOrigin.includes(ContentOrigin.EXTERNAL) &&
-    contentOrigin.includes(ContentOrigin.UPLOAD)
-      ? 'custom repositories'
-      : 'Red Hat repositories';
-  const notFilteredBody = 'To get started, create a custom repository';
-
-  const countIsZero = count === 0;
-  const showLoader = countIsZero && notFiltered && !isLoading;
-
-  // If Red Hat repositories returns a 0 count
-  if (notFiltered && countIsZero && !isFetching && isRedHatRepository) {
-    throw new Error('Unable to load Red Hat repositories');
-  }
-
-  const showPendingTooltip = (
-    snapshotStatus: string | undefined,
-    introspectStatus: string | undefined,
-  ) => {
-    if (!snapshotStatus && !introspectStatus) {
-      return 'Introspection or snapshotting is in progress';
-    } else if (snapshotStatus === 'running' || snapshotStatus === 'pending') {
-      return 'Snapshotting is in progress';
-    } else if (introspectStatus === 'Pending') {
-      return 'Introspection is in progress';
-    }
-  };
+  }, [contentOrigin, selected, onSelect]);
 
   return (
     <>
-      {/* This ensures that the modal doesn't temporarily flash on initial render */}
-      <Hide hide={isLoading}>
-        <Outlet
-          context={{
-            clearCheckedRepositories,
-            deletionContext: {
-              page,
-              perPage,
-              filterData,
-              contentOrigin,
-              sortString: sortString,
-              checkedRepositories,
-            },
-          }}
-        />
-      </Hide>
-      <div
+      <DataView
         data-ouia-component-id='content_list_page'
-        className={countIsZero ? classes.mainContainer100Height : classes.mainContainer}
+        activeState={activeState}
+        {...(shouldEnableSelection && { selection })}
+        className={`${spacing.pxLg} ${spacing.ptMd} ${flex.flexDirectionColumn}`}
       >
-        <Flex
-          justifyContent={{ default: 'justifyContentSpaceBetween' }}
-          className={`${spacing.pyMd} ${spacing.pxLg}`}
-        >
-          <ContentListFilters
-            contentOrigin={contentOrigin}
-            setContentOrigin={setContentOrigin}
-            isLoading={isLoading}
-            setFilterData={(values) => {
-              setFilterData(values);
-              setPage(1);
-            }}
-            filterData={filterData}
-            atLeastOneRepoChecked={atLeastOneRepoChecked}
-            numberOfReposChecked={checkedRepositories.size}
-            checkedRepositories={checkedRepositories}
-          />
-          <Pagination
-            id='top-pagination-id'
-            widgetId='topPaginationWidgetId'
-            isDisabled={isLoading}
-            itemCount={count}
-            perPage={perPage}
-            page={page}
-            onSetPage={onSetPage}
-            isCompact
-            onPerPageSelect={onPerPageSelect}
-          />
-        </Flex>
-        {showLoader ? (
-          <Bullseye data-ouia-component-id='content_list_page'>
-            <EmptyTableState
-              notFiltered={notFiltered}
-              clearFilters={clearFilters}
-              itemName={itemName}
-              notFilteredBody={notFilteredBody}
-              notFilteredButton={
+        <DataViewToolbar
+          clearAllFilters={resetFiltersAndPagination}
+          filters={
+            <>
+              <DataViewFilters
+                onChange={(key, newValues) => {
+                  // Apply filters and reset to the first page to reflect a new result set
+                  onSetFilters(newValues);
+                  setPage(1);
+                }}
+                values={filters}
+              >
+                <DataViewTextFilter
+                  key={`search-${filtersActiveAttributeResetKey}`}
+                  filterId='search'
+                  ouiaId='filter_search'
+                  title={FilterLabelsMap.Search}
+                  placeholder='Filter by name/url'
+                  isDisabled={isLoading}
+                />
+                <DataViewCheckboxFilter
+                  filterId='versions'
+                  ouiaId='filter_version'
+                  aria-label='filter OS version'
+                  title={FilterLabelsMap.Versions}
+                  placeholder='Filter by OS version'
+                  options={osFilterOptions}
+                />
+                <DataViewCheckboxFilter
+                  filterId='arches'
+                  ouiaId='filter_arch'
+                  aria-label='filter architecture'
+                  title={FilterLabelsMap.Arches}
+                  placeholder='Filter by architecture'
+                  options={archFilterOptions}
+                />
+                <DataViewCheckboxFilter
+                  filterId='statuses'
+                  ouiaId='filter_status'
+                  aria-label='filter status'
+                  title={FilterLabelsMap.Statuses}
+                  placeholder='Filter by status'
+                  options={statusFilterOptions}
+                />
+              </DataViewFilters>
+              <ContentOriginFilter
+                contentOrigin={contentOrigin}
+                setContentOrigin={setContentOrigin}
+              />
+            </>
+          }
+          bulkSelect={
+            <Hide hide={hasReadOnlyAccess}>
+              <BulkSelect
+                isDataPaginated
+                pageCount={contentList.length}
+                totalCount={count}
+                selectedCount={selected.length}
+                pageSelected={pageSelected}
+                pagePartiallySelected={!pageSelected && isPartialSelection}
+                onSelect={handleBulkSelect}
+                menuToggleCheckboxProps={{
+                  id: 'bulk-select-checkbox',
+                  isDisabled:
+                    activeState == DataViewState.empty || activeState == DataViewState.loading,
+                }}
+              />
+            </Hide>
+          }
+          actions={
+            <Flex>
+              <FlexItem>
                 <ConditionalTooltip
                   content='You do not have the required permissions to perform this action.'
                   show={!rbac?.repoWrite}
@@ -533,204 +773,85 @@ const ContentListTable = () => {
                     id='createContentSourceButton'
                     ouiaId='create_content_source'
                     variant='primary'
-                    isDisabled={isLoading}
+                    isDisabled={
+                      isLoading ||
+                      isRedHatRepository ||
+                      isCommunityRepository ||
+                      isRedHatOrCommunity
+                    }
                     onClick={() => navigate(ADD_ROUTE)}
                   >
                     Add repositories
                   </Button>
                 </ConditionalTooltip>
-              }
-            />
-          </Bullseye>
-        ) : (
-          <>
-            <Hide hide={!isLoading}>
-              <Grid className={classes.mainContainer}>
-                <SkeletonTable
-                  rows={perPage}
-                  columnsCount={columnHeaders.length}
-                  variant={TableVariant.compact}
-                />
-              </Grid>
-            </Hide>
-            <Hide hide={countIsZero || isLoading}>
-              <Stack className={spacing.pxLg}>
-                <Table
-                  aria-label='Custom repositories table'
-                  ouiaId='custom_repositories_table'
-                  variant='compact'
+              </FlexItem>
+              <FlexItem>
+                <ConditionalTooltip
+                  content={
+                    !rbac?.repoWrite
+                      ? 'You do not have the required permissions to perform this action.'
+                      : 'Some selected repositories (Red Hat or EPEL) cannot be deleted.'
+                  }
+                  show={!rbac?.repoWrite || !allSelectedReposDeletable}
+                  setDisabled
                 >
-                  <Thead>
-                    <Tr>
-                      <Hide
-                        hide={
-                          !rbac?.repoWrite ||
-                          isRedHatRepository ||
-                          isCommunityRepository ||
-                          isRedHatOrCommunity
-                        }
-                      >
-                        <Th
-                          aria-label='select-repo-checkbox'
-                          className={classes.checkboxMinWidth}
-                          select={{
-                            onSelect: selectAllRepos,
-                            isSelected: areAllReposSelected,
-                          }}
-                        />
-                      </Hide>
-                      {columnHeaders.map((columnHeader, index) =>
-                        columnHeader === 'Status' ? (
-                          <Th key={columnHeader + 'column'}>{columnHeader}</Th>
-                        ) : (
-                          <Th key={columnHeader + 'column'} sort={sortParams(index)}>
-                            {columnHeader}
-                          </Th>
-                        ),
-                      )}
-                      <Th aria-label='loading-spinner'>
-                        {actionTakingPlace && <Spinner size='md' />}
-                      </Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {contentList.map((rowData: ContentItem, index) => {
-                      const {
-                        uuid,
-                        name,
-                        url,
-                        last_snapshot,
-                        distribution_arch,
-                        distribution_versions,
-                        last_introspection_time,
-                        status,
-                        origin,
-                      } = rowData;
-                      return (
-                        <Tr key={uuid + status}>
-                          <Hide
-                            hide={
-                              !rbac?.repoWrite ||
-                              isRedHatRepository ||
-                              isCommunityRepository ||
-                              isRedHatOrCommunity
-                            }
-                          >
-                            <Td
-                              select={{
-                                rowIndex: index,
-                                onSelect: (_event, isSelecting) =>
-                                  onSelectRepo(rowData.uuid, isSelecting, rowData),
-                                isSelected: checkedRepositories.has(rowData.uuid),
-                              }}
-                            />
-                          </Hide>
-                          <Td>
-                            {name}
-                            <Hide hide={origin !== ContentOrigin.UPLOAD}>
-                              <UploadRepositoryLabel />
-                            </Hide>
-                            <Hide hide={origin !== ContentOrigin.COMMUNITY}>
-                              <CommunityRepositoryLabel />
-                            </Hide>
-                            <Hide hide={origin === ContentOrigin.UPLOAD}>
-                              <UrlWithExternalIcon href={url} />
-                            </Hide>
-                            <Hide hide={!features?.snapshots?.accessible}>
-                              <Flex>
-                                <FlexItem className={classes.snapshotInfoText}>
-                                  {last_snapshot
-                                    ? `Last snapshot ${dayjs(last_snapshot?.created_at).fromNow()}`
-                                    : 'No snapshot yet'}
-                                </FlexItem>
-                                <Hide hide={!last_snapshot}>
-                                  <FlexItem className={classes.inline}>
-                                    <FlexItem className={classes.snapshotInfoText}>
-                                      Changes:
-                                    </FlexItem>
-                                    <ChangedArrows
-                                      addedCount={last_snapshot?.added_counts?.['rpm.package'] || 0}
-                                      removedCount={
-                                        last_snapshot?.removed_counts?.['rpm.package'] || 0
-                                      }
-                                    />
-                                  </FlexItem>
-                                </Hide>
-                              </Flex>
-                            </Hide>
-                          </Td>
-                          <Td>{archesDisplay(distribution_arch)}</Td>
-                          <Td>{versionDisplay(distribution_versions)}</Td>
-                          <Td>
-                            <PackageCount rowData={rowData} />
-                          </Td>
-                          <Td>{lastIntrospectionDisplay(last_introspection_time)}</Td>
-                          <Td>
-                            <StatusIcon rowData={rowData} retryHandler={introspectRepoForUuid} />
-                          </Td>
-                          <Hide hide={!rowActions(rowData)?.length}>
-                            <Td isActionCell>
-                              <ConditionalTooltip
-                                content={showPendingTooltip(
-                                  rowData?.last_snapshot_task?.status,
-                                  rowData.status,
-                                )}
-                                show={!isRedHatRepository && rowData?.status === 'Pending'}
-                              >
-                                <ActionsColumn items={rowActions(rowData)} />
-                              </ConditionalTooltip>
-                            </Td>
-                          </Hide>
-                        </Tr>
-                      );
-                    })}
-                  </Tbody>
-                </Table>
-                <Flex className={classes.bottomContainer}>
-                  <FlexItem />
-                  <FlexItem>
-                    <Pagination
-                      id='bottom-pagination-id'
-                      widgetId='bottomPaginationWidgetId'
-                      itemCount={count}
-                      perPage={perPage}
-                      page={page}
-                      onSetPage={onSetPage}
-                      variant={PaginationVariant.bottom}
-                      onPerPageSelect={onPerPageSelect}
-                    />
-                  </FlexItem>
-                </Flex>
-              </Stack>
-            </Hide>
-            <Hide hide={!countIsZero || isLoading}>
-              <EmptyTableState
-                notFiltered={notFiltered}
-                clearFilters={clearFilters}
-                itemName={itemName}
-                notFilteredBody={notFilteredBody}
-                notFilteredButton={
-                  <ConditionalTooltip
-                    content='You do not have the required permissions to perform this action.'
-                    show={!rbac?.repoWrite}
-                    setDisabled
-                  >
-                    <Button
-                      id='createContentSourceButton'
-                      ouiaId='create_content_source'
-                      variant='primary'
-                      isDisabled={isLoading}
-                      onClick={() => navigate(ADD_ROUTE)}
-                    >
-                      Add repositories
-                    </Button>
-                  </ConditionalTooltip>
-                }
-              />
-            </Hide>
-          </>
-        )}
-      </div>
+                  <DeleteKebab
+                    isDisabled={!rbac?.repoWrite || !allSelectedReposDeletable}
+                    atLeastOneRepoChecked={isPartialSelection}
+                    numberOfReposChecked={selected.length}
+                    toggleOuiaId='custom_repositories_kebab_toggle'
+                  />
+                </ConditionalTooltip>
+              </FlexItem>
+            </Flex>
+          }
+          pagination={
+            <Pagination
+              id='top-pagination-id'
+              widgetId='topPaginationWidgetId'
+              {...paginationProps}
+              isCompact
+            />
+          }
+        />
+        <DataViewTable
+          aria-label='Custom repositories table'
+          ouiaId={ouiaId}
+          variant='compact'
+          columns={dataViewColumns}
+          rows={rows}
+          bodyStates={{
+            empty: <EmptyTable />,
+            loading: <SkeletonTableBody rowsCount={perPage} columnsCount={columns.length} />,
+          }}
+        />
+        <DataViewToolbar
+          pagination={
+            <Pagination
+              id='bottom-pagination-id'
+              widgetId='bottomPaginationWidgetId'
+              {...paginationProps}
+              variant='bottom'
+            />
+          }
+        />
+      </DataView>
+      {/* This ensures that the modal doesn't temporarily flash on the initial render */}
+      <Hide hide={isLoading}>
+        <Outlet
+          context={{
+            clearCheckedRepositories: clearSelectedRepositories,
+            deletionContext: {
+              page: page,
+              perPage: perPage,
+              filterData: filters,
+              contentOrigin: contentOrigin,
+              sortString: sortString,
+              checkedRepositories: selectedRepositories,
+            },
+          }}
+        />
+      </Hide>
     </>
   );
 };

@@ -21,9 +21,9 @@ test.describe('Snapshot Package Count and List', async () => {
     await test.step('Create a repository', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
       await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
-      await page.getByLabel('Name').fill(`${repoName}`);
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill(`${repoName}`);
       await page.getByLabel('Snapshotting').click();
-      await page.getByLabel('URL').fill(repoUrl);
+      await page.getByRole('textbox', { name: 'URL', exact: true }).fill(repoUrl);
       await page.getByRole('button', { name: 'Save', exact: true }).click();
     });
 
@@ -52,7 +52,7 @@ test.describe('Snapshot Package Count and List', async () => {
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'Edit' }).click();
       await page.getByPlaceholder('Enter name', { exact: true }).fill(editedRepo);
-      await page.getByLabel('URL').fill(editedRepoUrl);
+      await page.getByRole('textbox', { name: 'URL', exact: true }).fill(editedRepoUrl);
       await page.getByRole('button', { name: 'Save changes', exact: true }).click();
       const editedRow = await getRowByNameOrUrl(page, editedRepo);
       await expect(editedRow.getByText('Valid')).toBeVisible({ timeout: 60000 });

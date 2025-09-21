@@ -80,7 +80,7 @@ const buildContentListKey = (
     '',
   )}${filterData?.versions?.join('')}${filterData?.urls?.join('')}${filterData?.uuids?.join(
     '',
-  )}${filterData?.statuses?.join('')}${filterData?.availableForArch}${filterData?.availableForVersion}${filterData?.searchQuery}`;
+  )}${filterData?.statuses?.join('')}${filterData?.availableForArch}${filterData?.availableForVersion}${filterData?.search}`;
 
 export const useFetchContent = (uuid: string, enabled = true) => {
   const errorNotifier = useErrorNotification();

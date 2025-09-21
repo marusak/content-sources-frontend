@@ -28,7 +28,7 @@ export default function App() {
   );
 
   const [filterData] = useState<FilterData>({
-    searchQuery: '',
+    search: '',
     versions: [],
     arches: [],
     statuses: [],
