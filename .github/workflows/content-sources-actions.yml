@@ -116,6 +116,33 @@ jobs:
       - name: Build the application
         run: yarn build
 
+  malicious-package-check:
+    name: malicious-package-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          submodules: recursive
+
+      - name: Set up sparse checkout
+        uses: ./.github/actions/sparse-checkout-utils
+
+      - name: Generate list of additional malicious packages
+        working-directory: .github/
+        run: |
+          chmod +x workflowScripts/malware-to-purl.py
+          python3 workflowScripts/malware-to-purl.py
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          vulnerability-check: true
+          comment-summary-in-pr: on-failure
+          config-file: .github/dependency-review-config.yml
+
   unit-test:
     name: unit-test
     runs-on: ubuntu-latest
