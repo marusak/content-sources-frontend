@@ -8,6 +8,13 @@ import { test, expect, RepositoriesApi, FeaturesApi } from 'test-utils';
  */
 
 test.describe('Pulp Fixture Repository Introspection', () => {
+  test.use({
+    storageState: '.auth/stable_sam_stage.json',
+    extraHTTPHeaders: process.env.STABLE_SAM_STAGE_TOKEN
+      ? { Authorization: process.env.STABLE_SAM_STAGE_TOKEN }
+      : {},
+  });
+
   test('should validate pulp fixture repository introspection for stable_sam_stage user', async ({
     client,
   }) => {
@@ -18,25 +25,16 @@ test.describe('Pulp Fixture Repository Introspection', () => {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     await test.step('Check if stable_sam_stage user has snapshot support', async () => {
-      const features = await featuresApi.listFeatures({
-        headers: {
-          Authorization: process.env.STABLE_SAM_STAGE_TOKEN || '',
-        },
-      });
+      const features = await featuresApi.listFeatures();
 
       expect(features.snapshots).toBeDefined();
       expect(features.snapshots?.accessible).toBe(true);
       expect(features.snapshots?.enabled).toBe(true);
     });
 
-    const pulpReposResponse = await repositoriesApi.listRepositories(
-      { search: 'fixtures.pulpproject.org' },
-      {
-        headers: {
-          Authorization: process.env.STABLE_SAM_STAGE_TOKEN || '',
-        },
-      },
-    );
+    const pulpReposResponse = await repositoriesApi.listRepositories({
+      search: 'fixtures.pulpproject.org',
+    });
     const existingPulpRepos = pulpReposResponse.data || [];
 
     await test.step('Validate existing pulp repositories count', async () => {
