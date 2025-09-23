@@ -67,3 +67,8 @@ export const reduceStringToCharsWithEllipsis = (str: string, maxLength: number =
 // Removes any cases of 3+ line breaks and replaces them with 2
 export const formatDescription = (description: string): string =>
   description.replace(/\n{3,}/g, '\n\n');
+
+// test a string to be a valid UUID
+const UUIDPATTERN =
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+export const checkValidUUID = (uuidToTest: string): boolean => UUIDPATTERN.test(uuidToTest);

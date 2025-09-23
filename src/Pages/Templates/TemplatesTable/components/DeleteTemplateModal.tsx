@@ -24,6 +24,7 @@ import {
 import { DETAILS_ROUTE, SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import { useListSystemsByTemplateId } from 'services/Systems/SystemsQueries';
 import { ActionButtons } from 'components/ActionButtons/ActionButtons';
+import { checkValidUUID } from 'helpers';
 
 const useStyles = createUseStyles({
   description: {
@@ -48,6 +49,9 @@ export default function DeleteTemplateModal() {
   const isOverTemplateDetail = useLocation().pathname.includes('details');
 
   const { templateUUID: uuid } = useParams();
+  const isValidUUID = checkValidUUID(uuid!);
+
+  if (!isValidUUID) throw new Error('UUID is invalid');
 
   const { data: templateData, isLoading: isTemplateLoading } = useFetchTemplate(uuid!);
 
