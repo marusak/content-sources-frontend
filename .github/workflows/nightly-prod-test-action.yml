@@ -1,0 +1,151 @@
+name: nightly-prod-test-action
+on:
+  schedule:
+    - cron: '0 0 * * *' # This cron expression runs the action every 24 hours at midnight UTC
+
+  workflow_dispatch:
+
+concurrency:
+  group: integration-group
+  cancel-in-progress: true
+
+jobs:
+  playwright-integration-test:
+    runs-on:
+      - codebuild-content-services-int-repo-${{ github.run_id }}-${{ github.run_attempt }}
+      - instance-size:large
+      - buildspec-override:true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up sparse checkout
+        uses: ./.github/actions/sparse-checkout-utils
+
+      - name: Cache - node_modules
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            dist
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-frontend-node-modules-
+
+      - name: Cache Playwright browsers
+        if: ${{ !cancelled() }}
+        id: cache-playwright-browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('playwright.config.ts') }}
+          restore-keys: ${{ runner.os }}-playwright-
+
+      - name: Create .env file
+        run: |
+          echo "PROD=true" >> .env
+          echo "CI=true" >> .env
+          echo "RBAC=true" >> .env
+          echo "INTEGRATION=true" >> .env
+          echo "BASE_URL=$PROD_BASE_URL" >> .env
+          echo "PROXY=$PROXY" >> .env
+          echo "ADMIN_USERNAME=$PROD_ADMIN_USERNAME" >> .env
+          echo "ADMIN_PASSWORD=$PROD_ADMIN_PASSWORD" >> .env
+          echo "READONLY_USERNAME=$PROD_READONLY_USERNAME" >> .env
+          echo "READONLY_PASSWORD=$PROD_READONLY_PASSWORD" >> .env
+          echo "RHEL_OPERATOR_USERNAME=$PROD_RHEL_OPERATOR_USERNAME" >> .env
+          echo "RHEL_OPERATOR_PASSWORD=$PROD_RHEL_OPERATOR_PASSWORD" >> .env
+          echo "LAYERED_REPO_ACCESS_USERNAME=$PROD_LAYERED_REPO_ACCESS_USERNAME" >> .env
+          echo "LAYERED_REPO_ACCESS_PASSWORD=$PROD_LAYERED_REPO_ACCESS_PASSWORD" >> .env
+          echo "RHEL_ONLY_ACCESS_USERNAME=$PROD_RHEL_ONLY_ACCESS_USERNAME" >> .env
+          echo "RHEL_ONLY_ACCESS_PASSWORD=$PROD_RHEL_ONLY_ACCESS_PASSWORD" >> .env
+          echo "NO_SUBS_USER_USERNAME=$PROD_NO_SUBS_USER_USERNAME" >> .env
+          echo "NO_SUBS_USER_PASSWORD=$PROD_NO_SUBS_USER_PASSWORD" >> .env
+          echo "NO_SUBS_USER_ACTIVATION_KEY=$PROD_NO_SUBS_USER_ACTIVATION_KEY" >> .env
+          echo "NO_SUBS_USER_ORG_ID=$PROD_NO_SUBS_USER_ORG_ID" >> .env
+          echo "ORG_ID_1=$PROD_ORG_ID" >> .env
+          echo "ACTIVATION_KEY_1=$PROD_ACTIVATION_KEY" >> .env
+          echo "LAYERED_REPO_ACCESS_ORG_ID=$PROD_LAYERED_REPO_ACCESS_ORG_ID" >> .env
+          echo "LAYERED_REPO_ACCESS_ACTIVATION_KEY=$PROD_LAYERED_REPO_ACCESS_ACTIVATION_KEY" >> .env
+          echo "DOCKER_SOCKET=/var/run/docker.sock" >> .env
+          echo "STABLE_SAM_USERNAME=$PROD_STABLE_SAM_USERNAME" >> .env
+          echo "STABLE_SAM_PASSWORD=$PROD_STABLE_SAM_PASSWORD" >> .env
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: CURRENTS_PROJECT_ID=jRJFbV CURRENTS_RECORD_KEY=$CURRENTS_RECORD_KEY CURRENTS_CI_BUILD_ID="${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt }}" yarn playwright test
+
+      - name: Publish Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: './playwright-ctrf/playwright-ctrf.json'
+        if: ${{ !cancelled() }}
+
+      - name: Store report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: ./playwright-ctrf
+          retention-days: 10
+
+      - name: Notify Slack on success
+        uses: slackapi/slack-github-action@v2.1.1
+        if: ${{ success() && github.event_name != 'pull_request' && !cancelled() }}
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "#2EB67D",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :stars: Nightly test run>: *SUCCESS* :partymeow:"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Notify Slack on failure
+        uses: slackapi/slack-github-action@v2.1.1
+        if: ${{ failure() && github.event_name != 'pull_request' && !cancelled() }}
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "#d72839",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :stars: Nightly test run>: *FAILED* :big-sad:"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
