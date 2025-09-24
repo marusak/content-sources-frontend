@@ -49,7 +49,7 @@ const DeleteKebab = ({ atLeastOneRepoChecked, numberOfReposChecked, isDisabled }
       <DropdownList>
         <ConditionalTooltip
           key='delete'
-          content='Choose one or more repositories to delete.'
+          content='Select at least one repository to delete.'
           show={!atLeastOneRepoChecked}
           setDisabled
         >
