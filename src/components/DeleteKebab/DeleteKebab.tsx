@@ -49,14 +49,14 @@ const DeleteKebab = ({ atLeastOneRepoChecked, numberOfReposChecked, isDisabled }
       <DropdownList>
         <ConditionalTooltip
           key='delete'
-          content='Make a selection below to delete multiple repositories'
+          content='Choose one or more repositories to delete.'
           show={!atLeastOneRepoChecked}
           setDisabled
         >
           <DropdownItem onClick={() => navigate(DELETE_ROUTE)}>
-            {atLeastOneRepoChecked
-              ? `Delete ${numberOfReposChecked} repositories`
-              : 'Delete selected repositories'}
+            {numberOfReposChecked <= 1
+              ? 'Delete repository'
+              : `Delete ${numberOfReposChecked} repositories`}
           </DropdownItem>
         </ConditionalTooltip>
       </DropdownList>

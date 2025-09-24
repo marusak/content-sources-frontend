@@ -18,7 +18,7 @@ it('Render no checked repos', async () => {
   const kebab = getByRole('button', { name: 'plain kebab' });
   await userEvent.click(kebab as Element);
 
-  const deleteButton = getByRole('menuitem', { name: 'Delete selected repositories' });
+  const deleteButton = getByRole('menuitem', { name: 'Delete repository' });
   expect(deleteButton).toBeInTheDocument();
   expect(deleteButton).toHaveAttribute('disabled');
 });
