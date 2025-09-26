@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const path = require('path');
 const { dependencies, insights } = require('./package.json');
+const { sentryWebpackPlugin } = require('@sentry/webpack-plugin');
 
 const sassPrefix = insights.appname.replace(/-(\w)/g, (_, match) => match.toUpperCase());
 const srcDir = path.resolve(__dirname, './src');
@@ -12,7 +13,23 @@ module.exports = {
   devtool: 'hidden-source-map',
   useProxy: true,
   interceptChromeConfig: false,
-  plugins: [],
+  plugins: [
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [
+          sentryWebpackPlugin({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: process.env.SENTRY_ORG,
+            project: process.env.SENTRY_PROJECT,
+            _experiments: {
+              moduleMetadata: ({ release }) => ({
+                dsn: process.env.SENTRY_INVENTORY_DSN,
+                release,
+              }),
+            },
+          }),
+        ]
+      : []),
+  ],
   moduleFederation: {
     exposes: {
       './RootApp': path.resolve(__dirname, './src/AppEntry.tsx'),
