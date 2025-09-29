@@ -33,17 +33,3 @@ parameters:
     required: true
   - name: IMAGE
     value: quay.io/redhat-services-prod/insights-management-tenant/insights-content-sources/content-sources-frontend
-  - name: SELENIUM_MEMORY_LIMIT
-    value: 3Gi
-  - name: SELENIUM_CPU_REQUEST
-    value: 100m
-  - name: SELENIUM_MEMORY_REQUEST
-    value: 2Gi
-  - name: SELENIUM_JAVA_OPTS
-    value: ""
-  - name: VNC_GEOMETRY
-    value: "1920x1080"
-  - name: IQE_PARALLEL_ENABLED
-    value: "false"
-  - name: SE_NODE_SESSION_TIMEOUT
-    value: "600"
