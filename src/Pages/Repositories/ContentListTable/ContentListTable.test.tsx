@@ -117,7 +117,7 @@ it('Render with a single row', async () => {
   expect(getByRole('menuitem', { name: 'Delete' })).toBeInTheDocument();
 });
 
-it('disables EPEL checkboxes when Custom and EPEL tabs active', async () => {
+it('disables EPEL checkboxes when Custom and EPEL tabs are active', async () => {
   (useRepositoryParams as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     data: testRepositoryParamsResponse,
@@ -150,7 +150,7 @@ it('disables EPEL checkboxes when Custom and EPEL tabs active', async () => {
   expect(epelRepoCheckbox).toBeDisabled();
 });
 
-it('disables checkboxes for community repos when no origin tab is selected', async () => {
+it('disables checkboxes for Community repos when no origin tab is active', async () => {
   (useRepositoryParams as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     data: testRepositoryParamsResponse,
@@ -200,7 +200,7 @@ it('disables checkboxes for community repos when no origin tab is selected', asy
   expect(epelRepoCheckbox).toBeDisabled();
 });
 
-it('disables delete kebab when Red Hat and/or EPEL tabs selected and shows read-only tooltip', async () => {
+it('disables delete kebab when Red Hat and/or EPEL tabs are active and shows read-only tooltip', async () => {
   (useRepositoryParams as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     data: testRepositoryParamsResponse,
@@ -233,7 +233,7 @@ it('disables delete kebab when Red Hat and/or EPEL tabs selected and shows read-
   ).toBeInTheDocument();
 });
 
-it('hides bulk select when Red Hat and/or EPEL tabs selected', async () => {
+it('hides bulk select when Red Hat and/or EPEL tabs are active', async () => {
   (useRepositoryParams as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     data: testRepositoryParamsResponse,
@@ -269,7 +269,7 @@ it('disables bulk select and shows tooltip when no custom repositories are on th
     isLoading: false,
     data: {
       data: [defaultEPELRepository, defaultRedHatRepository],
-      meta: { count: 3, limit: 20, offset: 0 },
+      meta: { count: 2, limit: 20, offset: 0 },
     },
   }));
 
