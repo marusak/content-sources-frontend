@@ -19,10 +19,10 @@ objects:
           - /apps/content-sources
       image: ${IMAGE}:${IMAGE_TAG}
       module:
-        manifestLocation: "/apps/content-sources/fed-mods.json"
+        manifestLocation: /apps/content-sources/fed-mods.json
         modules:
-          - id: "insights-content-sources"
-            module: "./RootApp"
+          - id: insights-content-sources
+            module: ./RootApp
             routes:
               - pathname: /insights/content
 
