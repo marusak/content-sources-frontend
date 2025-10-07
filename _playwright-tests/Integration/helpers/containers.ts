@@ -33,7 +33,14 @@ const startContainer = async (containerName: string, imageName: string) => {
     name: containerName,
     HostConfig: {
       Privileged: true,
+      Binds: ['/sys/fs/cgroup:/sys/fs/cgroup:rw'],
+      Tmpfs: {
+        '/tmp': 'rw,noexec,nosuid,size=100m',
+        '/run': 'rw,noexec,nosuid,size=100m',
+        '/run/lock': 'rw,noexec,nosuid,size=100m',
+      },
     },
+    Tty: true,
   });
   return container?.start();
 };

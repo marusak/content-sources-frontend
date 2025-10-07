@@ -25,12 +25,57 @@ export class RHSMClient {
   }
 
   /**
-   * Starts an rhsm client container
+   * Starts an rhsm client container and waits for services to be ready
    * @param version OS and version to boot
    * @returns
    */
   async Boot(version: OSVersion) {
-    return startNewContainer(this.name, RemoteImages[version]);
+    await startNewContainer(this.name, RemoteImages[version]);
+
+    // Wait for systemd and dbus to be ready
+    await this.waitForServicesReady();
+  }
+
+  /**
+   * Waits for systemd services (especially dbus) to be ready
+   * @returns
+   */
+  private async waitForServicesReady() {
+    // Wait for systemd to be ready
+    let attempts = 0;
+    const maxAttempts = 30; // 30 seconds max wait
+
+    while (attempts < maxAttempts) {
+      try {
+        // Check if dbus socket exists
+        const dbusCheck = await runCommand(
+          this.name,
+          ['test', '-S', '/var/run/dbus/system_bus_socket'],
+          1000,
+        );
+        if (dbusCheck?.exitCode === 0) {
+          console.log(`Services ready for container ${this.name}`);
+          return;
+        }
+
+        // If dbus socket doesn't exist, try to start dbus service
+        if (attempts === 5) {
+          console.log(`Attempting to start dbus service for container ${this.name}`);
+          await runCommand(this.name, ['systemctl', 'start', 'dbus'], 5000);
+        }
+      } catch {
+        console.log(
+          `Waiting for services in container ${this.name}, attempt ${attempts + 1}/${maxAttempts}`,
+        );
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+      attempts++;
+    }
+
+    console.warn(
+      `Services may not be fully ready for container ${this.name} after ${maxAttempts} seconds`,
+    );
   }
 
   /**
