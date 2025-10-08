@@ -86,6 +86,7 @@ test.describe('Templates CRUD', () => {
       await page.getByRole('button', { name: 'Confirm changes', exact: true }).click();
     });
     await test.step('Delete the template', async () => {
+      await navigateToTemplates(page);
       const rowTemplate = await getRowByNameOrUrl(page, `${templateName}-edited`);
       await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await rowTemplate.getByLabel('Kebab toggle').click();

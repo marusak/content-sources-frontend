@@ -23,7 +23,7 @@ import {
 } from './constants';
 import { useAppContext } from 'middleware/AppContext';
 import TemplateDetails from 'Pages/Templates/TemplateDetails/TemplateDetails';
-import { AddTemplate } from 'Pages/Templates/TemplatesTable/components/AddTemplate/AddTemplate';
+import { AddOrEditTemplate } from 'Pages/Templates/TemplatesTable/components/AddOrEditTemplate/AddOrEditTemplate';
 import TemplatesTable from 'Pages/Templates/TemplatesTable/TemplatesTable';
 import { NoPermissionsPage } from 'components/NoPermissionsPage/NoPermissionsPage';
 import AddSystemModal from 'Pages/Templates/TemplateDetails/components/AddSystems/AddSystemModal';
@@ -161,6 +161,9 @@ export default function RepositoriesRoutes() {
               <Route path={ADD_ROUTE} element={<AddSystemModal />} />
             ) : null}
           </Route>
+          {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
+            <Route path={`${EDIT_ROUTE}`} element={<AddOrEditTemplate />} />
+          ) : null}
           {rbac?.templateWrite ? (
             <Route path={`${DELETE_ROUTE}`} element={<DeleteTemplateModal />} />
           ) : null}
@@ -168,8 +171,8 @@ export default function RepositoriesRoutes() {
         <Route path={TEMPLATES_ROUTE} element={<TemplatesTable />}>
           {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
             <>
-              <Route key='1' path={ADD_ROUTE} element={<AddTemplate />} />
-              <Route key='2' path={`:templateUUID/${EDIT_ROUTE}`} element={<AddTemplate />} />
+              <Route key='1' path={ADD_ROUTE} element={<AddOrEditTemplate />} />
+              <Route key='2' path={`:templateUUID/${EDIT_ROUTE}`} element={<AddOrEditTemplate />} />
               <Route
                 key='3'
                 path={`:templateUUID/${DELETE_ROUTE}`}

@@ -10,8 +10,8 @@ import {
 } from '@patternfly/react-core';
 
 import useRootPath from 'Hooks/useRootPath';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TEMPLATES_ROUTE } from 'Routes/constants';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import { useCreateTemplateQuery, useEditTemplateQuery } from 'services/Templates/TemplateQueries';
 import { AddTemplateContextProvider, useAddTemplateContext } from './AddTemplateContext';
 import RedhatRepositoriesStep from './steps/RedhatRepositoriesStep';
@@ -22,7 +22,7 @@ import DefineContentStep from './steps/DefineContentStep';
 import SetUpDateStep from './steps/SetUpDateStep';
 import DetailStep from './steps/DetailStep';
 import ReviewStep from './steps/ReviewStep';
-import { formatTemplateDate } from 'helpers';
+import { checkValidUUID, formatTemplateDate } from 'helpers';
 import { isEmpty } from 'lodash';
 import { createUseStyles } from 'react-jss';
 import { useMemo } from 'react';
@@ -48,13 +48,20 @@ const indexMapper = {
   review_step: 7,
 };
 
-const AddTemplateBase = () => {
+const AddOrEditTemplateBase = () => {
   const rootPath = useRootPath();
   const classes = useStyles();
   const navigate = useNavigate();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 
+  // edit template modal can be placed over templates list page or the template details page
+  const isOverTemplateDetail = useLocation().pathname.includes('details');
+
   const { isEdit, templateRequest, checkIfCurrentStepValid, editUUID } = useAddTemplateContext();
+
+  // only checking when in EditTemplate mode
+  const isValidUUID = isEdit ? checkValidUUID(editUUID!) : null;
+  if (isValidUUID !== null && !isValidUUID) throw new Error('UUID is invalid');
 
   const initialIndex = useMemo(() => {
     const tabValue = urlSearchParams.get('tab');
@@ -63,7 +70,13 @@ const AddTemplateBase = () => {
   }, []);
 
   const { queryClient } = useAddTemplateContext();
-  const onClose = () => navigate(`${rootPath}/${TEMPLATES_ROUTE}`);
+
+  const onCancel = () =>
+    navigate(
+      isOverTemplateDetail
+        ? `${rootPath}/${TEMPLATES_ROUTE}/${editUUID}/${DETAILS_ROUTE}`
+        : `${rootPath}/${TEMPLATES_ROUTE}`,
+    );
 
   const { mutateAsync: addTemplate, isLoading: isAdding } = useCreateTemplateQuery(queryClient, {
     ...(templateRequest as TemplateRequest),
@@ -89,7 +102,7 @@ const AddTemplateBase = () => {
       aria-describedby='edit-add-template-modal-wizard-description'
       variant={ModalVariant.large}
       isOpen
-      onClose={isEdit && isEmpty(templateRequest) ? onClose : undefined}
+      onClose={isEdit && isEmpty(templateRequest) ? onCancel : undefined}
       disableFocusTrap
     >
       {isEdit && isEmpty(templateRequest) ? (
@@ -105,11 +118,11 @@ const AddTemplateBase = () => {
               data-ouia-component-id={`${isEdit ? 'edit' : 'create'}_content_template`}
               description='Prepare for your next patching cycle with a content template.'
               descriptionId='edit-add-template-modal-wizard-description'
-              onClose={onClose}
+              onClose={onCancel}
               closeButtonAriaLabel={`close_${isEdit ? 'edit' : 'create'}_content_template`}
             />
           }
-          onClose={onClose}
+          onClose={onCancel}
           startIndex={initialIndex}
           onStepChange={
             isEdit
@@ -179,12 +192,12 @@ const AddTemplateBase = () => {
                   ...sharedFooterProps,
                   nextButtonProps: { ouiaId: 'wizard-edit-btn' },
                   nextButtonText: 'Confirm changes',
-                  onNext: () => editTemplate().then(() => onClose()),
+                  onNext: () => editTemplate().then(() => onCancel()),
                   isNextDisabled: isEditing,
                 }
               ) : (
                 <WizardFooterWrapper>
-                  <AddNavigateButton isAdding={isAdding} onClose={onClose} add={addTemplate} />
+                  <AddNavigateButton isAdding={isAdding} onClose={onCancel} add={addTemplate} />
                 </WizardFooterWrapper>
               )
             }
@@ -198,10 +211,10 @@ const AddTemplateBase = () => {
 };
 
 // Wrap the modal with the provider
-export function AddTemplate() {
+export function AddOrEditTemplate() {
   return (
     <AddTemplateContextProvider>
-      <AddTemplateBase />
+      <AddOrEditTemplateBase />
     </AddTemplateContextProvider>
   );
 }
