@@ -94,7 +94,7 @@ export class RHSMClient {
     if (activationKey == undefined) {
       activationKey = process.env.ACTIVATION_KEY_1 || 'COULD_NOT_FIND_KEY';
     }
-    if (activationKey == undefined) {
+    if (orgId == undefined) {
       orgId = process.env.ORG_ID_1 || 'COULD_NOT_FIND_ORG_ID';
     }
 
