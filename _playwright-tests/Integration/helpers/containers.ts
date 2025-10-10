@@ -125,7 +125,23 @@ export const runCommand = async (
   command: string[],
   timeout_ms?: number,
 ): Promise<ExecReturn | void> => {
-  console.log('Running ' + command + ' on ' + containerName);
+  // Sanitize command for logging - hide sensitive parameters
+  const sanitizedCommand = command.map((arg, index) => {
+    const prevArg = command[index - 1];
+    // Hide activation keys and passwords
+    if (
+      prevArg === '--activationkey' ||
+      prevArg === '-a' ||
+      prevArg === '--password' ||
+      prevArg === '-p' ||
+      arg.includes('activation') ||
+      arg.includes('password')
+    ) {
+      return '***REDACTED***';
+    }
+    return arg;
+  });
+  console.log('Running ' + sanitizedCommand.join(' ') + ' on ' + containerName);
 
   const controller = new AbortController();
   const signal = controller.signal;

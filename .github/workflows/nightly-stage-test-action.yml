@@ -52,32 +52,35 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "CI=true" >> .env
-          echo "RBAC=true" >> .env
-          echo "INTEGRATION=true" >> .env
-          echo "BASE_URL=\"$STAGE_BASE_URL\"" >> .env
-          echo "PROXY=\"$STAGE_PROXY\"" >> .env
-          echo "ADMIN_USERNAME=\"$STAGE_ADMIN_USERNAME\"" >> .env
-          echo "ADMIN_PASSWORD=\"$STAGE_ADMIN_PASSWORD\"" >> .env
-          echo "READONLY_USERNAME=\"$STAGE_READONLY_USERNAME\"" >> .env
-          echo "READONLY_PASSWORD=\"$STAGE_READONLY_PASSWORD\"" >> .env
-          echo "RHEL_OPERATOR_USERNAME=\"$STAGE_RHEL_OPERATOR_USERNAME\"" >> .env
-          echo "RHEL_OPERATOR_PASSWORD=\"$STAGE_RHEL_OPERATOR_PASSWORD\"" >> .env
-          echo "LAYERED_REPO_ACCESS_USERNAME=\"$STAGE_LAYERED_REPO_ACCESS_USERNAME\"" >> .env
-          echo "LAYERED_REPO_ACCESS_PASSWORD=\"$STAGE_LAYERED_REPO_ACCESS_PASSWORD\"" >> .env
-          echo "RHEL_ONLY_ACCESS_USERNAME=\"$STAGE_RHEL_ONLY_ACCESS_USERNAME\"" >> .env
-          echo "RHEL_ONLY_ACCESS_PASSWORD=\"$STAGE_RHEL_ONLY_ACCESS_PASSWORD\"" >> .env
-          echo "NO_SUBS_USER_USERNAME=\"$STAGE_NO_SUBS_USER_USERNAME\"" >> .env
-          echo "NO_SUBS_USER_PASSWORD=\"$STAGE_NO_SUBS_USER_PASSWORD\"" >> .env
-          echo "NO_SUBS_USER_ACTIVATION_KEY=\"$STAGE_NO_SUBS_USER_ACTIVATION_KEY\"" >> .env
-          echo "NO_SUBS_USER_ORG_ID=\"$STAGE_NO_SUBS_USER_ORG_ID\"" >> .env
-          echo "ORG_ID_1=\"$STAGE_ORG_ID\"" >> .env
-          echo "ACTIVATION_KEY_1=\"$STAGE_ACTIVATION_KEY\"" >> .env
-          echo "LAYERED_REPO_ACCESS_ORG_ID=\"$STAGE_LAYERED_REPO_ACCESS_ORG_ID\"" >> .env
-          echo "LAYERED_REPO_ACCESS_ACTIVATION_KEY=\"$STAGE_LAYERED_REPO_ACCESS_ACTIVATION_KEY\"" >> .env
-          echo "DOCKER_SOCKET=/var/run/docker.sock" >> .env
-          echo "STABLE_SAM_USERNAME=\"$STAGE_STABLE_SAM_USERNAME\"" >> .env
-          echo "STABLE_SAM_PASSWORD=\"$STAGE_STABLE_SAM_PASSWORD\"" >> .env
+          {
+            echo "CI=true"
+            echo "RBAC=true"
+            echo "INTEGRATION=true"
+            echo "BASE_URL=\"$STAGE_BASE_URL\""
+            echo "PROXY=\"$STAGE_PROXY\""
+            echo "ADMIN_USERNAME=\"$STAGE_ADMIN_USERNAME\""
+            echo "ADMIN_PASSWORD=\"$STAGE_ADMIN_PASSWORD\""
+            echo "READONLY_USERNAME=\"$STAGE_READONLY_USERNAME\""
+            echo "READONLY_PASSWORD=\"$STAGE_READONLY_PASSWORD\""
+            echo "RHEL_OPERATOR_USERNAME=\"$STAGE_RHEL_OPERATOR_USERNAME\""
+            echo "RHEL_OPERATOR_PASSWORD=\"$STAGE_RHEL_OPERATOR_PASSWORD\""
+            echo "LAYERED_REPO_ACCESS_USERNAME=\"$STAGE_LAYERED_REPO_ACCESS_USERNAME\""
+            echo "LAYERED_REPO_ACCESS_PASSWORD=\"$STAGE_LAYERED_REPO_ACCESS_PASSWORD\""
+            echo "RHEL_ONLY_ACCESS_USERNAME=\"$STAGE_RHEL_ONLY_ACCESS_USERNAME\""
+            echo "RHEL_ONLY_ACCESS_PASSWORD=\"$STAGE_RHEL_ONLY_ACCESS_PASSWORD\""
+            echo "NO_SUBS_USER_USERNAME=\"$STAGE_NO_SUBS_USER_USERNAME\""
+            echo "NO_SUBS_USER_PASSWORD=\"$STAGE_NO_SUBS_USER_PASSWORD\""
+            echo "NO_SUBS_USER_ACTIVATION_KEY=\"$STAGE_NO_SUBS_USER_ACTIVATION_KEY\""
+            echo "NO_SUBS_USER_ORG_ID=\"$STAGE_NO_SUBS_USER_ORG_ID\""
+            echo "ORG_ID_1=\"$STAGE_ORG_ID\""
+            echo "ACTIVATION_KEY_1=\"$STAGE_ACTIVATION_KEY\""
+            echo "LAYERED_REPO_ACCESS_ORG_ID=\"$STAGE_LAYERED_REPO_ACCESS_ORG_ID\""
+            echo "LAYERED_REPO_ACCESS_ACTIVATION_KEY=\"$STAGE_LAYERED_REPO_ACCESS_ACTIVATION_KEY\""
+            echo "DOCKER_SOCKET=/var/run/docker.sock"
+            echo "STABLE_SAM_USERNAME=\"$STAGE_STABLE_SAM_USERNAME\""
+            echo "STABLE_SAM_PASSWORD=\"$STAGE_STABLE_SAM_PASSWORD\""
+          } >> .env 2>/dev/null
+          echo "✅ Environment file created successfully"
 
       - name: Set up Node.js
         uses: actions/setup-node@v2

@@ -33,7 +33,7 @@ test.describe('No Cross Organization Access', () => {
 
       console.log('Attempting registration with NO_SUBS_USER credentials to get identity cert');
       const registerResult = await client.RegisterSubMan(noSubsActivationKey, noSubsOrgId);
-      console.log('Registration result with NO_SUBS_USER credentials:', registerResult);
+      console.log('Registration completed with NO_SUBS_USER credentials');
       console.log('Registration exit code:', registerResult?.exitCode);
 
       const identityCertCheck = await client.Exec(['ls', '/etc/pki/consumer/cert.pem'], 5000);
