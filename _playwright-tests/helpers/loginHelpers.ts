@@ -105,8 +105,8 @@ export const logInWithNoSubsUser = async (page: Page) =>
 export const logInWithStableSamStageUser = async (page: Page) =>
   await logInWithUsernameAndPassword(
     page,
-    process.env.STABLE_SAM_STAGE_USERNAME,
-    process.env.STABLE_SAM_STAGE_PASSWORD,
+    process.env.STABLE_SAM_USERNAME,
+    process.env.STABLE_SAM_PASSWORD,
   );
 
 export const getUserAuthToken = (name: string) => {
@@ -149,8 +149,8 @@ export const throwIfMissingEnvVariables = () => {
           'RHEL_ONLY_ACCESS_PASSWORD',
           'LAYERED_REPO_ACCESS_ORG_ID',
           'LAYERED_REPO_ACCESS_ACTIVATION_KEY',
-          ...(process.env.STABLE_SAM_STAGE_USERNAME && process.env.STABLE_SAM_STAGE_PASSWORD
-            ? ['STABLE_SAM_STAGE_USERNAME', 'STABLE_SAM_STAGE_PASSWORD']
+          ...(process.env.STABLE_SAM_USERNAME && process.env.STABLE_SAM_PASSWORD
+            ? ['STABLE_SAM_USERNAME', 'STABLE_SAM_PASSWORD']
             : []),
         ]
       : []),

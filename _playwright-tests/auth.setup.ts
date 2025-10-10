@@ -134,8 +134,8 @@ setup.describe('Setup Authentication States', async () => {
   setup('Authenticate stable_sam_stage user and save state', async ({ page }) => {
     setup.skip(
       !process.env.INTEGRATION ||
-        !process.env.STABLE_SAM_STAGE_USERNAME ||
-        !process.env.STABLE_SAM_STAGE_PASSWORD,
+        !process.env.STABLE_SAM_USERNAME ||
+        !process.env.STABLE_SAM_PASSWORD,
       'Skipping as INTEGRATION is not set or stable_sam_stage credentials are not configured.',
     );
     setup.setTimeout(60_000);
@@ -149,7 +149,7 @@ setup.describe('Setup Authentication States', async () => {
       .storageState({ path: path.join(__dirname, '../../.auth', 'stable_sam_stage.json') });
     const stableSamStageToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
 
-    process.env.STABLE_SAM_STAGE_TOKEN = `Bearer ${stableSamStageToken}`;
+    process.env.STABLE_SAM_TOKEN = `Bearer ${stableSamStageToken}`;
 
     await storeStorageStateAndToken(page, 'stable_sam_stage.json');
     await logout(page);

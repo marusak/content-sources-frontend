@@ -10,8 +10,8 @@ import { test, expect, RepositoriesApi, SnapshotsApi, ApiRepositoryResponse } fr
 test.describe('User Snapshot Permissions Test', () => {
   test.use({
     storageState: '.auth/stable_sam_stage.json',
-    extraHTTPHeaders: process.env.STABLE_SAM_STAGE_TOKEN
-      ? { Authorization: process.env.STABLE_SAM_STAGE_TOKEN }
+    extraHTTPHeaders: process.env.STABLE_SAM_TOKEN
+      ? { Authorization: process.env.STABLE_SAM_TOKEN }
       : {},
   });
 
