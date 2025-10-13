@@ -51,7 +51,7 @@ export default defineConfig({
     video: 'on',
   },
   projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    { name: 'setup', testMatch: /.*\.setup\.ts/, use: { trace: 'off' } },
     process.env.INTEGRATION
       ? {
           name: 'integration',
