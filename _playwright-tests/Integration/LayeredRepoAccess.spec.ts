@@ -37,18 +37,23 @@ test.describe('Test layered repos access is restricted', async () => {
     });
 
     await test.step('Verify layered repos do not appear in the UI', async () => {
-      let rows = page.locator('table tbody tr');
+      let rows = page.getByLabel('Custom repositories table').locator('tbody tr');
       let initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(0);
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill('openshift');
-      await expect(rows).toHaveCount(0);
+      await page.getByPlaceholder(/^Filter by name.*$/).fill('openshift');
+      await expect(page.getByText('No repositories match your criteria')).toBeVisible({
+        timeout: 10000,
+      });
       await clearFilters(page);
 
-      rows = page.locator('table tbody tr');
+      rows = page.getByLabel('Custom repositories table').locator('tbody tr');
+      await expect(rows.first()).toBeVisible({ timeout: 10000 });
       initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(0);
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill('high availability');
-      await expect(rows).toHaveCount(0);
+      await page.getByPlaceholder(/^Filter by name.*$/).fill('high availability');
+      await expect(page.getByText('No repositories match your criteria')).toBeVisible({
+        timeout: 10000,
+      });
       await clearFilters(page);
     });
   });
@@ -80,18 +85,19 @@ test.describe('Test layered repos access is granted', async () => {
     });
 
     await test.step('Verify layered repos appear and are valid', async () => {
-      let rows = page.locator('table tbody tr');
+      let rows = page.getByLabel('Custom repositories table').locator('tbody tr');
       let initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(repos.length);
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill('openshift');
-      await expect(rows).toHaveCount(3);
+      await page.getByPlaceholder(/^Filter by name.*$/).fill('openshift');
+      await expect(rows).toHaveCount(3, { timeout: 10000 });
       await clearFilters(page);
 
-      rows = page.locator('table tbody tr');
+      rows = page.getByLabel('Custom repositories table').locator('tbody tr');
+      await expect(rows.nth(6)).toBeVisible({ timeout: 10000 });
       initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(repos.length);
-      await page.getByRole('searchbox', { name: 'Filter by name/url' }).fill('high availability');
-      await expect(rows).toHaveCount(3);
+      await page.getByPlaceholder(/^Filter by name.*$/).fill('high availability');
+      await expect(rows).toHaveCount(3, { timeout: 10000 });
       await clearFilters(page);
 
       for (const repoUrl of repos) {
