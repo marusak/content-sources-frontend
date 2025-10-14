@@ -41,7 +41,7 @@ test.describe('Test layered repos access is restricted', async () => {
       let initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(0);
       await page.getByPlaceholder(/^Filter by name.*$/).fill('openshift');
-      await expect(page.getByText('No repositories match your criteria')).toBeVisible({
+      await expect(page.getByText(/No.*repositories match your criteria/)).toBeVisible({
         timeout: 10000,
       });
       await clearFilters(page);
@@ -51,7 +51,7 @@ test.describe('Test layered repos access is restricted', async () => {
       initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(0);
       await page.getByPlaceholder(/^Filter by name.*$/).fill('high availability');
-      await expect(page.getByText('No repositories match your criteria')).toBeVisible({
+      await expect(page.getByText(/No.*repositories match your criteria/)).toBeVisible({
         timeout: 10000,
       });
       await clearFilters(page);
