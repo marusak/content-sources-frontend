@@ -60,6 +60,8 @@ import ContentOriginFilter from './components/ContentOriginFilter';
 import CommunityRepositoryLabel from '../../../components/RepositoryLabels/CommunityRepositoryLabel';
 import { DataViewTr } from '@patternfly/react-data-view/src/DataViewTable';
 import EmptyTableDataView from 'components/EmptyTableDataView/EmptyTableDataView';
+import CustomEpelWarning from 'components/RepositoryLabels/CustomEpelWarning';
+import { isEPELUrl } from 'helpers';
 
 type ActionRowData = Pick<
   ContentItem,
@@ -395,6 +397,14 @@ const ContentListTable = () => {
       </Hide>
       <Hide hide={origin !== ContentOrigin.COMMUNITY}>
         <CommunityRepositoryLabel />
+      </Hide>
+      <Hide
+        hide={
+          !(origin == ContentOrigin.EXTERNAL && isEPELUrl(url)) ||
+          !features?.communityrepos?.enabled
+        }
+      >
+        <CustomEpelWarning />
       </Hide>
       <Hide hide={origin === ContentOrigin.UPLOAD}>
         <UrlWithExternalIcon href={url} />

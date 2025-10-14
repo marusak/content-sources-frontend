@@ -72,3 +72,12 @@ export const formatDescription = (description: string): string =>
 const UUIDPATTERN =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
 export const checkValidUUID = (uuidToTest: string): boolean => UUIDPATTERN.test(uuidToTest);
+
+export const isEPELUrl = (repoUrl) => {
+  const epelUrls = [
+    'https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/',
+    'https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/',
+    'https://dl.fedoraproject.org/pub/epel/8/Everything/x86_64/',
+  ];
+  return epelUrls.includes(repoUrl);
+};

@@ -33,9 +33,11 @@ import useDebounce from 'Hooks/useDebounce';
 import { ADD_ROUTE, REPOSITORIES_ROUTE } from 'Routes/constants';
 import TdWithTooltip from 'components/TdWithTooltip/TdWithTooltip';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
-import { reduceStringToCharsWithEllipsis } from 'helpers';
+import { isEPELUrl, reduceStringToCharsWithEllipsis } from 'helpers';
 import UploadRepositoryLabel from 'components/RepositoryLabels/UploadRepositoryLabel';
 import CommunityRepositoryLabel from 'components/RepositoryLabels/CommunityRepositoryLabel';
+import CustomEpelWarning from 'components/RepositoryLabels/CustomEpelWarning';
+import { useAppContext } from 'middleware/AppContext';
 
 const useStyles = createUseStyles({
   topBottomContainers: {
@@ -57,6 +59,7 @@ export default function CustomRepositoriesStep() {
 
   const { queryClient, templateRequest, selectedCustomRepos, setSelectedCustomRepos } =
     useAddTemplateContext();
+  const { features } = useAppContext();
 
   const [toggled, setToggled] = useState(false);
 
@@ -137,7 +140,7 @@ export default function CustomRepositoriesStep() {
       return true;
     }
 
-    return repo.url?.includes('epel');
+    return isEPELUrl(repo.url);
   };
 
   const isAnyEPELRepoSelected = (): boolean =>
@@ -318,6 +321,14 @@ export default function CustomRepositoriesStep() {
                             </Hide>
                             <Hide hide={origin !== ContentOrigin.COMMUNITY}>
                               <CommunityRepositoryLabel />
+                            </Hide>
+                            <Hide
+                              hide={
+                                !(origin == ContentOrigin.EXTERNAL && isEPELUrl(url)) ||
+                                !features?.communityrepos?.enabled
+                              }
+                            >
+                              <CustomEpelWarning />
                             </Hide>
                           </>
                         </ConditionalTooltip>

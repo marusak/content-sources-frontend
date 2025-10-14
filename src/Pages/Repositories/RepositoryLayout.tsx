@@ -1,5 +1,12 @@
-import { useMemo } from 'react';
-import { Grid, Tab, Tabs, TabTitleText } from '@patternfly/react-core';
+import { useMemo, useState } from 'react';
+import {
+  Alert,
+  AlertActionCloseButton,
+  Grid,
+  Tab,
+  Tabs,
+  TabTitleText,
+} from '@patternfly/react-core';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import { createUseStyles } from 'react-jss';
@@ -14,6 +21,7 @@ import {
 } from '../../Routes/constants';
 import { useAppContext } from 'middleware/AppContext';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import Hide from 'components/Hide/Hide';
 
 const useStyles = createUseStyles({
   link: {
@@ -26,6 +34,14 @@ export default function RepositoryLayout() {
   const { features } = useAppContext();
   const classes = useStyles();
   const currentRoute = useMemo(() => last(pathname.split('/')), [pathname]);
+
+  const storedCustomEPELBannerDismissal = !!sessionStorage.getItem('customEPELBannerDismissal');
+  const [dismissed, setDismissed] = useState(storedCustomEPELBannerDismissal);
+
+  const onDismissBanner = () => {
+    sessionStorage.setItem('customEPELBannerDismissal', 'true');
+    setDismissed(true);
+  };
 
   const tabs = useMemo(
     () => [
@@ -64,6 +80,17 @@ export default function RepositoryLayout() {
         ouiaId='custom_repositories_description'
         paragraph='View all repositories within your organization.'
       />
+      <Hide hide={dismissed || !features?.communityrepos?.enabled}>
+        <Grid className={spacing.pLgOnSm}>
+          <Alert
+            variant='warning'
+            title='Popular repositories have been removed'
+            actionClose={<AlertActionCloseButton onClose={onDismissBanner} />}
+          >
+            Please use the community EPEL repositories instead.
+          </Alert>
+        </Grid>
+      </Hide>
       {(features?.admintasks?.enabled && features.admintasks?.accessible) ||
       !features?.communityrepos?.enabled ? (
         <div className={spacing.pxLg}>
