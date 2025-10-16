@@ -37,7 +37,7 @@ const EmptyTableDataView = ({
         <Td colSpan={colSpan}>
           <EmptyState
             icon={isFiltered ? CubesIcon : RepositoryIcon}
-            titleText={isFiltered ? `No ${itemName} match your criteria` : `No ${itemName}`}
+            titleText={isFiltered ? `No ${itemName} match the filter criteria` : `No ${itemName}`}
             variant={EmptyStateVariant.full}
             headingLevel='h4'
           >

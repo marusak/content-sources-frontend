@@ -48,7 +48,7 @@ it('should render filtered state correctly', async () => {
     </Table>,
   );
 
-  expect(screen.getByText(`No ${itemName} match your criteria`)).toBeInTheDocument();
+  expect(screen.getByText(`No ${itemName} match the filter criteria`)).toBeInTheDocument();
   expect(screen.getByText('Clear all filters to show more results.')).toBeInTheDocument();
 
   const button = screen.getByRole('button', { name: 'Clear all filters' });
