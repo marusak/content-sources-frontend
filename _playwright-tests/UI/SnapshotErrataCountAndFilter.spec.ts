@@ -32,6 +32,9 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await addRepoModal.getByLabel('URL').fill(firstRepoUrl);
 
       await addRepoModal.getByRole('button', { name: 'Save', exact: true }).click();
+
+      const row = await getRowByNameOrUrl(page, firstSnapshotName);
+      await expect(row).toBeVisible();
       await expect(addRepoModal).not.toBeVisible();
     });
 
@@ -42,16 +45,13 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
 
-      await expect(page.getByRole('dialog', { name: 'Snapshots' })).toBeVisible();
+      const snapshotsModal = page.getByRole('dialog', { name: 'Snapshots' });
+      await expect(snapshotsModal).toBeVisible();
 
       const errataCountButton = page.getByRole('button', { name: '4' });
       await expect(errataCountButton).toBeVisible();
 
-      await page
-        .getByRole('dialog', { name: 'Snapshots' })
-        .getByRole('contentinfo')
-        .getByRole('button', { name: 'Close' })
-        .click();
+      await snapshotsModal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click();
     });
 
     await test.step('Edit repository to second snapshot URL (6 errata)', async () => {
@@ -65,6 +65,9 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await editRepoModal.getByLabel('URL').fill(secondRepoUrl);
 
       await editRepoModal.getByRole('button', { name: 'Save changes', exact: true }).click();
+
+      const editedRow = await getRowByNameOrUrl(page, secondSnapshotName);
+      await expect(editedRow).toBeVisible();
       await expect(editRepoModal).not.toBeVisible();
     });
 
@@ -98,7 +101,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
       const nameFilter = snapshotListModal.getByPlaceholder('Filter by name/synopsis');
       await nameFilter.fill('0055');
 
-      await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
+      await expect(snapshotListModal.getByRole('button', { name: 'Clear filters' })).toBeVisible();
 
       await expect(snapshotListModal.getByLabel('errata table')).toBeVisible();
       await expect(snapshotListModal.getByRole('grid')).toBeVisible();
@@ -120,13 +123,22 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
     await test.step('Test errata type filtering', async () => {
       const snapshotListModal = page.getByRole('dialog', { name: 'Snapshot detail' });
+      await expect(snapshotListModal).toBeVisible();
 
       await snapshotListModal.getByLabel('filterSelectionDropdown').click();
       await page.getByRole('menuitem', { name: 'Type' }).click();
 
       await snapshotListModal.getByLabel('filter type').click();
-      await page.getByRole('checkbox', { name: 'Security' }).check();
-      await page.getByRole('checkbox', { name: 'Bugfix' }).check();
+
+      const securityCheckbox = page.getByRole('checkbox', { name: 'Security' });
+      await expect(securityCheckbox).toBeVisible();
+      await securityCheckbox.check();
+
+      const bugfixCheckbox = page.getByRole('checkbox', { name: 'Bugfix' });
+      await expect(bugfixCheckbox).toBeVisible();
+      await bugfixCheckbox.check();
+
+      await snapshotListModal.getByLabel('filter type').click();
 
       await expect(snapshotListModal.getByRole('button', { name: 'Clear filters' })).toBeVisible();
 
@@ -169,8 +181,15 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await page.getByRole('menuitem', { name: 'Severity' }).click();
 
       await snapshotListModal.getByLabel('filter severity').click();
-      await page.getByRole('checkbox', { name: 'Critical' }).check();
-      await page.getByRole('checkbox', { name: 'Low' }).check();
+
+      const criticalCheckbox = page.getByRole('checkbox', { name: 'Critical' });
+      await expect(criticalCheckbox).toBeVisible();
+      await criticalCheckbox.check();
+
+      const lowCheckbox = page.getByRole('checkbox', { name: 'Low' });
+      await expect(lowCheckbox).toBeVisible();
+      await lowCheckbox.check();
+
       await snapshotListModal.getByLabel('filter severity').click();
 
       await expect(snapshotListModal.getByRole('button', { name: 'Clear filters' })).toBeVisible();
@@ -202,16 +221,16 @@ test.describe('Snapshot Errata Count and Filter', () => {
       expect(moderateCount).toBe(0); // Should have no Moderate severity errata
       expect(importantCount).toBe(0); // Should have no Important severity errata
 
-      await page.getByRole('button', { name: 'Clear filters' }).click();
+      await snapshotListModal.getByRole('button', { name: 'Clear filters' }).click();
     });
 
     await test.step('Close snapshot details modal', async () => {
-      await page
-        .getByRole('dialog', { name: 'Snapshot detail' })
+      const snapshotDetailModal = page.getByRole('dialog', { name: 'Snapshot detail' });
+      await snapshotDetailModal
         .getByRole('contentinfo')
         .getByRole('button', { name: 'Close' })
         .click();
-      await expect(page.getByRole('dialog', { name: 'Snapshot detail' })).not.toBeVisible();
+      await expect(snapshotDetailModal).not.toBeVisible();
     });
   });
 });
