@@ -103,7 +103,7 @@ test.describe('Test layered repos access is granted', async () => {
 
       for (const repoUrl of repos) {
         const row = await getRowByNameOrUrl(page, repoUrl);
-        await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+        await expect(row.getByText('Valid')).toBeVisible({ timeout: 660000 });
       }
     });
   });

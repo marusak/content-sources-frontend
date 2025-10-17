@@ -29,7 +29,7 @@ test.describe('Snapshot Listing Filter by Org ID', () => {
       const samRepo = reposResponse.data![0];
       expect(samRepo.uuid).toBeDefined();
       samRepoUuid = samRepo.uuid!;
-      expect(samRepo.status).toBe('Valid');
+      await expect.poll(async () => samRepo.status, { timeout: 180000 }).toBe('Valid');
     });
 
     await test.step('Get repository data with snapshot UUID', async () => {

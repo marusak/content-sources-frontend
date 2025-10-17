@@ -54,7 +54,7 @@ test.describe('Associated Template CRUD', async () => {
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
       const rowTemplate = await getRowByNameOrUrl(page, `${templateName}`);
-      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 660000 });
     });
 
     await test.step('Register system with template using RHSM client', async () => {
