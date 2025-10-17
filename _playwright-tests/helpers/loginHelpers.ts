@@ -102,7 +102,7 @@ export const logInWithNoSubsUser = async (page: Page) =>
     process.env.NO_SUBS_USER_PASSWORD,
   );
 
-export const logInWithStableSamStageUser = async (page: Page) =>
+export const logInWithStableSamUser = async (page: Page) =>
   await logInWithUsernameAndPassword(
     page,
     process.env.STABLE_SAM_USERNAME,

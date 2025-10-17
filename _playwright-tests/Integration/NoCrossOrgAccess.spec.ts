@@ -139,7 +139,7 @@ test.describe('No Cross Organization Access', () => {
       !process.env.STABLE_SAM_TOKEN ||
         !process.env.STABLE_SAM_USERNAME ||
         !process.env.STABLE_SAM_PASSWORD,
-      'Skipping as stable_sam_stage user credentials or token are not configured.',
+      'Skipping as stable_sam user credentials or token are not configured.',
     );
     const repositoriesApi = new RepositoriesApi(client);
     const snapshotsApi = new SnapshotsApi(client);

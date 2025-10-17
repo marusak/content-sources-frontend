@@ -1,15 +1,15 @@
 import { test, expect, RepositoriesApi, SnapshotsApi, ApiRepositoryResponse } from 'test-utils';
 
 /**
- * User Snapshot Permissions Test using stable_sam_stage user
+ * User Snapshot Permissions Test using stable_sam user
  * Tests that a user with the snapshotting feature can list snapshots API.
- * The stable_sam_stage user already has access to repositories with snapshots.
+ * The stable_sam user already has access to repositories with snapshots.
  * Need to pass headers to the API calls to authenticate the request.
  */
 
 test.describe('User Snapshot Permissions Test', () => {
   test.use({
-    storageState: '.auth/stable_sam_stage.json',
+    storageState: '.auth/stable_sam.json',
     extraHTTPHeaders: process.env.STABLE_SAM_TOKEN
       ? { Authorization: process.env.STABLE_SAM_TOKEN }
       : {},

@@ -3,13 +3,13 @@ import { test, expect, RepositoriesApi, expectError } from 'test-utils';
 /**
  * Test that snapshot listing filters response depending upon different org.
  * This test validates that snapshot listing filters response based on organization ID.
- * It uses the stable_sam_stage user to create a repository and then tests that
+ * It uses the stable_sam user to create a repository and then tests that
  * other organization users cannot access the repository configuration file.
  */
 
 test.describe('Snapshot Listing Filter by Org ID', () => {
   test.use({
-    storageState: '.auth/stable_sam_stage.json',
+    storageState: '.auth/stable_sam.json',
     extraHTTPHeaders: process.env.STABLE_SAM_TOKEN
       ? { Authorization: process.env.STABLE_SAM_TOKEN }
       : {},
@@ -20,7 +20,7 @@ test.describe('Snapshot Listing Filter by Org ID', () => {
     const testRepoUrl = 'https://yum.theforeman.org/pulpcore/3.4/el7/x86_64/';
     let samRepoUuid: string;
 
-    await test.step('List repository using stable_sam_stage user', async () => {
+    await test.step('List repository using stable_sam user', async () => {
       const reposResponse = await repositoriesApi.listRepositories({ search: testRepoUrl });
 
       expect(reposResponse.data).toBeDefined();

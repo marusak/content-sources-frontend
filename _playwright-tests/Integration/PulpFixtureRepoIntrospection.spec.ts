@@ -1,21 +1,21 @@
 import { test, expect, RepositoriesApi, FeaturesApi } from 'test-utils';
 
 /**
- * Pulp Fixture Repository Introspection Test using stable_sam_stage user
+ * Pulp Fixture Repository Introspection Test using stable_sam user
  * This test validates that existing Pulp project fixture repositories can be successfully
- * introspected via the API. The stable_sam_stage user already has access to these repositories.
+ * introspected via the API. The stable_sam user already has access to these repositories.
  * Need to pass headers to the API calls to authenticate the request.
  */
 
 test.describe('Pulp Fixture Repository Introspection', () => {
   test.use({
-    storageState: '.auth/stable_sam_stage.json',
+    storageState: '.auth/stable_sam.json',
     extraHTTPHeaders: process.env.STABLE_SAM_TOKEN
       ? { Authorization: process.env.STABLE_SAM_TOKEN }
       : {},
   });
 
-  test('should validate pulp fixture repository introspection for stable_sam_stage user', async ({
+  test('should validate pulp fixture repository introspection for stable_sam user', async ({
     client,
   }) => {
     const repositoriesApi = new RepositoriesApi(client);
@@ -24,7 +24,7 @@ test.describe('Pulp Fixture Repository Introspection', () => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    await test.step('Check if stable_sam_stage user has snapshot support', async () => {
+    await test.step('Check if stable_sam user has snapshot support', async () => {
       const features = await featuresApi.listFeatures();
 
       expect(features.snapshots).toBeDefined();
