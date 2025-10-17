@@ -54,7 +54,7 @@ export default function SeverityWithIcon({ severity }: Props) {
 
   return (
     <Grid className={classes.wrapper}>
-      {isOther ? '' : <SecurityIcon className={classes.iconColor} />} {severity}
+      {isOther ? null : <SecurityIcon className={classes.iconColor} />} {severity}
     </Grid>
   );
 }

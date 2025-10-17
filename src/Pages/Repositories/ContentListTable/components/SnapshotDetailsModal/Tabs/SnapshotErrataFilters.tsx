@@ -173,7 +173,7 @@ export default function SnapshotErrataFilters({ isLoading, setFilterData, filter
             isOpen={isActionOpen}
           >
             <DropdownList>
-              {['Critical', 'Important', 'Moderate', 'Low', 'Unknown'].map((sev) => (
+              {['Critical', 'Important', 'Moderate', 'Low', 'None'].map((sev) => (
                 <DropdownItem
                   key={sev}
                   hasCheckbox
