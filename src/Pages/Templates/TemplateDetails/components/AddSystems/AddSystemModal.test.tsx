@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 import AddSystemModal from './AddSystemModal';
 import { useQueryClient } from 'react-query';
 import { useSystemsListQuery } from 'services/Systems/SystemsQueries';
@@ -6,6 +6,7 @@ import {
   defaultSystemsListItem,
   defaultTemplateItem,
   defaultUpdateTemplateTaskCompleted,
+  minorReleaseSystemsListItem,
 } from 'testingHelpers';
 import type { SystemItem } from 'services/Systems/SystemsApi';
 
@@ -53,7 +54,7 @@ jest.mock('services/Templates/TemplateQueries', () => ({
   useFetchTemplate: () => ({ data: defaultTemplateItem }),
 }));
 
-it('expect AddSystemModal to render blank state', async () => {
+it('shows blank state when no systems are present', async () => {
   const { queryByText } = render(<AddSystemModal />);
 
   await waitFor(() =>
@@ -63,7 +64,7 @@ it('expect AddSystemModal to render blank state', async () => {
   );
 });
 
-it('expect AddSystemModal to render 15 items state', async () => {
+it('renders systems list and pre-selects systems already assigned to template', async () => {
   (useSystemsListQuery as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     isFetching: false,
@@ -88,4 +89,37 @@ it('expect AddSystemModal to render 15 items state', async () => {
   // ensure first item is pre-selected
   expect(getByRole('checkbox', { name: 'Select row 0', checked: true })).toBeInTheDocument();
   expect(getByRole('checkbox', { name: 'Select row 1', checked: false })).toBeInTheDocument();
+});
+
+it('prevents selection of systems with minor release versions and shows warning icon', async () => {
+  (useSystemsListQuery as jest.Mock).mockImplementation(() => ({
+    isLoading: false,
+    isFetching: false,
+    isError: false,
+    data: {
+      data: [defaultSystemsListItem, minorReleaseSystemsListItem],
+      meta: { total_items: 2, limit: 20, offset: 0 },
+    },
+  }));
+
+  render(<AddSystemModal />);
+
+  await waitFor(() => {
+    expect(screen.getAllByRole('row')).toHaveLength(3); // 1 header + 2 data rows
+  });
+
+  expect(screen.getByText('14867.host.example.com')).toBeInTheDocument();
+  expect(screen.getByText('40098.host.example.com')).toBeInTheDocument();
+
+  expect(screen.getByRole('checkbox', { name: 'Select row 0' })).toBeEnabled();
+  expect(screen.getByRole('checkbox', { name: 'Select row 1' })).toBeDisabled();
+
+  // Warning icon should be present for minor release system
+  const warningIcon = screen.getByTestId('system-list-warning-icon');
+  expect(warningIcon).toBeInTheDocument();
+
+  // Verify the warning icon is in the same row as the minor release system
+  expect(
+    within(warningIcon.closest('tr')!).getByText('40098.host.example.com'),
+  ).toBeInTheDocument();
 });

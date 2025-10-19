@@ -428,6 +428,18 @@ export const defaultSystemsListItem: SystemItem = {
   type: 'system',
 };
 
+export const minorReleaseSystemsListItem: SystemItem = {
+  id: '4b2c15a7-9e7f-40c2-b36d-01f807d9c6e3',
+  attributes: {
+    ...defaultSystemsListItem.attributes,
+    display_name: '40098.host.example.com',
+    rhsm: '9.3',
+    template_name: '',
+    template_uuid: '',
+  },
+  type: 'system',
+};
+
 export const defaultTemplateSystemsListItem: IDSystemItem = {
   attributes: {
     display_name: 'rhel9.jsherril-lap.example.com',

@@ -18,9 +18,11 @@ import type { SystemItem } from 'services/Systems/SystemsApi';
 import { TagIcon } from '@patternfly/react-icons';
 import { reduceStringToCharsWithEllipsis } from 'helpers';
 import useRootPath from 'Hooks/useRootPath';
-import { DETAILS_ROUTE, PATCH_SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import TdWithTooltip from 'components/TdWithTooltip/TdWithTooltip';
 import { useParams } from 'react-router-dom';
+import SystemNameCell from './SystemNameCell';
+import { isMinorRelease } from './AddSystemModal';
 
 const useStyles = createUseStyles({
   mainContainer: {
@@ -48,7 +50,7 @@ interface Props {
   setSelected: (id: string) => void;
   sortParams?: (columnIndex: number) => ThProps['sort'];
   selectAllToggle: () => void;
-  allSelected: boolean;
+  isPageSelected: boolean;
 }
 
 export default function ModalSystemsTable({
@@ -60,7 +62,7 @@ export default function ModalSystemsTable({
   setSelected = () => undefined,
   selected,
   selectAllToggle,
-  allSelected,
+  isPageSelected,
 }: Props) {
   const classes = useStyles();
   const [prevLength, setPrev] = useState(perPage || 10);
@@ -95,7 +97,7 @@ export default function ModalSystemsTable({
                   aria-label='select-all-box'
                   select={{
                     onSelect: () => selectAllToggle(),
-                    isSelected: allSelected,
+                    isSelected: isPageSelected,
                   }}
                 />
                 {columnHeaders.map((columnHeader, index) => (
@@ -109,7 +111,7 @@ export default function ModalSystemsTable({
           <Tbody>
             {systemsList.map(
               (
-                { id, attributes: { display_name, tags, os, template_name, template_uuid } },
+                { id, attributes: { display_name, tags, os, template_name, template_uuid, rhsm } },
                 rowIndex,
               ) => (
                 <Tr key={id + rowIndex}>
@@ -122,20 +124,19 @@ export default function ModalSystemsTable({
                     }}
                     select={{
                       rowIndex,
-                      isDisabled: template_uuid === uuid,
+                      // If a system uses a minor release, it cannot be in an active state
+                      isDisabled: template_uuid === uuid || isMinorRelease(rhsm),
                       onSelect: () => setSelected(id),
                       isSelected: selected.has(id) || template_uuid === uuid,
                     }}
                   />
                   <Td>
-                    <Button
-                      isInline
-                      variant='link'
-                      component='a'
-                      href={`${basePath}${PATCH_SYSTEMS_ROUTE}${id}`}
-                    >
-                      {reduceStringToCharsWithEllipsis(display_name)}
-                    </Button>
+                    <SystemNameCell
+                      id={id}
+                      display_name={display_name}
+                      rhsm={rhsm}
+                      basePath={basePath}
+                    />
                   </Td>
                   <Td className={tags.length ? '' : classes.forceDisabled}>
                     <TagIcon className={classes.rightMargin} />

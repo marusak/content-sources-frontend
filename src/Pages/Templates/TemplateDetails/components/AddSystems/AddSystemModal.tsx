@@ -84,6 +84,10 @@ const useStyles = createUseStyles({
 const perPageKey = 'templatesPerPage';
 type FilterType = 'Name' | 'Tags';
 
+export const isMinorRelease = (rhsm: string) =>
+  // Empty string means that the RHEL release version is unset and should be treated as a major release
+  !['', '8', '8.0', '9', '9.0', '10', '10.0'].includes(rhsm);
+
 export default function AddSystemModal() {
   const queryClient = useQueryClient();
   const classes = useStyles();
@@ -140,13 +144,29 @@ export default function AddSystemModal() {
     meta: { total_items = 0 },
   } = data;
 
-  const allSelected = useMemo(
+  // Systems that are not allowed to be selected
+  const minorReleaseSystems = useMemo(
     () =>
-      systemsList.every(
-        ({ id, attributes: { template_uuid } }) => selectedList.has(id) || template_uuid === uuid,
-      ),
-    [selectedList, systemsList],
+      systemsList.filter((system) => isMinorRelease(system.attributes.rhsm)).map(({ id }) => id),
+    [systemsList],
   );
+
+  const allSystemsAreMinorReleases = minorReleaseSystems.length === systemsList.length;
+
+  // A state for when the "Select All" toggle checkbox is checked
+  const isPageSelected = useMemo(() => {
+    if (allSystemsAreMinorReleases) return false;
+
+    // Get all systems that can actually be selected (not minor releases and not already assigned)
+    const selectableSystems = systemsList.filter(
+      ({ attributes: { template_uuid, rhsm } }) => template_uuid !== uuid && !isMinorRelease(rhsm),
+    );
+
+    if (selectableSystems.length === 0) return false;
+
+    // Check if all selectable systems are in the selected list
+    return selectableSystems.every(({ id }) => selectedList.has(id));
+  }, [selectedList, systemsList, allSystemsAreMinorReleases, uuid]);
 
   const { mutateAsync: addSystems, isLoading: isAdding } = useAddTemplateToSystemsQuery(
     queryClient,
@@ -232,7 +252,8 @@ export default function AddSystemModal() {
   };
 
   const selectAllToggle = () => {
-    if (allSelected) {
+    if (isPageSelected) {
+      // Deselect all items that are on the page
       const systemsListSet = new Set(systemsList.map(({ id }) => id));
       setSelected([...selected.filter((id) => !systemsListSet.has(id))]);
     } else {
@@ -240,7 +261,11 @@ export default function AddSystemModal() {
         ...new Set([
           ...prev,
           ...systemsList
-            .filter(({ attributes: { template_uuid } }) => template_uuid !== uuid)
+            .filter(
+              ({ attributes: { template_uuid, rhsm } }) =>
+                // Filter out systems which are minor releases as they cannot be assigned to a template
+                template_uuid !== uuid && !isMinorRelease(rhsm),
+            )
             .map(({ id }) => id),
         ]),
       ]);
@@ -421,7 +446,7 @@ export default function AddSystemModal() {
               selected={selectedList}
               setSelected={(id) => handleSelectItem(id)}
               selectAllToggle={selectAllToggle}
-              allSelected={allSelected}
+              isPageSelected={isPageSelected}
             />
           </Hide>
           <Hide hide={!isLoading}>
@@ -457,6 +482,7 @@ export default function AddSystemModal() {
               isLoading={isAdding}
               isDisabled={
                 isAdding ||
+                allSystemsAreMinorReleases ||
                 !selected.length ||
                 (!template?.rhsm_environment_created &&
                   template?.last_update_task?.status !== 'completed')
