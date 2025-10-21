@@ -86,6 +86,7 @@ test.describe('Test layered repos access is granted', async () => {
 
     await test.step('Verify layered repos appear and are valid', async () => {
       let rows = page.getByLabel('Custom repositories table').locator('tbody tr');
+      await expect(rows.nth(repos.length)).toBeVisible({ timeout: 10000 });
       let initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(repos.length);
       await page.getByPlaceholder(/^Filter by name.*$/).fill('openshift');
@@ -93,7 +94,7 @@ test.describe('Test layered repos access is granted', async () => {
       await clearFilters(page);
 
       rows = page.getByLabel('Custom repositories table').locator('tbody tr');
-      await expect(rows.nth(6)).toBeVisible({ timeout: 10000 });
+      await expect(rows.nth(repos.length)).toBeVisible({ timeout: 10000 });
       initialRowCount = await rows.count();
       await expect(initialRowCount).toBeGreaterThan(repos.length);
       await page.getByPlaceholder(/^Filter by name.*$/).fill('high availability');
