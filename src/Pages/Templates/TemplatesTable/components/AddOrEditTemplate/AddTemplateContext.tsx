@@ -102,6 +102,7 @@ export const AddTemplateContextProvider = ({ children }: { children: ReactNode }
       if (result) {
         setHardcodeRepositories(result);
       }
+      setSelectedCustomRepos(new Set());
     }
   }, [templateRequest.version, templateRequest.arch]);
 
@@ -149,12 +150,17 @@ export const AddTemplateContextProvider = ({ children }: { children: ReactNode }
     }
   }, [editTemplateData, isLoading, existingRepositoryInformation]);
 
+  const templateRequestDependencies = useMemo(
+    () => [...selectedCustomRepos, ...selectedRedhatRepos],
+    [selectedCustomRepos, selectedRedhatRepos],
+  );
+
   useEffect(() => {
     setTemplateRequest((prev) => ({
       ...prev,
-      repository_uuids: [...selectedCustomRepos, ...selectedRedhatRepos],
+      repository_uuids: [...selectedRedhatRepos, ...selectedCustomRepos],
     }));
-  }, [selectedCustomRepos.size, selectedRedhatRepos.size]);
+  }, [templateRequestDependencies]);
 
   const {
     data: { distribution_versions, distribution_arches } = {
