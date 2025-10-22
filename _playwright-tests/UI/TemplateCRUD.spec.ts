@@ -60,6 +60,8 @@ test.describe('Templates CRUD', () => {
         data: repoDataIntrospect,
         headers: { 'Content-Type': 'application/json' },
       });
+      const rowIntrospect = await getRowByNameOrUrl(page, repoNameIntrospect);
+      await expect(rowIntrospect.getByText('Valid')).toBeVisible({ timeout: 60_000 });
     });
     await test.step('Create a template', async () => {
       await navigateToTemplates(page);
@@ -109,6 +111,8 @@ test.describe('Templates CRUD', () => {
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
+      const rowTemplate = await getRowByNameOrUrl(page, templateName);
+      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 60000 });
     });
     await test.step('Read and update values in the template', async () => {
       const rowTemplate = await getRowByNameOrUrl(page, templateName);

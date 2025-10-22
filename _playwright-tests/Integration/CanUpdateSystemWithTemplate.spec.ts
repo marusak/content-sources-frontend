@@ -1,4 +1,11 @@
-import { test, expect, cleanupTemplates, randomName } from 'test-utils';
+import {
+  test,
+  expect,
+  cleanupTemplates,
+  randomName,
+  TemplatesApi,
+  ListTemplatesRequest,
+} from 'test-utils';
 import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
@@ -115,6 +122,24 @@ test.describe('Test System With Template', () => {
       await page.getByPlaceholder('Description').fill('Template test edited');
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByRole('button', { name: 'Confirm changes', exact: true }).click();
+
+      // Wait for the template update task to complete
+      await expect
+        .poll(
+          async () => {
+            const templates = await new TemplatesApi(client).listTemplates(<ListTemplatesRequest>{
+              name: templateName,
+            });
+            const template = templates.data?.[0];
+            return template?.lastUpdateTask?.status;
+          },
+          {
+            message: 'Wait for template update task to complete',
+            timeout: 660000,
+            intervals: [5000, 10000, 10000, 10000, 10000],
+          },
+        )
+        .toBe('completed');
     });
 
     await test.step('Install from the updated template', async () => {
