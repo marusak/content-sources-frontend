@@ -108,6 +108,7 @@ test.describe('Templates CRUD', () => {
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByText('add template modal', { exact: true });
       await page.getByPlaceholder('Enter name').fill(`${templateName}`);
+      await page.getByPlaceholder('Enter name').press('Enter');
       await page.getByPlaceholder('Description').fill('Template test');
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByRole('button', { name: 'Create other options' }).click();

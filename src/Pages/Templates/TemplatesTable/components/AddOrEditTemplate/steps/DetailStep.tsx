@@ -50,6 +50,11 @@ export default function DetailStep() {
             onChange={(_event, value) => setFieldValues(value, 'name')}
             value={templateRequest?.name || ''}
             placeholder='Enter name'
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+              }
+            }}
           />
           <CustomHelperText hide={!errors.name} textValue={errors.name} />
         </FormGroup>
