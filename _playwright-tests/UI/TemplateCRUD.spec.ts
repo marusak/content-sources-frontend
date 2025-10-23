@@ -11,7 +11,7 @@ const repoNamePrefix = 'custom_repo-template';
 
 const repoName = `${repoNamePrefix}-aarch64-${randomName()}`;
 const repoNameX86 = `${repoNamePrefix}-x86_64-${randomName()}`;
-const repoNameIntrospect = `${repoNamePrefix}-introspect-only-${randomName()}`;
+const repoNameNoSnaps = `${repoNamePrefix}-introspect-only-${randomName()}`;
 const templateName = `${templateNamePrefix}-${randomName()}`;
 
 const smallRHRepo = 'Red Hat CodeReady Linux Builder for RHEL 9 ARM 64 (RPMs)';
@@ -47,21 +47,21 @@ test.describe('Templates CRUD', () => {
       const rowX86 = await getRowByNameOrUrl(page, repoNameX86);
       await expect(rowX86.getByText('Valid')).toBeVisible({ timeout: 60_000 });
 
-      // Create third repo ( Any arch, introspect only )
-      const repoDataIntrospect = {
+      // Create third repo ( Any arch, introspect only, no snapshots )
+      const repoDataNoSnaps = {
         distribution_arch: '',
         distribution_versions: ['8', '9'],
-        name: repoNameIntrospect,
+        name: repoNameNoSnaps,
         origin: 'external',
         snapshot: false,
         url: randomUrl(),
       };
       await page.request.post('/api/content-sources/v1/repositories/', {
-        data: repoDataIntrospect,
+        data: repoDataNoSnaps,
         headers: { 'Content-Type': 'application/json' },
       });
-      const rowIntrospect = await getRowByNameOrUrl(page, repoNameIntrospect);
-      await expect(rowIntrospect.getByText('Valid')).toBeVisible({ timeout: 60_000 });
+      const rowNoSnaps = await getRowByNameOrUrl(page, repoNameNoSnaps);
+      await expect(rowNoSnaps.getByText('Valid')).toBeVisible({ timeout: 60_000 });
     });
     await test.step('Create a template', async () => {
       await navigateToTemplates(page);
@@ -80,16 +80,15 @@ test.describe('Templates CRUD', () => {
       const rowRepo = await getRowByNameOrUrl(modalPage, repoName);
       await rowRepo.getByLabel('Select row').click();
 
-      // Verify introspect-only repo appears but checkbox is disabled
+      // Verify repo without snapshots appears but checkbox is disabled
       await modalPage.getByRole('searchbox', { name: 'Filter by name/url' }).clear();
-      await modalPage
-        .getByRole('searchbox', { name: 'Filter by name/url' })
-        .fill(repoNameIntrospect);
-      const rowIntrospect = await getRowByNameOrUrl(modalPage, repoNameIntrospect);
-      const introspectCheckbox = rowIntrospect.getByLabel('Select row');
-      await expect(introspectCheckbox).toBeDisabled();
+      await modalPage.getByRole('searchbox', { name: 'Filter by name/url' }).fill(repoNameNoSnaps);
+      const rowNoSnaps = await getRowByNameOrUrl(modalPage, repoNameNoSnaps);
+      await expect(rowNoSnaps).toBeVisible();
+      const noSnapsCheckbox = rowNoSnaps.getByLabel('Select row');
+      await expect(noSnapsCheckbox).toBeDisabled();
       // Verify warning message appears on hover
-      await introspectCheckbox.hover();
+      await noSnapsCheckbox.hover();
       await expect(page.getByText('Snapshot not yet available for this repository')).toBeVisible();
 
       // Verify x86 repo cannot be added due to architecture mismatch (should not appear)
