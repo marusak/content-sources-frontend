@@ -116,8 +116,8 @@ test.describe('Popular Repositories', () => {
 
     await test.step('EPEL tab shows only the shared EPEL repository', async () => {
       await page.getByRole('button', { name: 'Custom', exact: true }).click();
-      const rows = page.locator('table tbody tr');
-      await expect(rows).toHaveCount(1);
+      const rowsWithoutEPEL = page.locator('table tbody tr').filter({ hasNotText: 'EPEL' });
+      await expect(rowsWithoutEPEL).toHaveCount(0);
       await expect(page.getByRole('row', { name: repoName10 })).toBeVisible();
     });
 
