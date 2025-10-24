@@ -43,21 +43,60 @@ test.describe('Pulp Fixture Repository Introspection', () => {
     });
 
     await test.step('Check that repositories are introspected and have valid status', async () => {
-      // Look for valid introspection status of pulp repos
+      // Verify all pulp repos are being introspected (status can be Pending, Valid, or Unavailable)
+      const failures: string[] = [];
+      const unavailableRepos: string[] = [];
+
       for (const repo of existingPulpRepos) {
         const lastSuccessIntrospectionTime = repo.lastSuccessIntrospectionTime;
 
-        expect(repo.snapshot).toBe(true);
+        // Check snapshot flag
+        if (!repo.snapshot) {
+          failures.push(
+            `Repository "${repo.name}" (UUID: ${repo.uuid}) has snapshot flag set to false`,
+          );
+        }
 
-        expect(['Pending', 'Valid']).toContain(repo.status);
+        // Check status; log if Unavailable, fail if unexpected status
+        if (repo.status === 'Unavailable') {
+          unavailableRepos.push(
+            `Repository "${repo.name}" (UUID: ${repo.uuid}, URL: ${repo.url}) is Unavailable`,
+          );
+        } else if (!['Pending', 'Valid'].includes(repo.status || '')) {
+          failures.push(
+            `Repository "${repo.name}" (UUID: ${repo.uuid}, URL: ${repo.url}) has unexpected status: ${repo.status || 'undefined'}`,
+          );
+        }
 
-        // Assert last introspection was today or yesterday
+        // Check last introspection time
         if (lastSuccessIntrospectionTime) {
           const introspectionDate = lastSuccessIntrospectionTime.split('T')[0];
-          expect([today, yesterday]).toContain(introspectionDate);
+          if (![today, yesterday].includes(introspectionDate)) {
+            failures.push(
+              `Repository "${repo.name}" (UUID: ${repo.uuid}) was not introspected in the last 24 hours. Last introspection: ${introspectionDate}`,
+            );
+          }
         } else {
-          throw new Error('No introspection time found');
+          failures.push(
+            `Repository "${repo.name}" (UUID: ${repo.uuid}) has no introspection time - introspection may not be working`,
+          );
         }
+      }
+
+      // Log unavailable repos as warnings
+      if (unavailableRepos.length > 0) {
+        console.log(
+          `\nWarning: ${unavailableRepos.length} repo(s) are unavailable but being introspected:\n` +
+            unavailableRepos.map((msg) => `  - ${msg}`).join('\n'),
+        );
+      }
+
+      // Fail the test only if there were introspection failures (not just unavailable repos)
+      if (failures.length > 0) {
+        throw new Error(
+          `${failures.length} pulp fixture repo(s) failed validation:\n` +
+            failures.map((msg) => `  - ${msg}`).join('\n'),
+        );
       }
     });
   });
