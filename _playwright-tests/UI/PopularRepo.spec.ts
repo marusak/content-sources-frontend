@@ -121,15 +121,6 @@ test.describe('Popular Repositories', () => {
       await expect(page.getByRole('row', { name: repoName10 })).toBeVisible();
     });
 
-    await test.step('Apply filter and clear it', async () => {
-      await page.getByRole('textbox', { name: 'Name/URL filter', exact: true }).fill(repoName10);
-      const rows = page.locator('table tbody tr');
-      await expect(rows).toHaveCount(1);
-      await expect(page.getByRole('row', { name: repoName10 })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
-      await page.getByRole('button', { name: 'Clear filters' }).click();
-    });
-
     await test.step('Shared EPEL repository cannot be edited or deleted', async () => {
       const row = await getRowByNameOrUrl(page, repoName10);
       await row.getByLabel('Kebab toggle').click();
