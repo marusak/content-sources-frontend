@@ -61,11 +61,8 @@ test.describe('Templates CRUD', () => {
         headers: { 'Content-Type': 'application/json' },
       });
     });
-    await test.step('Navigate to templates, ensure the Create template button can be clicked', async () => {
-      await navigateToTemplates(page);
-      await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
-    });
     await test.step('Create a template', async () => {
+      await navigateToTemplates(page);
       await page.getByRole('button', { name: 'Create template' }).click();
       await page.getByRole('button', { name: 'filter architecture' }).click();
       await page.getByRole('menuitem', { name: 'aarch64' }).click();
@@ -87,7 +84,6 @@ test.describe('Templates CRUD', () => {
         .getByRole('searchbox', { name: 'Filter by name/url' })
         .fill(repoNameIntrospect);
       const rowIntrospect = await getRowByNameOrUrl(modalPage, repoNameIntrospect);
-      await expect(rowIntrospect).toBeVisible();
       const introspectCheckbox = rowIntrospect.getByLabel('Select row');
       await expect(introspectCheckbox).toBeDisabled();
       // Verify warning message appears on hover

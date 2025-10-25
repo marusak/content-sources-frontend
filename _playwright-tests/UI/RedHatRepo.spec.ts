@@ -28,7 +28,6 @@ test.describe('Red Hat Repositories', () => {
         .filter({ hasText: smallRHRepo })
         .getByLabel('Kebab toggle')
         .click();
-      await expect(page.getByRole('menuitem', { name: 'View all snapshots' })).toBeVisible();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
       await expect(
         page.getByTestId('snapshot_list_modal').filter({ hasText: smallRHRepo }),
