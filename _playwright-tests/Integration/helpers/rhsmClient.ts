@@ -129,6 +129,12 @@ export class RHSMClient {
    */
   async Unregister(withRhc: boolean) {
     if (withRhc) {
+      const stream = await runCommand(this.name, ['systemctl', 'status', 'rhcd.service']);
+      if (stream != undefined) {
+        console.log(stream.stdout);
+        console.log(stream.stderr);
+        console.log(stream.exitCode);
+      }
       return runCommand(this.name, ['rhc', 'disconnect']);
     } else {
       return runCommand(this.name, ['subscription-manager', 'disconnect']);
