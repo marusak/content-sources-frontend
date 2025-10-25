@@ -2,7 +2,7 @@ name: nightly-stage-test-action
 on:
   pull_request:
     paths:
-      - _playwright-tests/Integration/*
+      - _playwright-tests/Integration/**
       - .github/workflows/nightly-stage-test-action.yml
     types: [opened, reopened, synchronize, labeled, unlabeled]
 
