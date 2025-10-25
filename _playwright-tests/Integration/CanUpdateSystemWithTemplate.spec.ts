@@ -49,7 +49,7 @@ test.describe('Test System With Template', async () => {
       await page.getByText('Use up to a specific date', { exact: true }).click();
       await page.getByPlaceholder('YYYY-MM-DD', { exact: true }).fill('2021-05-17'); // Older than any snapshot date
       await page.getByRole('button', { name: 'Next', exact: true }).click();
-      await page.getByText('add template modal', { exact: true });
+      await expect(page.getByText('Enter template details')).toBeVisible();
       await page.getByPlaceholder('Enter name').fill(`${templateName}`);
       await page.getByPlaceholder('Description').fill('Template test');
       await page.getByRole('button', { name: 'Next', exact: true }).click();
