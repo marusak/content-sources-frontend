@@ -46,7 +46,7 @@ test.describe('Associated Template CRUD', async () => {
       await page.getByText('Use the latest content', { exact: true }).click();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
 
-      await page.getByText('add template modal', { exact: true });
+      await expect(page.getByText('Enter template details')).toBeVisible();
       await page.getByPlaceholder('Enter name').fill(`${templateName}`);
       await page.getByPlaceholder('Description').fill('Template test for associated system CRUD');
       await page.getByRole('button', { name: 'Next', exact: true }).click();
