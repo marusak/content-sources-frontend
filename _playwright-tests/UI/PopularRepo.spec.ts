@@ -54,11 +54,16 @@ test.describe('Popular Repositories', () => {
     });
 
     await test.step('Apply filter and clear it', async () => {
+      // Testing filtering and clearing directly, don't use getRowByNameOrURL
       await page.getByRole('textbox', { name: 'Name/URL filter', exact: true }).fill(repoName8);
       const rows = page.locator('table tbody tr');
       await expect(rows).toHaveCount(1);
-      await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible();
+      await expect(page.getByRole('row').filter({ hasText: repoName9 })).not.toBeVisible();
+      await expect(page.getByRole('row').filter({ hasText: repoName8 })).toBeVisible();
       await page.getByRole('button', { name: 'Clear filters' }).click();
+      await expect(rows).not.toHaveCount(1);
+      await expect(page.getByRole('row').filter({ hasText: repoName9 })).toBeVisible();
+      await expect(page.getByRole('row').filter({ hasText: repoName8 })).toBeVisible();
     });
 
     await test.step('Move to Custom repo tab', async () => {
