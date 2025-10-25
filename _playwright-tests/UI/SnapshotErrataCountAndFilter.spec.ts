@@ -24,7 +24,6 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
     await test.step('Create repository with first snapshot (4 errata)', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
-      await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
 
       const addRepoModal = page.getByRole('dialog', { name: 'Add custom repositories' });
       await addRepoModal.getByLabel('Name').fill(firstSnapshotName);
@@ -33,8 +32,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await addRepoModal.getByRole('button', { name: 'Save', exact: true }).click();
 
-      const row = await getRowByNameOrUrl(page, firstSnapshotName);
-      await expect(row).toBeVisible();
+      await getRowByNameOrUrl(page, firstSnapshotName);
       await expect(addRepoModal).not.toBeVisible();
     });
 
@@ -130,13 +128,9 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await snapshotListModal.getByLabel('filter type').click();
 
-      const securityCheckbox = page.getByRole('checkbox', { name: 'Security' });
-      await expect(securityCheckbox).toBeVisible();
-      await securityCheckbox.check();
+      await page.getByRole('checkbox', { name: 'Security' }).check();
 
-      const bugfixCheckbox = page.getByRole('checkbox', { name: 'Bugfix' });
-      await expect(bugfixCheckbox).toBeVisible();
-      await bugfixCheckbox.check();
+      await page.getByRole('checkbox', { name: 'Bugfix' }).check();
 
       await snapshotListModal.getByLabel('filter type').click();
 
@@ -182,13 +176,9 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       await snapshotListModal.getByLabel('filter severity').click();
 
-      const criticalCheckbox = page.getByRole('checkbox', { name: 'Critical' });
-      await expect(criticalCheckbox).toBeVisible();
-      await criticalCheckbox.check();
+      await page.getByRole('checkbox', { name: 'Critical' }).check();
 
-      const lowCheckbox = page.getByRole('checkbox', { name: 'Low' });
-      await expect(lowCheckbox).toBeVisible();
-      await lowCheckbox.check();
+      await page.getByRole('checkbox', { name: 'Low' }).check();
 
       await snapshotListModal.getByLabel('filter severity').click();
 

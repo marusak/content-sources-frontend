@@ -26,7 +26,6 @@ test.describe('Associated Template CRUD', async () => {
     await test.step('Navigate to templates and create a new template', async () => {
       await navigateToTemplates(page);
       await closePopupsIfExist(page);
-      await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
       await page.getByRole('button', { name: 'Create template' }).click();
       await page.getByRole('button', { name: 'filter architecture' }).click();
       await page.getByRole('menuitem', { name: 'x86_64' }).click();
