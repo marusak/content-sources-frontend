@@ -1,5 +1,6 @@
 import { test, expect, cleanupTemplates, randomName } from 'test-utils';
 import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
+import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 
@@ -73,24 +74,18 @@ test.describe('Test System With Template', async () => {
         console.log(reg?.stdout);
         console.log(reg?.stderr);
       }
-      expect(reg?.exitCode).toBe(0);
+      expect(reg?.exitCode, 'Expect registering to be successful').toBe(0);
 
       await refreshSubscriptionManager(regClient);
 
-      // clean cached metadata
-      const dnfCleanAll = await regClient.Exec(['dnf', 'clean', 'all']);
-      expect(dnfCleanAll?.exitCode).toBe(0);
+      await runCmd('Clean cached metadata', ['dnf', 'clean', 'all'], regClient);
 
-      // List errata the system is vulnerable to
-      const exist = await regClient.Exec(
+      const exist = await runCmd(
+        'List available packages',
         ['sh', '-c', 'dnf updateinfo --list --all | grep RH | sort | tail -n 1'],
+        regClient,
         10 * 60 * 1000,
       );
-      if (exist?.exitCode != 0) {
-        console.log(exist?.stdout);
-        console.log(exist?.stderr);
-      }
-      expect(exist?.exitCode).toBe(0);
       firstVersion = exist?.stdout?.toString();
     });
 
@@ -122,53 +117,51 @@ test.describe('Test System With Template', async () => {
       await page.getByRole('button', { name: 'Confirm changes', exact: true }).click();
     });
 
-    await test.step('Refresh system', async () => {
+    await test.step('Install from the updated template', async () => {
       await refreshSubscriptionManager(regClient);
 
-      // clean cached metadata
-      const dnfCleanAll = await regClient.Exec(['dnf', 'clean', 'all']);
-      expect(dnfCleanAll?.exitCode).toBe(0);
+      await runCmd('Clean cached metadata', ['dnf', 'clean', 'all'], regClient);
 
-      // List errata the system is vulnerable to
-      const updateInfo = await regClient.Exec(
+      const updateInfo = await runCmd(
+        'List available packages',
         ['sh', '-c', 'dnf updateinfo --list --all | grep RH | sort | tail -n 1'],
+        regClient,
         10 * 60 * 1000,
       );
-      if (updateInfo?.exitCode != 0) {
-        console.log(updateInfo?.stdout);
-        console.log(updateInfo?.stderr);
-      }
-      expect(updateInfo?.exitCode).toBe(0);
       const secondVersion = updateInfo?.stdout?.toString();
-      expect(secondVersion).not.toBe(firstVersion);
+      expect(secondVersion, 'Expect that there is a new errata').not.toBe(firstVersion);
 
-      // vim-enhanced shouldn't be installed
-      const notExist = await regClient.Exec(['rpm', '-q', 'vim-enhanced']);
-      expect(notExist?.exitCode).not.toBe(0);
+      await runCmd(
+        'vim-enhanced should not be installed',
+        ['rpm', '-q', 'vim-enhanced'],
+        regClient,
+        60000,
+        1,
+      );
 
-      // Install vim-enhanced, expect it to finish in 60 seconds
-      const yumInstall = await regClient.Exec(['yum', 'install', '-y', 'vim-enhanced'], 60000);
-      expect(yumInstall?.exitCode).toBe(0);
+      await runCmd(
+        'Install vim-enhanced',
+        ['yum', 'install', '-y', 'vim-enhanced'],
+        regClient,
+        60000,
+      );
 
-      // Now vim-enhanced should be installed
-      const exist = await regClient.Exec(['rpm', '-q', 'vim-enhanced']);
-      expect(exist?.exitCode).toBe(0);
+      await runCmd('vim-enhanced should be installed', ['rpm', '-q', 'vim-enhanced'], regClient);
 
-      // Install booth from the HA layered repo, expect it to finish in 60 seconds
-      const yumInstallBooth = await regClient.Exec(['yum', 'install', '-y', 'booth'], 60000);
-      expect(yumInstallBooth?.exitCode).toBe(0);
+      await runCmd(
+        'Install booth from the HA layered repo',
+        ['yum', 'install', '-y', 'booth'],
+        regClient,
+        60000,
+      );
 
-      // Now booth should be installed
-      const boothExists = await regClient.Exec(['rpm', '-q', 'booth']);
-      expect(boothExists?.exitCode).toBe(0);
+      await runCmd('booth should be installed', ['rpm', '-q', 'booth'], regClient);
 
-      // Verify that booth was installed from the HA repo
-      const dnfVerifyRepo = await regClient.Exec([
-        'sh',
-        '-c',
-        "dnf info booth | grep '^From repo' | cut -d ':' -f2-",
-      ]);
-      expect(dnfVerifyRepo?.exitCode).toBe(0);
+      const dnfVerifyRepo = await runCmd(
+        'Verify that booth was installed from the HA repo',
+        ['sh', '-c', "dnf info booth | grep '^From repo' | cut -d ':' -f2-"],
+        regClient,
+      );
       expect(dnfVerifyRepo?.stdout?.toString().trim()).toBe(
         'rhel-9-for-x86_64-highavailability-rpms',
       );
