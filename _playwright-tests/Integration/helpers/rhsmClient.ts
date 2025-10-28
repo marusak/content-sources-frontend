@@ -217,7 +217,7 @@ const stageConfigureCommand = (): string[] => {
     '--server.port=443',
     '--server.prefix=/subscription',
     '--server.insecure=0',
-    '--rhsm.baseurl=https://cdn.stage.redhat.com',
+    '--rhsm.baseurl=https://stagecdn.redhat.com',
   ];
   if (process.env.PROXY !== undefined) {
     const url = new URL(process.env.PROXY);
