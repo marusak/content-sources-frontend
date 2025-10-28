@@ -58,6 +58,7 @@
     "react-router-dom": "^6.30.1",
     "react18-json-view": "^0.2.8",
     "redux": "^5.0.1",
+    "unleash-proxy-client": "^3.7.8",
     "yup": "^1.7.1"
   },
   "devDependencies": {

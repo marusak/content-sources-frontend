@@ -13,10 +13,12 @@ import React from 'react';
 import InsightsTab, { INSIGHTS_TAB } from './InsightsTab';
 import CurlTab, { CURL_TAB } from './CurlTab';
 import AnsibleTab, { ANSIBLE_TAB } from './AnsibleTab';
+import { useAppContext } from '../../../../../middleware/AppContext';
 
 const UseTemplateModal = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(INSIGHTS_TAB);
+  const { isLightspeedEnabled } = useAppContext();
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -51,7 +53,11 @@ const UseTemplateModal = () => {
           <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label='Use template tabs'>
             <Tab
               eventKey={INSIGHTS_TAB}
-              title={<TabTitleText>Insights (Preferred)</TabTitleText>}
+              title={
+                <TabTitleText>
+                  {isLightspeedEnabled ? 'Red Hat Lightspeed' : 'Insights'} (Preferred)
+                </TabTitleText>
+              }
               tabContentId={INSIGHTS_TAB}
               tabContentRef={contentRefInsights}
               aria-label='insights-tab'

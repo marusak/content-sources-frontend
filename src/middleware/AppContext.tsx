@@ -8,6 +8,7 @@ import { ChromeAPI } from '@redhat-cloud-services/types';
 import getRBAC from '@redhat-cloud-services/frontend-components-utilities/RBAC';
 import { Subscriptions } from 'services/Subscriptions/SubscriptionApi';
 import { useFetchSubscriptionsQuery } from 'services/Subscriptions/SubscriptionQueries';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const { appname } = PackageJson.insights;
 
@@ -29,6 +30,7 @@ export interface AppContextInterface {
   chrome?: ChromeAPI;
   zeroState: boolean;
   setZeroState: (zeroState: boolean) => void;
+  isLightspeedEnabled: boolean;
 }
 
 export const AppContext = createContext({} as AppContextInterface);
@@ -46,6 +48,7 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   ]);
   const { fetchFeatures, isLoading: isFetchingFeatures } = useFetchFeaturesQuery();
   const { data: subscriptions, isLoading: isFetchingSubscriptions } = useFetchSubscriptionsQuery();
+  const isLightspeedEnabled = useFlag('platform.lightspeed-rebrand') || false;
 
   useEffect(() => {
     if (chrome && !rbac) {
@@ -90,6 +93,7 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
         chrome: chrome as ChromeAPI,
         zeroState,
         setZeroState,
+        isLightspeedEnabled,
       }}
     >
       {children}

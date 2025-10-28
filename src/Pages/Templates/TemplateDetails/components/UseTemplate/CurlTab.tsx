@@ -10,6 +10,7 @@ import React from 'react';
 import { createUseStyles } from 'react-jss';
 import { useParams } from 'react-router-dom';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { useAppContext } from '../../../../../middleware/AppContext';
 
 export const CURL_TAB = 'curl';
 
@@ -26,13 +27,14 @@ type Props = {
 const CurlTab = ({ tabContentRef }: Props) => {
   const classes = useStyles();
   const { templateUUID } = useParams();
+  const { isLightspeedEnabled } = useAppContext();
 
   return (
     <TabContent eventKey={CURL_TAB} id={CURL_TAB} ref={tabContentRef} hidden>
       <div className={classes.textGroup}>
         <Alert
           variant='warning'
-          title='Consuming a template in this way will result in the system not reporting applicable errata properly within Insights.'
+          title={`Consuming a template in this way will result in the system not reporting applicable errata properly within ${isLightspeedEnabled ? 'Red Hat Lightspeed' : 'Insights'}.`}
           isInline
         >
           System advisory information will not be available via{' '}

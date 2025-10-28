@@ -38,7 +38,7 @@ const useStyles = createUseStyles({
 export const ZeroState = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const { setZeroState, features } = useAppContext();
+  const { setZeroState, features, isLightspeedEnabled } = useAppContext();
   const path = useHref('content');
   const pathname = path.split('content')[0] + 'content';
 
@@ -87,7 +87,7 @@ export const ZeroState = () => {
             ErrorComponent={<ErrorState />}
             app='Content_management'
             ouiaId='get_started_from_zerostate_description'
-            customText='Get started with Insights by adding repositories'
+            customText={`Get started with ${isLightspeedEnabled ? 'Red Hat Lightspeed' : 'Insights'} by adding repositories`}
             customSection={
               <PageSection hasBodyWrapper={false} className={classes.removeBottomPadding}>
                 <Flex direction={{ default: 'row' }} gap={{ default: 'gap' }}>

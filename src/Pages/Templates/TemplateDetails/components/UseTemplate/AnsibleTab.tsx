@@ -14,6 +14,7 @@ import React from 'react';
 import { createUseStyles } from 'react-jss';
 import { useParams } from 'react-router-dom';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { useAppContext } from '../../../../../middleware/AppContext';
 
 export const ANSIBLE_TAB = 'ansible';
 
@@ -44,6 +45,7 @@ const AnsibleTab = ({ tabContentRef }: Props) => {
   const classes = useStyles();
   const { templateUUID } = useParams();
   const [copied, setCopied] = React.useState(false);
+  const { isLightspeedEnabled } = useAppContext();
 
   const clipboardCopyFunc = (event, text) => {
     navigator.clipboard.writeText(text.toString());
@@ -78,7 +80,7 @@ const AnsibleTab = ({ tabContentRef }: Props) => {
       <div className={classes.textGroup}>
         <Alert
           variant='warning'
-          title='Consuming a template in this way will result in the system not reporting applicable errata properly within Insights.'
+          title={`Consuming a template in this way will result in the system not reporting applicable errata properly within ${isLightspeedEnabled ? 'Red Hat Lightspeed' : 'Insights'}.`}
           isInline
         >
           System advisory information will not be available via{' '}
