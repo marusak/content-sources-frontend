@@ -169,6 +169,18 @@ export class RHSMClient {
   }
 
   /**
+   * Get the host name from inside the container
+   * @returns The host name of the container as a string
+   */
+  async GetHostname(): Promise<string> {
+    const result = await this.Exec(['hostname'], 5000);
+    if (result?.exitCode !== 0) {
+      throw new Error(`Failed to get hostname: ${result?.stderr}`);
+    }
+    return result?.stdout?.trim() || '';
+  }
+
+  /**
    * Unregister with subscription-manager
    * @returns
    */
