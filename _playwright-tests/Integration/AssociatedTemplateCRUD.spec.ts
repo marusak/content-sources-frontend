@@ -7,6 +7,7 @@ import {
 import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
+import { pollForSystemTemplateAttachment } from './helpers/systemHelpers';
 
 const templateNamePrefix = 'associated_template_test';
 const templateName = `${templateNamePrefix}-${randomName()}`;
@@ -18,6 +19,7 @@ test.describe('Associated Template CRUD', () => {
     client,
     cleanup,
   }) => {
+    let hostname: string;
     await test.step('Set up cleanup for templates and RHSM client', async () => {
       await cleanup.runAndAdd(() => cleanupTemplates(client, templateNamePrefix));
       cleanup.add(() => regClient.Destroy('rhc'));
@@ -26,6 +28,7 @@ test.describe('Associated Template CRUD', () => {
     await test.step('Navigate to templates and create a new template', async () => {
       await navigateToTemplates(page);
       await closePopupsIfExist(page);
+      await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
       await page.getByRole('button', { name: 'Create template' }).click();
       await page.getByRole('button', { name: 'filter architecture' }).click();
       await page.getByRole('menuitem', { name: 'x86_64' }).click();
@@ -74,9 +77,15 @@ test.describe('Associated Template CRUD', () => {
       await refreshSubscriptionManager(regClient);
     });
 
+    await test.step('Verify system is attached to template', async () => {
+      hostname = await regClient.GetHostname();
+      console.log('System hostname:', hostname);
+      const isAttached = await pollForSystemTemplateAttachment(page, hostname, true, 10_000, 6);
+      expect(isAttached).toBe(true);
+    });
+
     await test.step('Attempt to delete template and verify warning appears', async () => {
       await navigateToTemplates(page);
-
       const rowTemplate = await getRowByNameOrUrl(page, templateName);
       await rowTemplate.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'Delete' }).click();
@@ -107,6 +116,13 @@ test.describe('Associated Template CRUD', () => {
       expect(unreg?.exitCode).toBe(0);
     });
 
+    await test.step('Wait for system to be removed from inventory', async () => {
+      // Poll until system is not found or not attached to template
+      // This should ensure the backend has processed the unregistration before checking UI
+      const isAttached = await pollForSystemTemplateAttachment(page, hostname, false, 10_000, 6);
+      expect(isAttached).toBe(true);
+    });
+
     await test.step('Verify template can now be deleted without warning', async () => {
       await navigateToTemplates(page);
 
@@ -127,7 +143,8 @@ test.describe('Associated Template CRUD', () => {
 
         await expect(
           modal.getByRole('link', { name: /This template is assigned to \d+ system/i }),
-        ).toBeHidden();
+          'system assignment link should not be present',
+        ).toHaveCount(0);
 
         const removeButton = modal.getByRole('button', { name: 'Delete' });
         await expect(removeButton).toBeEnabled();
@@ -135,7 +152,10 @@ test.describe('Associated Template CRUD', () => {
       });
 
       await test.step('Verify template is removed from the list', async () => {
-        await expect(rowTemplate.getByText('Valid')).not.toBeVisible({ timeout: 30000 });
+        await expect(
+          rowTemplate.getByText('Valid'),
+          'template should be removed from the list',
+        ).toHaveCount(0, { timeout: 30000 });
       });
     });
   });
