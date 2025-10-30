@@ -76,13 +76,10 @@ test.describe('Templates CRUD', () => {
       await rowRHELRepo.getByLabel('Select row').click();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       // Select first custom repo (aarch64)
-      await modalPage.getByRole('searchbox', { name: 'Filter by name/url' }).fill(repoName);
       const rowRepo = await getRowByNameOrUrl(modalPage, repoName);
       await rowRepo.getByLabel('Select row').click();
 
       // Verify repo without snapshots appears but checkbox is disabled
-      await modalPage.getByRole('searchbox', { name: 'Filter by name/url' }).clear();
-      await modalPage.getByRole('searchbox', { name: 'Filter by name/url' }).fill(repoNameNoSnaps);
       const rowNoSnaps = await getRowByNameOrUrl(modalPage, repoNameNoSnaps);
       await expect(rowNoSnaps).toBeVisible();
       const noSnapsCheckbox = rowNoSnaps.getByLabel('Select row');

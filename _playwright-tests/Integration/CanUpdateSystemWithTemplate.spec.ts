@@ -46,7 +46,6 @@ test.describe('Test System With Template', () => {
         page.getByRole('heading', { name: 'Additional Red Hat repositories', exact: true }),
       ).toBeVisible();
       const modalPage = page.getByTestId('add_template_modal');
-      await page.getByRole('searchbox', { name: 'Filter by name' }).fill(HARepo);
       const rowHARepo = await getRowByNameOrUrl(modalPage, HARepo);
       await rowHARepo.getByLabel('Select row').click();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
