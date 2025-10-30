@@ -11,7 +11,7 @@ const repos = [
   'https://cdn.redhat.com/content/dist/rhel9/9/x86_64/highavailability/os/',
 ];
 
-test.describe('Test layered repos access is restricted', async () => {
+test.describe('Test layered repos access is restricted', () => {
   test.use({
     storageState: '.auth/rhel-only-user.json',
     extraHTTPHeaders: process.env.RHEL_ONLY_TOKEN
@@ -59,7 +59,7 @@ test.describe('Test layered repos access is restricted', async () => {
   });
 });
 
-test.describe('Test layered repos access is granted', async () => {
+test.describe('Test layered repos access is granted', () => {
   test.use({
     storageState: '.auth/layered-repo-user.json',
     extraHTTPHeaders: process.env.LAYERED_REPO_TOKEN

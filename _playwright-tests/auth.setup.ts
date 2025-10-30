@@ -20,7 +20,7 @@ if (!existsSync(authDir)) {
   mkdirSync(authDir);
 }
 
-test.describe('Setup Authentication States', async () => {
+test.describe('Setup Authentication States', () => {
   test.describe.configure({ retries: 3 });
 
   test('Ensure needed ENV variables exist', async () => {

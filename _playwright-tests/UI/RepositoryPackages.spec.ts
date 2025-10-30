@@ -10,7 +10,7 @@ const editedRepo = `${repoName}-Edited`;
 const repoUrl = 'https://jlsherrill.fedorapeople.org/fake-repos/signed/';
 const editedRepoUrl = 'http://jlsherrill.fedorapeople.org/fake-repos/needed-errata/';
 
-test.describe('Snapshot Package Count and List', async () => {
+test.describe('Snapshot Package Count and List', () => {
   test('Verify package count and search in snapshot details', async ({ page, client, cleanup }) => {
     await cleanup.runAndAdd(() =>
       cleanupRepositories(client, repoNamePrefix, repoUrl, editedRepoUrl),
