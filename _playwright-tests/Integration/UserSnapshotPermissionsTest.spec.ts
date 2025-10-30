@@ -15,7 +15,7 @@ test.describe('User Snapshot Permissions Test', () => {
       : {},
   });
 
-  test('Test user has permissions to use snapshot APIs', async ({ client }) => {
+  test('User has permissions to use snapshot APIs', async ({ client }) => {
     const repositoriesApi = new RepositoriesApi(client);
     const snapshotsApi = new SnapshotsApi(client);
 

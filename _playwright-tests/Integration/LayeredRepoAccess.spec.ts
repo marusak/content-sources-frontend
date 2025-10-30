@@ -19,7 +19,7 @@ test.describe('Test layered repos access is restricted', () => {
       : {},
   });
 
-  test('Test user with only a RHEL subscription cannot access layered repos', async ({ page }) => {
+  test('User with only a RHEL subscription cannot access layered repos', async ({ page }) => {
     await test.step('Show only the Red Hat repos', async () => {
       await navigateToRepositories(page);
       await closePopupsIfExist(page);
@@ -67,7 +67,7 @@ test.describe('Test layered repos access is granted', () => {
       : {},
   });
 
-  test('Test user with necessary subscriptions can access layered repos', async ({ page }) => {
+  test('User with necessary subscriptions can access layered repos', async ({ page }) => {
     await test.step('Show only the Red Hat repos', async () => {
       await navigateToRepositories(page);
       await closePopupsIfExist(page);

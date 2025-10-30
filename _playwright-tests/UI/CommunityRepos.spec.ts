@@ -5,7 +5,7 @@ import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 const repoName10 = 'EPEL 10 Everything x86_64';
 
 test.describe('Community EPEL repositories', () => {
-  test('Test community EPEL repos exist and cannot be edited', async ({ page }) => {
+  test('Verify community EPEL repos exist and cannot be edited', async ({ page }) => {
     await navigateToRepositories(page);
     await closePopupsIfExist(page);
     await expect(page).toHaveTitle('Repositories - Content | RHEL');
