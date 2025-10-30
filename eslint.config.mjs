@@ -2,6 +2,7 @@ import react from 'eslint-plugin-react';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import prettier from 'eslint-plugin-prettier';
 import unusedImports from 'eslint-plugin-unused-imports';
+import playwright from 'eslint-plugin-playwright';
 import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import path from 'node:path';
@@ -86,6 +87,27 @@ export default [
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': ['warn'],
       'no-empty-pattern': ['error', { allowObjectPatternsAsParameters: true }],
+    },
+  },
+
+  {
+    // Override for Playwright tests
+    files: ['_playwright-tests/**/*.ts'],
+    plugins: {
+      playwright: playwright,
+    },
+    rules: {
+      ...playwright.configs.recommended.rules,
+      'playwright/no-conditional-in-test': 'off',
+      'playwright/no-conditional-expect': 'off',
+      'playwright/no-wait-for-timeout': 'off',
+      'playwright/no-nested-step': 'off',
+      'playwright/no-skipped-test': [
+        'error',
+        {
+          allowConditional: true,
+        },
+      ],
     },
   },
 ];
