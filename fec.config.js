@@ -14,18 +14,20 @@ module.exports = {
   useProxy: true,
   interceptChromeConfig: false,
   plugins: [
-    ...(process.env.SENTRY_AUTH_TOKEN
+    ...(process.env.ENABLE_SENTRY
       ? [
           sentryWebpackPlugin({
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            org: process.env.SENTRY_ORG,
-            project: process.env.SENTRY_PROJECT,
-            _experiments: {
-              moduleMetadata: ({ release }) => ({
-                dsn: process.env.SENTRY_INVENTORY_DSN,
-                release,
-              }),
-            },
+            ...(process.env.SENTRY_AUTH_TOKEN && {
+              authToken: process.env.SENTRY_AUTH_TOKEN,
+            }),
+            org: 'red-hat-it',
+            project: 'content_sources',
+            moduleMetadata: ({ release }) => ({
+              dsn: `https://eb913bd402c07ea0583d4e9a12aa188a@o490301.ingest.us.sentry.io/4510123991171072`,
+              org: 'red-hat-it',
+              project: 'content_sources',
+              release,
+            }),
           }),
         ]
       : []),
