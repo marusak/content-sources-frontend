@@ -1,4 +1,4 @@
-import { expect, test as setup } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import {
   ensureNotInPreview,
   storeStorageStateAndToken,
@@ -20,16 +20,16 @@ if (!existsSync(authDir)) {
   mkdirSync(authDir);
 }
 
-setup.describe('Setup Authentication States', async () => {
-  setup.describe.configure({ retries: 3 });
+test.describe('Setup Authentication States', async () => {
+  test.describe.configure({ retries: 3 });
 
-  setup('Ensure needed ENV variables exist', async () => {
+  test('Ensure needed ENV variables exist', async () => {
     expect(() => throwIfMissingEnvVariables()).not.toThrow();
   });
 
-  setup('Authenticate rhel-operator user and save state', async ({ page }) => {
-    setup.skip(!process.env.RBAC, `Skipping as the RBAC environment variable isn't set to true.`);
-    setup.setTimeout(60_000);
+  test('Authenticate rhel-operator user and save state', async ({ page }) => {
+    test.skip(!process.env.RBAC, `Skipping as the RBAC environment variable isn't set to true.`);
+    test.setTimeout(60_000);
 
     // Login rhel-operator user
     await logInWithRHELOperatorUser(page);
@@ -46,9 +46,9 @@ setup.describe('Setup Authentication States', async () => {
     await logout(page);
   });
 
-  setup('Authenticate read-only user and save state', async ({ page }) => {
-    setup.skip(!process.env.RBAC, `Skipping as the RBAC environment variable isn't set to true.`);
-    setup.setTimeout(60_000);
+  test('Authenticate read-only user and save state', async ({ page }) => {
+    test.skip(!process.env.RBAC, `Skipping as the RBAC environment variable isn't set to true.`);
+    test.setTimeout(60_000);
 
     // Login read-only user
     await logInWithReadOnlyUser(page);
@@ -65,12 +65,12 @@ setup.describe('Setup Authentication States', async () => {
     await logout(page);
   });
 
-  setup('Authenticate user with additional subscriptions and save state', async ({ page }) => {
-    setup.skip(
+  test('Authenticate user with additional subscriptions and save state', async ({ page }) => {
+    test.skip(
       !process.env.INTEGRATION,
       `Skipping as the INTEGRATION environment variable isn't set to true.`,
     );
-    setup.setTimeout(60_000);
+    test.setTimeout(60_000);
 
     // Login layered repo user
     await logInWithLayeredRepoUser(page);
@@ -87,12 +87,12 @@ setup.describe('Setup Authentication States', async () => {
     await logout(page);
   });
 
-  setup('Authenticate user with only RHEL subscription and save state', async ({ page }) => {
-    setup.skip(
+  test('Authenticate user with only RHEL subscription and save state', async ({ page }) => {
+    test.skip(
       !process.env.INTEGRATION,
       `Skipping as the INTEGRATION environment variable isn't set to true.`,
     );
-    setup.setTimeout(60_000);
+    test.setTimeout(60_000);
 
     // Login RHEL-only user
     await logInWithRHELOnlyUser(page);
@@ -109,12 +109,12 @@ setup.describe('Setup Authentication States', async () => {
     await logout(page);
   });
 
-  setup('Authenticate no-subs user and save state', async ({ page }) => {
-    setup.skip(
+  test('Authenticate no-subs user and save state', async ({ page }) => {
+    test.skip(
       !process.env.RBAC || !process.env.INTEGRATION,
       `Skipping as the RBAC and INTEGRATION environment variables aren't both set to true.`,
     );
-    setup.setTimeout(60_000);
+    test.setTimeout(60_000);
 
     // Login no-subs user
     await logInWithNoSubsUser(page);
@@ -131,14 +131,14 @@ setup.describe('Setup Authentication States', async () => {
     await logout(page);
   });
 
-  setup('Authenticate stable_sam user and save state', async ({ page }) => {
-    setup.skip(
+  test('Authenticate stable_sam user and save state', async ({ page }) => {
+    test.skip(
       !process.env.INTEGRATION ||
         !process.env.STABLE_SAM_USERNAME ||
         !process.env.STABLE_SAM_PASSWORD,
       'Skipping as INTEGRATION is not set or stable_sam credentials are not configured.',
     );
-    setup.setTimeout(60_000);
+    test.setTimeout(60_000);
 
     // Login stable_sam user
     await logInWithStableSamUser(page);
@@ -155,8 +155,8 @@ setup.describe('Setup Authentication States', async () => {
     await logout(page);
   });
 
-  setup('Authenticate Default User and Save State', async ({ page }) => {
-    setup.setTimeout(60_000);
+  test('Authenticate Default User and Save State', async ({ page }) => {
+    test.setTimeout(60_000);
 
     // Login default admin user
     await logInWithAdminUser(page);
