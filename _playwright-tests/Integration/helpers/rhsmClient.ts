@@ -187,7 +187,7 @@ export class RHSMClient {
   async Unregister(withRhc: boolean) {
     if (withRhc) {
       const stream = await runCommand(this.name, ['systemctl', 'status', 'rhcd.service']);
-      if (stream != undefined) {
+      if (stream) {
         console.log(stream.stdout);
         console.log(stream.stderr);
         console.log(stream.exitCode);
@@ -205,16 +205,41 @@ export class RHSMClient {
   async Destroy(unregisterMethod: 'rhc' | 'sm' | 'none' = 'none') {
     if (unregisterMethod !== 'none') {
       const cmd = await this.Unregister(unregisterMethod === 'rhc');
-      // Log only exit code and sanitized output to avoid exposing sensitive information
-      console.log('Unregister command completed with exit code:', cmd?.exitCode);
-      if (
-        cmd?.stderr &&
-        !cmd.stderr.includes('--activationkey') &&
-        !cmd.stderr.includes('--password') &&
-        !cmd.stderr.includes('-a') &&
-        !cmd.stderr.includes('-p')
-      ) {
-        console.log('STDERR:', cmd.stderr);
+
+      if (!cmd) {
+        return killContainer(this.name);
+      }
+
+      // Check if system is already unregistered
+      const alreadyUnregistered =
+        cmd.exitCode !== 0 &&
+        (cmd.stderr?.includes('already unregistered') ||
+          cmd.stdout?.includes('already unregistered'));
+
+      if (alreadyUnregistered) {
+        console.log('Continuing with container cleanup (system is already unregistered)');
+      } else if (cmd.exitCode !== 0) {
+        // Unregister failed for a different reason, log details
+        console.log('Unregister command completed with exit code:', cmd.exitCode);
+        if (
+          cmd.stdout &&
+          !cmd.stdout.includes('--activationkey') &&
+          !cmd.stdout.includes('--password') &&
+          !cmd.stdout.includes('-a') &&
+          !cmd.stdout.includes('-p')
+        ) {
+          console.log('STDOUT:', cmd.stdout);
+        }
+        if (
+          cmd.stderr &&
+          !cmd.stderr.includes('--activationkey') &&
+          !cmd.stderr.includes('--password') &&
+          !cmd.stderr.includes('-a') &&
+          !cmd.stderr.includes('-p')
+        ) {
+          console.log('STDERR:', cmd.stderr);
+        }
+        console.log('Continuing with container cleanup despite unregister failure');
       }
     }
     return killContainer(this.name);
@@ -235,14 +260,18 @@ export async function refreshSubscriptionManager(
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       subManRefresh = await client.Exec(['subscription-manager', 'refresh']);
-      if (subManRefresh?.exitCode === 0) {
+      if (!subManRefresh) {
+        console.log(`subscription-manager refresh attempt ${attempt}: No response from command`);
+        continue;
+      }
+      if (subManRefresh.exitCode === 0) {
         return; // Success, exit early
       }
-      if (subManRefresh?.stderr || subManRefresh?.stdout) {
+      if (subManRefresh.stderr || subManRefresh.stdout) {
         console.log(`subscription-manager refresh attempt ${attempt} failed:`);
         // Only log output if it doesn't contain sensitive information
         if (
-          subManRefresh?.stdout &&
+          subManRefresh.stdout &&
           !subManRefresh.stdout.includes('--activationkey') &&
           !subManRefresh.stdout.includes('--password') &&
           !subManRefresh.stdout.includes('-a') &&
@@ -251,7 +280,7 @@ export async function refreshSubscriptionManager(
           console.log('STDOUT:', subManRefresh.stdout);
         }
         if (
-          subManRefresh?.stderr &&
+          subManRefresh.stderr &&
           !subManRefresh.stderr.includes('--activationkey') &&
           !subManRefresh.stderr.includes('--password') &&
           !subManRefresh.stderr.includes('-a') &&
