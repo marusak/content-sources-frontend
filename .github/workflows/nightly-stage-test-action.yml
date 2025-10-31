@@ -152,7 +152,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :stars: Nightly test run>: *SUCCESS* :partymeow:"
+                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :stars: Nightly stage test run>: *SUCCESS* :partymeow:"
                       }
                     }
                   ]
@@ -176,7 +176,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :stars: Nightly test run>: *FAILED* :big-sad:"
+                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/ | :stars: Nightly stage test run>: *FAILED* :big-sad:"
                       }
                     }
                   ]
