@@ -90,7 +90,7 @@ test.describe('Upload Repositories', () => {
         ),
         // Click the 'Delete' button
         page.getByRole('button', { name: 'Delete' }).click(),
-        expect(row).not.toBeVisible(),
+        expect(row).toBeHidden(),
       ]);
     });
   });

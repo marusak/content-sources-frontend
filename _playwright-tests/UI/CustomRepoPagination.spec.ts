@@ -30,7 +30,7 @@ test.describe('Custom repositories pagination', () => {
         '1 - 10 of 12',
       );
       await expect(page.getByText(`${repoNamePrefix}-10`)).toBeVisible();
-      await expect(page.getByText(`${repoNamePrefix}-11`)).not.toBeVisible();
+      await expect(page.getByText(`${repoNamePrefix}-11`)).toBeHidden();
       const targetRows = page.getByRole('row').filter({ has: page.getByText(repoNamePrefix) });
       await expect(targetRows).toHaveCount(10);
     });
@@ -42,7 +42,7 @@ test.describe('Custom repositories pagination', () => {
       );
       await expect(page.getByText(`${repoNamePrefix}-11`)).toBeVisible();
       await expect(page.getByText(`${repoNamePrefix}-12`)).toBeVisible();
-      await expect(page.getByText(`${repoNamePrefix}-10`)).not.toBeVisible();
+      await expect(page.getByText(`${repoNamePrefix}-10`)).toBeHidden();
       const targetRows = page.getByRole('row').filter({ has: page.getByText(repoNamePrefix) });
       await expect(targetRows).toHaveCount(2);
     });
@@ -53,7 +53,7 @@ test.describe('Custom repositories pagination', () => {
         '1 - 10 of 12',
       );
       await expect(page.getByText(`${repoNamePrefix}-10`)).toBeVisible();
-      await expect(page.getByText(`${repoNamePrefix}-11`)).not.toBeVisible();
+      await expect(page.getByText(`${repoNamePrefix}-11`)).toBeHidden();
       const targetRows = page.getByRole('row').filter({ has: page.getByText(repoNamePrefix) });
       await expect(targetRows).toHaveCount(10);
     });

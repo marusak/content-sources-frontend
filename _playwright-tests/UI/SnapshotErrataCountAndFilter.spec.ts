@@ -33,7 +33,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
       await addRepoModal.getByRole('button', { name: 'Save', exact: true }).click();
 
       await getRowByNameOrUrl(page, firstSnapshotName);
-      await expect(addRepoModal).not.toBeVisible();
+      await expect(addRepoModal).toBeHidden();
     });
 
     await test.step('Wait for repository to be valid and verify errata count', async () => {
@@ -66,7 +66,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
 
       const editedRow = await getRowByNameOrUrl(page, secondSnapshotName);
       await expect(editedRow).toBeVisible();
-      await expect(editRepoModal).not.toBeVisible();
+      await expect(editRepoModal).toBeHidden();
     });
 
     await test.step('Verify edited repository has 6 errata', async () => {
@@ -114,9 +114,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
       expect(filteredCount).toBe(2); // 1 data row + 1 header row
 
       await snapshotListModal.getByRole('button', { name: 'Clear filters' }).click();
-      await expect(
-        snapshotListModal.getByRole('button', { name: 'Clear filters' }),
-      ).not.toBeVisible();
+      await expect(snapshotListModal.getByRole('button', { name: 'Clear filters' })).toBeHidden();
     });
 
     await test.step('Test errata type filtering', async () => {
@@ -220,7 +218,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
         .getByRole('contentinfo')
         .getByRole('button', { name: 'Close' })
         .click();
-      await expect(snapshotDetailModal).not.toBeVisible();
+      await expect(snapshotDetailModal).toBeHidden();
     });
   });
 });

@@ -97,7 +97,7 @@ test.describe('Templates CRUD', () => {
         modalPage.getByText('No custom repositories match the filter criteria', { exact: false }),
       ).toBeVisible();
       // Also verify the x86 repo row is not visible in the table
-      await expect(modalPage.getByText(repoNameX86)).not.toBeVisible();
+      await expect(modalPage.getByText(repoNameX86)).toBeHidden();
 
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByText('Use the latest content', { exact: true }).click();
@@ -150,7 +150,7 @@ test.describe('Templates CRUD', () => {
       await page.getByRole('menuitem', { name: 'Delete' }).click();
       await expect(page.getByText('Delete template?')).toBeVisible();
       await page.getByRole('button', { name: 'Delete' }).click();
-      await expect(rowTemplate.getByText('Valid')).not.toBeVisible();
+      await expect(rowTemplate.getByText('Valid')).toBeHidden();
     });
   });
 });

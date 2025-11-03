@@ -11,7 +11,7 @@ test.describe('Community EPEL repositories', () => {
     await expect(page).toHaveTitle('Repositories - Content | RHEL');
 
     await test.step('Custom and EPEL tabs are selected by default', async () => {
-      await expect(page.getByRole('link', { name: 'Popular repositories' })).not.toBeVisible();
+      await expect(page.getByRole('link', { name: 'Popular repositories' })).toBeHidden();
       await expect(page.getByRole('button', { name: 'Custom', exact: true })).toHaveAttribute(
         'aria-pressed',
         'true',
@@ -38,8 +38,8 @@ test.describe('Community EPEL repositories', () => {
           .getByRole('menuitem', { name: 'View all snapshots' })
           .or(page.getByRole('menuitem', { name: 'No snapshots yet' })),
       ).toBeVisible(); // No snapshot in CI due to time constraints
-      await expect(page.getByRole('menuitem', { name: 'Edit' })).not.toBeVisible();
-      await expect(page.getByRole('menuitem', { name: 'Delete' })).not.toBeVisible();
+      await expect(page.getByRole('menuitem', { name: 'Edit' })).toBeHidden();
+      await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeHidden();
       await expect(page.getByRole('menuitem')).toHaveCount(1);
     });
   });

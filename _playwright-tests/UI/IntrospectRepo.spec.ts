@@ -34,7 +34,7 @@ test.describe('Introspect Repositories', () => {
           (resp) =>
             resp.url().includes('/bulk_create/') && resp.status() >= 200 && resp.status() < 300,
         ),
-        expect(page.getByText('Add custom repositories')).not.toBeVisible(),
+        expect(page.getByText('Add custom repositories')).toBeHidden(),
       ]);
     });
 
@@ -81,7 +81,7 @@ test.describe('Introspect Repositories', () => {
         page.getByRole('button', { name: 'Delete' }).click(),
       ]);
       // Ensure the specific row is removed
-      await expect(row).not.toBeVisible();
+      await expect(row).toBeHidden();
     });
   });
 });

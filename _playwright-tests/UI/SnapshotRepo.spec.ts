@@ -47,7 +47,7 @@ test.describe('Snapshot Repositories', () => {
           (resp) =>
             resp.url().includes('/bulk_create/') && resp.status() >= 200 && resp.status() < 300,
         ),
-        expect(page.getByRole('dialog', { name: 'Add custom repositories' })).not.toBeVisible(),
+        expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeHidden(),
       ]);
     });
 
@@ -99,7 +99,7 @@ test.describe('Snapshot Repositories', () => {
         page.getByRole('button', { name: 'Delete' }).click(),
       ]);
 
-      await expect(edited_row).not.toBeVisible();
+      await expect(edited_row).toBeHidden();
     });
   });
 

@@ -127,7 +127,7 @@ test.describe('Associated Template CRUD', () => {
 
         await expect(
           modal.getByRole('link', { name: /This template is assigned to \d+ system/i }),
-        ).not.toBeVisible();
+        ).toBeHidden();
 
         const removeButton = modal.getByRole('button', { name: 'Delete' });
         await expect(removeButton).toBeEnabled();

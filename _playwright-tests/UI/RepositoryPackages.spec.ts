@@ -77,7 +77,7 @@ test.describe('Snapshot Package Count and List', () => {
       await expect(page.getByText('bear')).toBeVisible();
       // check that non exixiting package is not visible in the list
       await page.getByRole('searchbox', { name: 'Filter by name' }).fill('non-existing-package');
-      await expect(page.getByText('non-existing-package')).not.toBeVisible();
+      await expect(page.getByText('non-existing-package')).toBeHidden();
       await expect(
         page.getByRole('heading', { name: 'No packages match the filter criteria' }),
       ).toBeVisible();
