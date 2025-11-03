@@ -8,7 +8,9 @@ const repoNamePrefix = 'snapshot-package-list-test';
 const repoName = `${repoNamePrefix}-${randomName()}`;
 const editedRepo = `${repoName}-Edited`;
 const repoUrl = 'https://jlsherrill.fedorapeople.org/fake-repos/signed/';
+const repoPackageCount = '33';
 const editedRepoUrl = 'http://jlsherrill.fedorapeople.org/fake-repos/needed-errata/';
+const editedRepoPackageCount = '32';
 
 test.describe('Snapshot Package Count and List', () => {
   test('Verify package count and search in snapshot details', async ({ page, client, cleanup }) => {
@@ -34,15 +36,10 @@ test.describe('Snapshot Package Count and List', () => {
 
     await test.step('Verify the package count matches the snapshot', async () => {
       const row = await getRowByNameOrUrl(page, repoName);
-      const packageCountValue = await row.getByTestId('package_count_button').textContent();
+      await expect(row.getByTestId('package_count_button')).toHaveText(repoPackageCount);
       await row.getByRole('button', { name: 'Kebab toggle' }).click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
-      // click on the first row to view the snapshot details
-      const snapshotPackagesColumn = await page
-        .getByTestId('snapshot_package_count_button')
-        .textContent();
-      // assert the package count matches the after snapshot packages count
-      expect(packageCountValue).toBe(snapshotPackagesColumn);
+      await expect(page.getByTestId('snapshot_package_count_button')).toHaveText(repoPackageCount);
       await page.getByText('Close').click();
     });
 
@@ -60,16 +57,14 @@ test.describe('Snapshot Package Count and List', () => {
 
     await test.step('Verify the package count matches the edited snapshot', async () => {
       const editedRow = await getRowByNameOrUrl(page, editedRepo);
-      const editedRepoPackageCountValue = await editedRow
-        .getByTestId('package_count_button')
-        .textContent();
+      await expect(editedRow.getByTestId('package_count_button')).toHaveText(
+        editedRepoPackageCount,
+      );
       await editedRow.getByRole('button', { name: 'Kebab toggle' }).click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
-      const editedRepoSnapshotPackagesColumn = await page
-        .getByTestId('snapshot_package_count_button')
-        .first()
-        .textContent();
-      expect(editedRepoPackageCountValue).toBe(editedRepoSnapshotPackagesColumn);
+      await expect(page.getByTestId('snapshot_package_count_button').first()).toHaveText(
+        editedRepoPackageCount,
+      );
       await page.getByText('Close').click();
     });
 
