@@ -39,6 +39,7 @@ test.describe('Setup Authentication States', () => {
       .context()
       .storageState({ path: path.join(__dirname, '../../.auth', 'rhel_operator.json') });
     const rhelOperatorToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(rhelOperatorToken).toBeDefined();
 
     process.env.RHEL_OPERATOR_TOKEN = `Bearer ${rhelOperatorToken}`;
 
@@ -58,6 +59,7 @@ test.describe('Setup Authentication States', () => {
       .context()
       .storageState({ path: path.join(__dirname, '../../.auth', 'read-only.json') });
     const readOnlyToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(readOnlyToken).toBeDefined();
 
     process.env.READONLY_TOKEN = `Bearer ${readOnlyToken}`;
 
@@ -80,6 +82,7 @@ test.describe('Setup Authentication States', () => {
       .context()
       .storageState({ path: path.join(__dirname, '../../.auth', 'layered-repo-user.json') });
     const layeredRepoToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(layeredRepoToken).toBeDefined();
 
     process.env.LAYERED_REPO_TOKEN = `Bearer ${layeredRepoToken}`;
 
@@ -102,6 +105,7 @@ test.describe('Setup Authentication States', () => {
       .context()
       .storageState({ path: path.join(__dirname, '../../.auth', 'rhel-only-user.json') });
     const rhelOnlyToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(rhelOnlyToken).toBeDefined();
 
     process.env.RHEL_ONLY_TOKEN = `Bearer ${rhelOnlyToken}`;
 
@@ -124,6 +128,7 @@ test.describe('Setup Authentication States', () => {
       .context()
       .storageState({ path: path.join(__dirname, '../../.auth', 'no_subs_user.json') });
     const noSubsToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(noSubsToken).toBeDefined();
 
     process.env.NO_SUBS_TOKEN = `Bearer ${noSubsToken}`;
 
@@ -148,6 +153,7 @@ test.describe('Setup Authentication States', () => {
       .context()
       .storageState({ path: path.join(__dirname, '../../.auth', 'stable_sam.json') });
     const stableSamToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(stableSamToken).toBeDefined();
 
     process.env.STABLE_SAM_TOKEN = `Bearer ${stableSamToken}`;
 
@@ -161,6 +167,12 @@ test.describe('Setup Authentication States', () => {
     // Login default admin user
     await logInWithAdminUser(page);
     await ensureNotInPreview(page);
+
+    const { cookies } = await page
+      .context()
+      .storageState({ path: path.join(__dirname, '../../.auth', 'admin_user.json') });
+    const defaultUserToken = cookies.find((cookie) => cookie.name === 'cs_jwt')?.value;
+    expect(defaultUserToken).toBeDefined();
 
     // Save state for default admin user
     // This also sets process.env.TOKEN, which is picked up by main config.

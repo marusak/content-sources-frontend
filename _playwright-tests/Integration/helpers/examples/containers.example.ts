@@ -5,6 +5,8 @@ test('Container example', async ({}) => {
   await startNewContainer('my_container', 'quay.io/jlsherri/client-rhel9:latest');
 
   const stream = await runCommand('my_container', ['ls', '-l']);
+  expect(stream?.exitCode).toBeDefined();
+  expect(stream!.exitCode!).toBe(0);
   if (stream != undefined) {
     console.log(stream.stdout);
     console.log(stream.stderr);
@@ -12,6 +14,8 @@ test('Container example', async ({}) => {
   }
 
   const stream2 = await runCommand('my_container', ['ls', '-z']);
+  expect(stream?.exitCode).toBeDefined();
+  expect(stream!.exitCode!).toBe(2);
   if (stream2 != undefined) {
     console.log(stream2.stdout);
     console.log(stream2.stderr);

@@ -11,8 +11,7 @@ test.describe('Templates', () => {
 
     const AddButton = page.locator('[data-ouia-component-id="create_content_template"]');
 
-    // Wait for the Add button to become enabled (up to 10 seconds)
-    await AddButton.first().isEnabled({ timeout: 10000 });
+    await expect(AddButton.first()).toBeEnabled({ timeout: 10000 });
   });
 
   test('Validate documentation link in empty state', async ({ page }) => {
