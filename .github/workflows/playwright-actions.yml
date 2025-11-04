@@ -207,17 +207,14 @@ jobs:
       - name: Run testing proxy
         run: docker run -d --network=host -e HTTPS_PROXY=$RH_PROXY_URL -e ROUTES_JSON_PATH=/config/routes-ci.json -v "$(pwd)/config:/config:ro,Z" --name consoledot-testing-proxy quay.io/dvagner/consoledot-testing-proxy
 
-      - name: Import the smallest Redhat repos
+      - name: Setup the minimal needed repositories (Small RHEL, EPEL 10)
         working-directory: content-sources-backend
-        run: OPTIONS_REPOSITORY_IMPORT_FILTER=small make repos-import
+        run: make repos-minimal
 
-      - name: Import the shared EPEL10 repo
+      - name: Wait for setup repos to be valid
+        timeout-minutes: 3
         working-directory: content-sources-backend
-        run: OPTIONS_REPOSITORY_IMPORT_FILTER=epel10 make repos-import
-
-      - name: Run snapshot for redhat repo
-        working-directory: content-sources-backend
-        run: go run cmd/external-repos/main.go snapshot --url https://cdn.redhat.com/content/dist/rhel9/9/aarch64/codeready-builder/os/ --force
+        run: while [[ "$(curl http://localhost:8000/api/content-sources/v1.0/repositories/ -H "$( ./scripts/header.sh 9999 1111)" | jq '.data | all(.status == "Valid")')" == "false" ]]; do sleep 5; done;
 
       - name: Run front-end Playwright tests
         run: CURRENTS_PROJECT_ID=mMVOFH CURRENTS_RECORD_KEY=$CURRENTS_RECORD_KEY CURRENTS_CI_BUILD_ID="${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt }}" yarn playwright test
