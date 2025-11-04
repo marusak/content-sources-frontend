@@ -39,7 +39,7 @@ test.describe('Templates', () => {
     await test.step(`Click the 'Learn more about templates' link and verify the destination`, async () => {
       await page.getByRole('button', { name: 'Learn more about templates' }).click();
       expect(
-        page.url().startsWith('https://docs.redhat.com/en/documentation/red_hat_insights/'),
+        page.url().startsWith('https://docs.redhat.com/en/documentation/red_hat_lightspeed/'),
       ).toBeTruthy();
       expect(page.url().includes('content-template')).toBeTruthy();
       await expect(page.getByText(/^.*Using content templates.*$/).first()).toBeVisible();
