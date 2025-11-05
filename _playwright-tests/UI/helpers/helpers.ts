@@ -1,6 +1,13 @@
 import { Page, Locator, expect } from '@playwright/test';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import {
+  ApiTaskInfoCollectionResponse,
+  Configuration,
+  ListTasksRequest,
+  poll,
+  TasksApi,
+} from 'test-utils';
 
 export const snapshotTimestampFormat = 'DD MMM YYYY - HH:mm:ss';
 
@@ -135,6 +142,22 @@ export const waitForTaskPickup = async (page: Page, repoUrl: string, type: strin
       },
     )
     .toBeTruthy();
+};
+
+export const waitForLastTaskStatus = async (
+  client: Configuration,
+  type: string,
+  status: string,
+) => {
+  const waitCondition = (resp: ApiTaskInfoCollectionResponse) =>
+    (resp.data?.filter((t) => t.status === status).length ?? 0) !== 1;
+  const getTask = () =>
+    new TasksApi(client).listTasks(<ListTasksRequest>{
+      type: type,
+      limit: 1,
+    });
+
+  return poll(getTask, waitCondition, 1000);
 };
 
 export const retry = async (

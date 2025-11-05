@@ -100,7 +100,6 @@ export default [
       ...playwright.configs.recommended.rules,
       'playwright/no-conditional-in-test': 'off',
       'playwright/no-conditional-expect': 'off',
-      'playwright/no-wait-for-timeout': 'off',
       'playwright/no-nested-step': 'off',
       'playwright/no-skipped-test': [
         'error',

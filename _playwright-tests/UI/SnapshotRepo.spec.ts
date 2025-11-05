@@ -5,6 +5,7 @@ import {
   closePopupsIfExist,
   getRowByNameOrUrl,
   validateSnapshotTimestamp,
+  waitForLastTaskStatus,
 } from './helpers/helpers';
 
 test.describe('Snapshot Repositories', () => {
@@ -136,22 +137,21 @@ test.describe('Snapshot Repositories', () => {
 
     await test.step('Edit the repository', async () => {
       for (let i = 2; i <= 4; i++) {
-        const row = await getRowByNameOrUrl(page, repoName);
-        await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
         await test.step(`Edit repository and create snapshot ${i}`, async () => {
+          const row = await getRowByNameOrUrl(page, repoName);
+          await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+
           // Open the edit modal
           await row.getByLabel('Kebab toggle').click();
           await page.getByRole('menuitem', { name: 'Edit' }).click({ timeout: 60000 });
+
           await page
             .getByRole('textbox', { name: 'URL', exact: true })
             .fill(`https://fedorapeople.org/groups/katello/fakerepos/zoo${i}/`);
           await page.getByRole('button', { name: 'Save changes', exact: true }).click();
-          await expect(row.getByText('Valid')).toBeVisible({ timeout: 70000 });
         });
       }
-    });
 
-    await test.step('Create a template', async () => {
       const row = await getRowByNameOrUrl(page, repoName);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByRole('button', { name: 'Kebab toggle' }).click();
@@ -159,6 +159,9 @@ test.describe('Snapshot Repositories', () => {
       await expect(page.getByRole('button', { name: '1 - 4 of 4' }).first()).toBeVisible({
         timeout: 60000,
       });
+    });
+
+    await test.step('Create a template', async () => {
       await navigateToTemplates(page);
       await page.getByRole('button', { name: 'Create template' }).click();
       await page.getByRole('button', { name: 'filter architecture' }).click();
@@ -172,21 +175,26 @@ test.describe('Snapshot Repositories', () => {
       // wait till next button is enabled
       await page.getByRole('button', { name: 'Next', exact: true }).isEnabled();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
+
       await expect(page.getByTestId('custom_repositories_step')).toBeVisible();
-      await row.click();
+      const customRepo = await getRowByNameOrUrl(modalPage, repoName);
+      await customRepo.getByLabel('Select row').click();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
+
       await expect(page.getByTestId('set_up_date')).toBeVisible();
       await page.getByTestId('use-latest-snapshot-radio').click();
       await page.getByRole('radio', { name: 'Use the latest content' }).check();
       await page.getByRole('button', { name: 'Next' }).click();
+
       await page.getByPlaceholder('Enter name').fill(`${templateName}`);
       await page.getByPlaceholder('Description').fill('Template test');
       await page.getByRole('button', { name: 'Next', exact: true }).click();
+
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
+
       const templateRow = await getRowByNameOrUrl(page, templateName);
       await expect(templateRow.getByText('Valid')).toBeVisible({ timeout: 60000 });
-      // Verify the template is created and uses the latest snapshot
       await expect(templateRow.getByText('Use latest')).toBeVisible();
     });
 
@@ -213,12 +221,10 @@ test.describe('Snapshot Repositories', () => {
     });
 
     await test.step('Bulk delete snapshot', async () => {
-      // Test bulk deletion of multiple snapshots.
-      // Before bulk delete we need to wait for previous deletion to finish or it will fail.
-      await page.waitForTimeout(6000);
       const row = await getRowByNameOrUrl(page, repoName);
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
+
       await expect(page.getByRole('dialog', { name: 'Snapshots' }).locator('tbody')).toBeVisible();
       await page.getByRole('row', { name: 'select-snapshot-checkbox' }).locator('label').click();
       // Verify that you can't delete all snapshots
@@ -228,7 +234,10 @@ test.describe('Snapshot Repositories', () => {
       await page.getByRole('checkbox', { name: 'Select row 0' }).uncheck();
       await page.getByTestId('remove_snapshots_bulk').click();
       await expect(page.getByText('Delete snapshots?')).toBeVisible();
+
+      await waitForLastTaskStatus(client, 'delete-snapshots', 'completed');
       await page.getByText('Delete', { exact: true }).click();
+
       await expect(page.getByRole('button', { name: '1 - 1 of 1' }).first()).toBeVisible({
         timeout: 60000,
       });
