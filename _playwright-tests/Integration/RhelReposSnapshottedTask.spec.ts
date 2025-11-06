@@ -1,7 +1,9 @@
 import { test, expect, RepositoriesApi } from 'test-utils';
 
-test.describe('Nightly check for RHEL repos snapshot task', () => {
-  test('Verify RHEL repos have a snapshot task and it is under an hour old', async ({ client }) => {
+test.describe('Check RHEL repos have hourly snapshot tasks', () => {
+  test('Verify RHEL repos have a snapshot task queued within the last 60 minutes', async ({
+    client,
+  }) => {
     const repositoriesApi = new RepositoriesApi(client);
 
     await test.step('Get RHEL repositories', async () => {
@@ -16,10 +18,13 @@ test.describe('Nightly check for RHEL repos snapshot task', () => {
         // Check that a snapshot was attempted (lastSnapshotTask exists)
         expect(repo.lastSnapshotTask?.createdAt).toBeDefined();
 
-        // Check if the snapshot task is under an hour old in UTC
-        const taskCreatedAt = new Date(repo.lastSnapshotTask!.createdAt!);
-        const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000);
-        expect(taskCreatedAt > oneHourAgo).toBeTruthy();
+        // Check if the snapshot task is under 60 minutes old (queued every 45 min + 15 min guard time)
+        const taskQueuedAt = new Date(repo.lastSnapshotTask!.createdAt!);
+        const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
+        console.log(
+          `Repo: ${repo.name}, Task queued at: ${taskQueuedAt.toISOString()} (${taskQueuedAt.toUTCString()}), Age: ${Math.round((Date.now() - taskQueuedAt.getTime()) / 60000)} minutes`,
+        );
+        expect(taskQueuedAt > sixtyMinutesAgo).toBeTruthy();
       }
     });
   });
