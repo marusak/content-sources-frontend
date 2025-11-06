@@ -24,7 +24,6 @@ import Hide from 'components/Hide/Hide';
 import { formatDateDDMMMYYYY } from 'helpers';
 import Loader from 'components/Loader';
 import TemplateActionDropdown from './components/TemplateActionDropdown';
-import UseTemplateModal from './components/UseTemplate/UseTemplateModal';
 import TemplateDetailsTabs from './components/TemplateDetailsTabs';
 
 const useStyles = createUseStyles({
@@ -115,9 +114,6 @@ export default function TemplateDetails() {
             </Flex>
             <Toolbar>
               <ToolbarContent>
-                <ToolbarItem>
-                  <UseTemplateModal />
-                </ToolbarItem>
                 <ToolbarItem>
                   <TemplateActionDropdown />
                 </ToolbarItem>
