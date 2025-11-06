@@ -6,10 +6,11 @@ import {
   ContentVariants,
 } from '@patternfly/react-core';
 import React from 'react';
-import { ADD_ROUTE, DETAILS_ROUTE, SYSTEMS_ROUTE } from '../../../../../Routes/constants';
+import { ADD_ROUTE, SYSTEMS_ROUTE, TEMPLATES_ROUTE } from '../../../../../Routes/constants';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { createUseStyles } from 'react-jss';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import useRootPath from '../../../../../Hooks/useRootPath';
 
 export const INSIGHTS_TAB = 'insights';
 
@@ -25,11 +26,9 @@ type Props = {
 
 const InsightsTab = ({ tabContentRef }: Props) => {
   const classes = useStyles();
-
-  const { pathname } = useLocation();
-  const [mainRoute] = pathname?.split(`${DETAILS_ROUTE}/`) || [];
-  const addSystemsRoute = mainRoute + `${DETAILS_ROUTE}/` + `${SYSTEMS_ROUTE}/` + `${ADD_ROUTE}/`;
+  const rootPath = useRootPath();
   const { templateUUID } = useParams();
+  const addSystemsRoute = `${rootPath}/${TEMPLATES_ROUTE}/${templateUUID}/${SYSTEMS_ROUTE}/${ADD_ROUTE}`;
 
   return (
     <TabContent eventKey={INSIGHTS_TAB} id={INSIGHTS_TAB} ref={tabContentRef}>

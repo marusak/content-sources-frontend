@@ -35,7 +35,7 @@ import TemplateFilters from './components/TemplateFilters';
 import { formatDateDDMMMYYYY, formatDateUTC } from 'helpers';
 import Header from 'components/Header/Header';
 import useRootPath from 'Hooks/useRootPath';
-import { DELETE_ROUTE, DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { DELETE_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import useArchVersion from 'Hooks/useArchVersion';
 import { useTemplateList } from 'services/Templates/TemplateQueries';
 import StatusIcon from './components/StatusIcon';
@@ -312,11 +312,8 @@ const TemplatesTable = () => {
                         <Flex gap={{ default: 'gapXs' }}>
                           <FlexItem>
                             <Button
-                              className={classes.leftPaddingZero}
                               variant='link'
-                              onClick={() =>
-                                navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}`)
-                              }
+                              onClick={() => navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}`)}
                             >
                               {name}
                             </Button>

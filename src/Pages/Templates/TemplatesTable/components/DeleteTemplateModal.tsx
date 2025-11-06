@@ -21,7 +21,7 @@ import {
   useDeleteTemplateItemMutate,
   useFetchTemplate,
 } from 'services/Templates/TemplateQueries';
-import { DETAILS_ROUTE, SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import { useListSystemsByTemplateId } from 'services/Systems/SystemsQueries';
 import { ActionButtons } from 'components/ActionButtons/ActionButtons';
 import { checkValidUUID } from 'helpers';
@@ -61,7 +61,7 @@ export default function DeleteTemplateModal() {
   const onClose = () => navigate(`${rootPath}/${TEMPLATES_ROUTE}`);
 
   const onCancel = isOverTemplateDetail
-    ? () => navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}`)
+    ? () => navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}`)
     : onClose;
 
   const onSave = async () => {
@@ -102,7 +102,7 @@ export default function DeleteTemplateModal() {
           <Alert variant='warning' isInline title='This template is in use.'>
             <Flex direction={{ default: 'column' }}>
               <a
-                href={`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}/${SYSTEMS_ROUTE}`}
+                href={`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${SYSTEMS_ROUTE}`}
                 className={classes.link}
               >
                 This template is assigned to {systems.data.length}{' '}

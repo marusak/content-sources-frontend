@@ -10,12 +10,14 @@ jest.mock('./components/TemplateActionDropdown', () => () => 'TemplateActionDrop
 
 jest.mock('Hooks/useRootPath', () => () => 'banana');
 
+const { uuid } = defaultTemplateItem;
+
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
-  useParams: () => ({ templateUUID: 'templateUUID' }),
+  useParams: () => ({ templateUUID: uuid }),
   Outlet: () => <></>,
   useLocation: () => ({
-    pathname: '/templates/8b9f5062-5256-459a-9833-2b85b735225b/details/content/advisories',
+    pathname: `/templates/${uuid}/systems`,
   }),
 }));
 

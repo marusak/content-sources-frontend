@@ -11,7 +11,7 @@ import {
 
 import useRootPath from 'Hooks/useRootPath';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { TEMPLATES_ROUTE } from 'Routes/constants';
 import { useCreateTemplateQuery, useEditTemplateQuery } from 'services/Templates/TemplateQueries';
 import { AddTemplateContextProvider, useAddTemplateContext } from './AddTemplateContext';
 import RedhatRepositoriesStep from './steps/RedhatRepositoriesStep';
@@ -74,7 +74,7 @@ const AddOrEditTemplateBase = () => {
   const onCancel = () =>
     navigate(
       isOverTemplateDetail
-        ? `${rootPath}/${TEMPLATES_ROUTE}/${editUUID}/${DETAILS_ROUTE}`
+        ? `${rootPath}/${TEMPLATES_ROUTE}/${editUUID}`
         : `${rootPath}/${TEMPLATES_ROUTE}`,
     );
 

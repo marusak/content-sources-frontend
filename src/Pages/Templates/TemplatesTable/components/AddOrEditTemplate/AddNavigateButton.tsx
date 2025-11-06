@@ -12,7 +12,7 @@ import {
 import useRootPath from 'Hooks/useRootPath';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TEMPLATES_ROUTE, DETAILS_ROUTE, SYSTEMS_ROUTE, ADD_ROUTE } from 'Routes/constants';
+import { TEMPLATES_ROUTE, SYSTEMS_ROUTE, ADD_ROUTE } from 'Routes/constants';
 import type { TemplateItem } from 'services/Templates/TemplateApi';
 
 interface Props {
@@ -53,7 +53,7 @@ export const AddNavigateButton = ({ isAdding, add, onClose }: Props) => {
                 onClick={() =>
                   add().then((resp) => {
                     navigate(
-                      `${root}/${TEMPLATES_ROUTE}/${resp.uuid}/${DETAILS_ROUTE}/${SYSTEMS_ROUTE}/${ADD_ROUTE}`,
+                      `${root}/${TEMPLATES_ROUTE}/${resp.uuid}/${SYSTEMS_ROUTE}/${ADD_ROUTE}`,
                     );
                   })
                 }

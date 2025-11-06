@@ -40,12 +40,7 @@ import { useQueryClient } from 'react-query';
 import type { TemplateItem } from 'services/Templates/TemplateApi';
 import { FETCH_TEMPLATE_KEY, useFetchTemplate } from 'services/Templates/TemplateQueries';
 import Loader from 'components/Loader';
-import {
-  DETAILS_ROUTE,
-  PATCH_SYSTEMS_ROUTE,
-  SYSTEMS_ROUTE,
-  TEMPLATES_ROUTE,
-} from 'Routes/constants';
+import { PATCH_SYSTEMS_ROUTE, SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import ModalSystemsTable from './ModalSystemsTable';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import useNotification from 'Hooks/useNotification';
@@ -234,8 +229,7 @@ export default function AddSystemModal() {
     localStorage.setItem(perPageKey, newPerPage.toString());
   };
 
-  const onClose = () =>
-    navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}/${SYSTEMS_ROUTE}`);
+  const onClose = () => navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${SYSTEMS_ROUTE}`);
 
   const handleSelectItem = (id: string) => {
     if (selectedList.has(id)) {

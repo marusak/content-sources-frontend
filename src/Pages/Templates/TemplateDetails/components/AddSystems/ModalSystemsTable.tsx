@@ -18,7 +18,7 @@ import type { SystemItem } from 'services/Systems/SystemsApi';
 import { TagIcon } from '@patternfly/react-icons';
 import { reduceStringToCharsWithEllipsis } from 'helpers';
 import useRootPath from 'Hooks/useRootPath';
-import { DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { TEMPLATES_ROUTE } from 'Routes/constants';
 import TdWithTooltip from 'components/TdWithTooltip/TdWithTooltip';
 import { useParams } from 'react-router-dom';
 import SystemNameCell from './SystemNameCell';
@@ -149,7 +149,7 @@ export default function ModalSystemsTable({
                         isInline
                         variant='link'
                         component='a'
-                        href={`${rootPath}/${TEMPLATES_ROUTE}/${template_uuid}/${DETAILS_ROUTE}`}
+                        href={`${rootPath}/${TEMPLATES_ROUTE}/${template_uuid}`}
                       >
                         {reduceStringToCharsWithEllipsis(template_name, 30)}
                       </Button>

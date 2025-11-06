@@ -10,7 +10,6 @@ import {
   ADVISORIES_ROUTE,
   CONTENT_ROUTE,
   DELETE_ROUTE,
-  DETAILS_ROUTE,
   EDIT_ROUTE,
   PACKAGES_ROUTE,
   POPULAR_REPOSITORIES_ROUTE,
@@ -144,11 +143,8 @@ export default function RepositoriesRoutes() {
         {!rbac?.templateRead ? (
           <Route path={TEMPLATES_ROUTE} element={<NoPermissionsPage />} />
         ) : null}
-        <Route
-          path={`${TEMPLATES_ROUTE}/:templateUUID/${DETAILS_ROUTE}`}
-          element={<TemplateDetails />}
-        >
-          <Route path='' element={<Navigate to={`${CONTENT_ROUTE}/${PACKAGES_ROUTE}`} replace />} />
+        <Route path={`${TEMPLATES_ROUTE}/:templateUUID`} element={<TemplateDetails />}>
+          <Route path='' element={<Navigate to={SYSTEMS_ROUTE} replace />} />
           <Route path={CONTENT_ROUTE}>
             <Route path='' element={<Navigate to={PACKAGES_ROUTE} replace />} />
             <Route path={PACKAGES_ROUTE} element={<TemplatePackageTab />} />
