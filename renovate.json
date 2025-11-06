@@ -7,5 +7,6 @@
     ],
     "ignorePaths": [
       ".pre-commit-config.yaml"
-    ]
+    ],
+    "cloneSubmodules": true
 }
