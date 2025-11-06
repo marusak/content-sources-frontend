@@ -1,5 +1,5 @@
-import { Button, Content, Flex, Popover } from '@patternfly/react-core';
-import { ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
+import { Button, Content, Flex } from '@patternfly/react-core';
+import { HelpIcon } from '@patternfly/react-icons';
 import {
   OpenSourceBadge,
   PageHeader as _PageHeader,
@@ -9,6 +9,7 @@ import { PageHeaderProps as _PageHeaderProps } from '@redhat-cloud-services/fron
 
 import { FunctionComponent, ReactElement } from 'react';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import HelpPopover, { HelpPopoverProps } from '../HelpPopover';
 
 interface PageHeaderProps extends _PageHeaderProps {
   children?: ReactElement | Array<ReactElement>;
@@ -20,43 +21,8 @@ interface HeaderProps {
   title: string;
   ouiaId: string;
   paragraph: string;
-  aboutData?: AboutProps;
+  aboutData?: Omit<HelpPopoverProps, 'children'>;
 }
-
-interface AboutProps {
-  text: string;
-  docsURL: string;
-  docsLabel: string;
-  header: string;
-}
-
-const About = ({ header, text, docsURL, docsLabel }: AboutProps) => (
-  <Popover
-    headerContent={header}
-    bodyContent={text}
-    footerContent={
-      <Button
-        component='a'
-        target='_blank'
-        variant='link'
-        icon={<ExternalLinkAltIcon />}
-        iconPosition='right'
-        isInline
-        href={docsURL}
-      >
-        {docsLabel}
-      </Button>
-    }
-  >
-    <Button
-      icon={<HelpIcon />}
-      variant='plain'
-      aria-label={header}
-      className={spacing.mlSm}
-      style={{ verticalAlign: '2px' }}
-    />
-  </Popover>
-);
 
 export default function Header({ title, ouiaId, paragraph, aboutData }: HeaderProps) {
   return (
@@ -66,7 +32,17 @@ export default function Header({ title, ouiaId, paragraph, aboutData }: HeaderPr
           title={
             <>
               {title}
-              {aboutData && <About {...aboutData} />}
+              {aboutData ? (
+                <HelpPopover {...aboutData}>
+                  <Button
+                    icon={<HelpIcon />}
+                    variant='plain'
+                    aria-label={String(aboutData.headerContent)}
+                    className={spacing.mlSm}
+                    style={{ verticalAlign: '2px' }}
+                  />
+                </HelpPopover>
+              ) : null}
               <span style={{ verticalAlign: '2px' }}>
                 <OpenSourceBadge repositoriesURL='https://github.com/content-services/content-sources-frontend' />
               </span>

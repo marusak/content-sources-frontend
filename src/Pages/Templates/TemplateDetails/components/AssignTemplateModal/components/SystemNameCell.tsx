@@ -1,9 +1,9 @@
 import { Button, Flex, FlexItem, Icon, Popover } from '@patternfly/react-core';
 import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon } from '@patternfly/react-icons';
-import { reduceStringToCharsWithEllipsis } from 'helpers';
-import { PATCH_SYSTEMS_ROUTE } from 'Routes/constants';
-import type { SystemItem } from 'services/Systems/SystemsApi';
-import { isMinorRelease } from './AddSystemModal';
+import { reduceStringToCharsWithEllipsis } from '../../../../../../helpers';
+import { PATCH_SYSTEMS_ROUTE } from '../../../../../../Routes/constants';
+import type { SystemItem } from '../../../../../../services/Systems/SystemsApi';
+import { isMinorRelease } from '../AddSystemModal';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 type Props = Pick<SystemItem, 'id'> &
@@ -24,6 +24,8 @@ export default function SystemNameCell({ id, display_name, rhsm, basePath }: Pro
       {reduceStringToCharsWithEllipsis(display_name)}
     </Button>
   );
+
+  // todo - refactor Popover to match the new pattern
 
   return isMinorRelease(rhsm) ? (
     <Flex columnGap={{ default: 'columnGapSm' }} alignItems={{ default: 'alignItemsCenter' }}>

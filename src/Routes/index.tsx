@@ -25,7 +25,6 @@ import TemplateDetails from 'Pages/Templates/TemplateDetails/TemplateDetails';
 import { AddOrEditTemplate } from 'Pages/Templates/TemplatesTable/components/AddOrEditTemplate/AddOrEditTemplate';
 import TemplatesTable from 'Pages/Templates/TemplatesTable/TemplatesTable';
 import { NoPermissionsPage } from 'components/NoPermissionsPage/NoPermissionsPage';
-import AddSystemModal from 'Pages/Templates/TemplateDetails/components/AddSystems/AddSystemModal';
 import TemplateErrataTab from 'Pages/Templates/TemplateDetails/components/Tabs/TemplateErrataTab';
 import TemplateSystemsTab from 'Pages/Templates/TemplateDetails/components/Tabs/TemplateSystemsTab';
 import TemplatePackageTab from 'Pages/Templates/TemplateDetails/components/Tabs/TemplatePackageTab';
@@ -43,6 +42,7 @@ import UploadContent from 'Pages/Repositories/ContentListTable/components/Upload
 import DeleteSnapshotsModal from 'Pages/Repositories/ContentListTable/components/SnapshotListModal/DeleteSnapshotsModal/DeleteSnapshotsModal';
 import AdminFeaturesTable from 'Pages/Repositories/AdminFeaturesTable/AdminFeaturesTable';
 import PopularRepositoriesTable from 'Pages/Repositories/PopularRepositoriesTable/PopularRepositoriesTable';
+import AssignTemplateModal from '../Pages/Templates/TemplateDetails/components/AssignTemplateModal/AssignTemplateModal';
 
 export default function RepositoriesRoutes() {
   const key = useMemo(() => Math.random(), []);
@@ -154,7 +154,7 @@ export default function RepositoriesRoutes() {
           </Route>
           <Route path={SYSTEMS_ROUTE} element={<TemplateSystemsTab />}>
             {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
-              <Route path={ADD_ROUTE} element={<AddSystemModal />} />
+              <Route path={ADD_ROUTE} element={<AssignTemplateModal />} />
             ) : null}
           </Route>
           {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (

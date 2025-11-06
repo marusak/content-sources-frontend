@@ -1,21 +1,27 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useListSystemsByTemplateId } from 'services/Systems/SystemsQueries';
 import TemplateSystemsTab from './TemplateSystemsTab';
 import { defaultTemplateSystemsListItem } from 'testingHelpers';
 import type { IDSystemItem } from 'services/Systems/SystemsApi';
 import { useAppContext } from 'middleware/AppContext';
+import useHasRegisteredSystems from 'Hooks/useHasRegisteredSystems';
+import { ADD_ROUTE, SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import { AssignmentMethods } from '../AssignTemplateModal/components/AssignmentMethodSelect';
 
-const bananaUUID = 'banana-uuid';
+const templateUUID = 'banana-uuid';
+const mockRootPath = 'insights/content';
 
 jest.mock('react-router-dom', () => ({
-  useParams: () => ({ templateUUID: bananaUUID }),
+  useParams: () => ({ templateUUID: templateUUID }),
   useNavigate: jest.fn(),
   Outlet: () => <></>,
 }));
 
 jest.mock('dayjs', () => (value) => ({ fromNow: () => value }));
 
-jest.mock('Hooks/useRootPath', () => () => 'someUrl');
+jest.mock('Hooks/useRootPath', () => () => mockRootPath);
+
+jest.mock('Hooks/useHasRegisteredSystems');
 
 jest.mock('react-query');
 
@@ -30,6 +36,12 @@ jest.mock('middleware/AppContext');
   rbac: { templateWrite: true },
   subscriptions: { red_hat_enterprise_linux: true },
 }));
+
+(useHasRegisteredSystems as jest.Mock).mockReturnValue({
+  hasRegisteredSystems: true,
+  isFetchingRegSystems: false,
+  isErrorFetchingRegSystems: false,
+});
 
 (useListSystemsByTemplateId as jest.Mock).mockImplementation(() => ({
   isLoading: false,
@@ -48,7 +60,7 @@ jest.mock('middleware/AppContext');
   },
 }));
 
-it('expect TemplateSystemsTab to render 15 items, with write permissions', async () => {
+it('renders system list with selectable checkboxes when user has write permissions', async () => {
   const { queryByText, getByRole } = render(<TemplateSystemsTab />);
 
   // Ensure the first row renders
@@ -65,7 +77,7 @@ it('expect TemplateSystemsTab to render 15 items, with write permissions', async
   ).toBeInTheDocument();
 });
 
-it('expect TemplateSystemsTab to render 15 items, read-only', async () => {
+it('renders system list as read-only with disabled checkboxes when user lacks write permissions', async () => {
   (useAppContext as jest.Mock).mockImplementation(() => ({ rbac: { templateWrite: false } }));
 
   const { queryByText, getByRole, queryByRole, getAllByRole } = render(<TemplateSystemsTab />);
@@ -90,15 +102,51 @@ it('expect TemplateSystemsTab to render 15 items, read-only', async () => {
   ).toBeInTheDocument();
 });
 
-it('expect TemplateSystemsTab to render blank state', async () => {
+it("shows empty state with register action when there are no registered systems that match the template's requirements", async () => {
   (useListSystemsByTemplateId as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     isFetching: false,
     isError: false,
   }));
 
-  const { queryByText } = render(<TemplateSystemsTab />);
+  (useHasRegisteredSystems as jest.Mock).mockReturnValue({
+    hasRegisteredSystems: false,
+    isFetchingRegSystems: false,
+    isErrorFetchingRegSystems: false,
+  });
 
-  expect(queryByText('No associated systems')).toBeInTheDocument();
-  expect(queryByText('To get started, assign this template to a system.')).toBeInTheDocument();
+  render(<TemplateSystemsTab />);
+
+  expect(await screen.findByText('No associated systems')).toBeInTheDocument();
+  expect(
+    await screen.findByText(
+      'To get started, assign this template to a system. You have no registered systems yet.',
+    ),
+  ).toBeInTheDocument();
+  expect(await screen.findByText('Register and assign via API'));
+});
+
+it('shows empty state with both assign and register actions when compatible, registered systems are present', async () => {
+  (useListSystemsByTemplateId as jest.Mock).mockImplementation(() => ({
+    isLoading: false,
+    isFetching: false,
+    isError: false,
+  }));
+
+  (useHasRegisteredSystems as jest.Mock).mockReturnValue({
+    hasRegisteredSystems: true,
+    isFetchingRegSystems: false,
+    isErrorFetchingRegSystems: false,
+  });
+
+  render(<TemplateSystemsTab />);
+
+  const assignAction = await screen.findByRole('button', { name: 'Assign to systems' });
+  expect(assignAction).toBeInTheDocument();
+
+  const expectedHref = `${mockRootPath}/${TEMPLATES_ROUTE}/${templateUUID}/${SYSTEMS_ROUTE}/${ADD_ROUTE}?method=${AssignmentMethods.ApiRegistration}`;
+
+  const registerAction = await screen.findByRole('link', { name: 'Register and assign via API' });
+  expect(registerAction).toBeInTheDocument();
+  expect(registerAction).toHaveAttribute('href', expectedHref);
 });

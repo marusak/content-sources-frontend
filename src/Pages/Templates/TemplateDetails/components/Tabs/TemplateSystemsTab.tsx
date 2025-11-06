@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { SortByDirection, type ThProps } from '@patternfly/react-table';
 import Loader from 'components/Loader';
@@ -28,7 +28,9 @@ import { ADD_ROUTE } from 'Routes/constants';
 import Hide from 'components/Hide/Hide';
 import SystemsDeleteKebab from 'components/SharedTables/SystemsTable/Components/SystemsDeleteKebab';
 import { SearchIcon } from '@patternfly/react-icons';
+import { AssignmentMethods } from '../AssignTemplateModal/components/AssignmentMethodSelect';
 import useDebounce from 'Hooks/useDebounce';
+import useHasRegisteredSystems from 'Hooks/useHasRegisteredSystems';
 
 const useStyles = createUseStyles({
   description: {
@@ -61,9 +63,11 @@ const perPageKey = 'TemplateSystemsPerPage';
 export default function TemplateSystemsTab() {
   const classes = useStyles();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { templateUUID: uuid } = useParams();
   const { rbac, subscriptions } = useAppContext();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { templateUUID: uuid } = useParams();
 
   const storedPerPage = Number(localStorage.getItem(perPageKey)) || 20;
   const [page, setPage] = useState(1);
@@ -108,6 +112,10 @@ export default function TemplateSystemsTab() {
     isError,
     data = { data: [], meta: { total_items: 0, limit: 20, offset: 0 } },
   } = useListSystemsByTemplateId(uuid as string, page, perPage, debouncedSearchQuery, sortString);
+
+  // Check if there are registered systems compatible with this template
+  const { hasRegisteredSystems, isFetchingRegSystems, isErrorFetchingRegSystems } =
+    useHasRegisteredSystems(uuid as string);
 
   const { mutateAsync: deleteFromSystems, isLoading: isDeleting } =
     useDeleteTemplateFromSystems(queryClient);
@@ -159,7 +167,9 @@ export default function TemplateSystemsTab() {
 
   const fetchingOrLoading = isFetching || isLoading || isDeleting;
 
-  const loadingOrZeroCount = fetchingOrLoading || !total_items;
+  const loadingOrZeroCount = fetchingOrLoading || !total_items || isFetchingRegSystems; // `isFetchingRegSystems` is only relevant to the zero state
+
+  const errorState = isError || isErrorFetchingRegSystems;
 
   const sortParams = (columnIndex: number): ThProps['sort'] | undefined =>
     columnSortAttributes[columnIndex]
@@ -182,11 +192,11 @@ export default function TemplateSystemsTab() {
   const missingRequirements =
     rbac?.templateWrite && !hasRHELSubscription ? 'subscription (RHEL)' : 'permission';
 
-  if (isLoading) {
+  if (isLoading || isFetchingRegSystems) {
     return <Loader />;
   }
 
-  if (isError) {
+  if (errorState) {
     throw error;
   }
 
@@ -254,22 +264,55 @@ export default function TemplateSystemsTab() {
             notFiltered={!debouncedSearchQuery}
             clearFilters={() => setSearchQuery('')}
             itemName='associated systems'
-            notFilteredBody='To get started, assign this template to a system.'
+            notFilteredBody={
+              hasRegisteredSystems
+                ? 'To get started, assign this template to a system.'
+                : 'To get started, assign this template to a system. You have no registered systems yet.'
+            }
             notFilteredButton={
               <ConditionalTooltip
                 content={`You do not have the required ${missingRequirements} to perform this action.`}
                 show={isMissingRequirements}
                 setDisabled
               >
-                <Button
-                  id='addSystemsButton'
-                  ouiaId='add_systems'
-                  variant='primary'
-                  isDisabled={isLoading}
-                  onClick={() => navigate(ADD_ROUTE)}
-                >
-                  Assign to systems
-                </Button>
+                <Flex direction={{ default: 'column' }} gap={{ default: 'gapXs' }}>
+                  <FlexItem>
+                    <Button
+                      id='addSystemsButton'
+                      ouiaId='add_systems'
+                      variant='primary'
+                      isDisabled={isLoading}
+                      onClick={() => {
+                        const method = hasRegisteredSystems
+                          ? '' // If there are some registered systems, open the system list view
+                          : `?method=${AssignmentMethods.ApiRegistration}`;
+                        navigate(`${ADD_ROUTE}${method}`);
+                      }}
+                    >
+                      {hasRegisteredSystems ? 'Assign to systems' : 'Register and assign via API'}
+                    </Button>
+                  </FlexItem>
+
+                  {hasRegisteredSystems ? (
+                    <FlexItem>
+                      <Button
+                        id='register-assign-systems-via-api-button'
+                        ouiaId='register_assign_systems_via_api'
+                        component='a'
+                        variant='link'
+                        isDisabled={isFetchingRegSystems}
+                        href={`${location.pathname}/${ADD_ROUTE}?method=${AssignmentMethods.ApiRegistration}`}
+                        onClick={(event) => {
+                          // Prevent the browser's default anchor behavior to ensure that `navigate` performs client-side routing instead of a full page reload
+                          event.preventDefault();
+                          navigate(`${ADD_ROUTE}?method=${AssignmentMethods.ApiRegistration}`);
+                        }}
+                      >
+                        Register and assign via API
+                      </Button>
+                    </FlexItem>
+                  ) : null}
+                </Flex>
               </ConditionalTooltip>
             }
           />

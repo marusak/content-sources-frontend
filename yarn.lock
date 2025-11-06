@@ -1332,6 +1332,17 @@
     lodash "^4.17.21"
     tslib "^2.8.1"
 
+"@patternfly/react-templates@^6.3.1":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@patternfly/react-templates/-/react-templates-6.4.0.tgz#43a3a56173abaf1d2fb4ae06b5f3248380c40678"
+  integrity sha512-n3/CWJ3jEv7d7ZjDa6g0B+k1N9kdw6WV259O44GqGSUd/cgMNZp+B9iIcOKQhekvCEPqvqzsAJT2b9X3YQNwkg==
+  dependencies:
+    "@patternfly/react-core" "^6.4.0"
+    "@patternfly/react-icons" "^6.4.0"
+    "@patternfly/react-styles" "^6.4.0"
+    "@patternfly/react-tokens" "^6.4.0"
+    tslib "^2.8.1"
+
 "@patternfly/react-tokens@^6.4.0":
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/@patternfly/react-tokens/-/react-tokens-6.4.0.tgz#15e0deb5205db8322bed064958162fb98046966f"

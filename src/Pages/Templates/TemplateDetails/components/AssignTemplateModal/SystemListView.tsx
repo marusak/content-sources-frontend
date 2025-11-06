@@ -1,74 +1,49 @@
+import { useQueryClient } from 'react-query';
+import { useParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import useDebounce from '../../../../../Hooks/useDebounce';
+import type { TemplateItem } from '../../../../../services/Templates/TemplateApi';
 import {
-  AlertVariant,
-  Bullseye,
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  Flex,
-  FlexItem,
-  Grid,
+  useSystemsListQuery,
+  GET_SYSTEMS_KEY,
+} from '../../../../../services/Systems/SystemsQueries';
+import {
+  TextInput,
   InputGroup,
   InputGroupItem,
-  Modal,
-  ModalFooter,
-  ModalHeader,
-  ModalVariant,
+  Dropdown,
   MenuToggle,
-  Pagination,
-  PaginationVariant,
-  Spinner,
-  TextInput,
+  DropdownList,
+  DropdownItem,
+  FlexItem,
   ToggleGroup,
   ToggleGroupItem,
+  Pagination,
+  Flex,
+  PaginationVariant,
+  Button,
+  Title,
+  Spinner,
 } from '@patternfly/react-core';
+import { SearchIcon, FilterIcon, SyncAltIcon } from '@patternfly/react-icons';
+import TagsFilter from '../../../../../components/TagsFilter/TagsFilter';
 import { InnerScrollContainer } from '@patternfly/react-table';
-import { useEffect, useMemo, useState } from 'react';
+import Hide from '../../../../../components/Hide/Hide';
+import SystemListTable from './SystemListTable';
+import Loader from '../../../../../components/Loader';
 import { createUseStyles } from 'react-jss';
-import Hide from 'components/Hide/Hide';
-import { FilterIcon, SearchIcon, SyncAltIcon } from '@patternfly/react-icons';
-import useDebounce from 'Hooks/useDebounce';
-import { useNavigate, useParams } from 'react-router-dom';
-import useRootPath from 'Hooks/useRootPath';
-import {
-  GET_SYSTEMS_KEY,
-  useAddTemplateToSystemsQuery,
-  useSystemsListQuery,
-} from 'services/Systems/SystemsQueries';
-import EmptyTableState from 'components/EmptyTableState/EmptyTableState';
-import { useQueryClient } from 'react-query';
-import type { TemplateItem } from 'services/Templates/TemplateApi';
-import { FETCH_TEMPLATE_KEY, useFetchTemplate } from 'services/Templates/TemplateQueries';
-import Loader from 'components/Loader';
-import { PATCH_SYSTEMS_ROUTE, SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
-import ModalSystemsTable from './ModalSystemsTable';
-import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
-import useNotification from 'Hooks/useNotification';
-import TagsFilter from 'components/TagsFilter/TagsFilter';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 const useStyles = createUseStyles({
-  mainContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  },
   topContainer: {
     justifyContent: 'space-between',
-    padding: '16px 24px',
     height: 'fit-content',
-  },
-  bottomContainer: {
-    justifyContent: 'space-between',
   },
   leftMargin: {
     marginLeft: '1rem',
     '& button': {
       textWrap: 'nowrap',
     },
-  },
-  refreshSystemsList: {
-    paddingTop: '0',
-    paddingBottom: '0',
   },
   fullWidth: {
     width: 'auto',
@@ -83,22 +58,32 @@ export const isMinorRelease = (rhsm: string) =>
   // Empty string means that the RHEL release version is unset and should be treated as a major release
   !['', '8', '8.0', '9', '9.0', '10', '10.0'].includes(rhsm);
 
-export default function AddSystemModal() {
+type Props = {
+  selectedSystems: string[];
+  setSelectedSystems: React.Dispatch<React.SetStateAction<string[]>>;
+  template: Pick<TemplateItem, 'arch' | 'version'>;
+  setCanAssignTemplate: React.Dispatch<React.SetStateAction<boolean>>;
+  handleModalClose: () => void;
+};
+
+const SystemListView = ({
+  selectedSystems,
+  setSelectedSystems,
+  template: { version, arch },
+  setCanAssignTemplate,
+  handleModalClose,
+}: Props) => {
   const queryClient = useQueryClient();
   const classes = useStyles();
   const { templateUUID: uuid = '' } = useParams();
-  const rootPath = useRootPath();
-  const navigate = useNavigate();
+
   const storedPerPage = Number(localStorage.getItem(perPageKey)) || 20;
   const [page, setPage] = useState(1);
   const [toggled, setToggled] = useState(false);
   const [perPage, setPerPage] = useState(storedPerPage);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selected, setSelected] = useState<string[]>([]);
-  const selectedList = useMemo(() => new Set(selected), [selected]);
-  const { notify } = useNotification();
-  const [pollCount, setPollCount] = useState(0);
-  const [polling, setPolling] = useState(false);
+
+  const selectedList = useMemo(() => new Set(selectedSystems), [selectedSystems]);
   const [filterType, setFilterType] = useState<FilterType>('Name');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -111,12 +96,7 @@ export default function AddSystemModal() {
 
   const debouncedSearchQuery = useDebounce(searchQuery, !searchQuery ? 0 : 500);
 
-  const debouncedSelected = useDebounce(selected, !selected.length ? 0 : 500);
-
-  const { version, name, arch } = queryClient.getQueryData<TemplateItem>([
-    FETCH_TEMPLATE_KEY,
-    uuid,
-  ])!;
+  const debouncedSelected = useDebounce(selectedSystems, !selectedSystems.length ? 0 : 500);
 
   useEffect(() => {
     setPage(1);
@@ -148,6 +128,11 @@ export default function AddSystemModal() {
 
   const allSystemsAreMinorReleases = minorReleaseSystems.length === systemsList.length;
 
+  // Informs the parent modal whether it is safe to enable the template "Assign" button
+  useEffect(() => {
+    setCanAssignTemplate(selectedSystems.length > 0 && !allSystemsAreMinorReleases);
+  }, [selectedSystems, allSystemsAreMinorReleases]);
+
   // A state for when the "Select All" toggle checkbox is checked
   const isPageSelected = useMemo(() => {
     if (allSystemsAreMinorReleases) return false;
@@ -163,62 +148,11 @@ export default function AddSystemModal() {
     return selectableSystems.every(({ id }) => selectedList.has(id));
   }, [selectedList, systemsList, allSystemsAreMinorReleases, uuid]);
 
-  const { mutateAsync: addSystems, isLoading: isAdding } = useAddTemplateToSystemsQuery(
-    queryClient,
-    uuid,
-    selected,
-  );
-
   useEffect(() => {
     if (isError) {
-      onClose();
+      handleModalClose();
     }
   }, [isError]);
-
-  const { data: template } = useFetchTemplate(uuid as string, true, polling);
-
-  const templatePending = useMemo(
-    () =>
-      template?.last_update_task?.status === 'running' ||
-      template?.last_update_task?.status === 'pending',
-    [template?.last_update_task],
-  );
-
-  useEffect(() => {
-    if (isError) {
-      setPolling(false);
-      setPollCount(0);
-      return;
-    }
-
-    if (polling && templatePending) {
-      setPollCount(pollCount + 1);
-    }
-    if (polling && !templatePending) {
-      setPollCount(0);
-    }
-    if (pollCount > 40) {
-      return setPolling(false);
-    }
-    return setPolling(templatePending);
-  }, [templatePending, isError]);
-
-  useEffect(() => {
-    if (
-      (template?.rhsm_environment_created === false &&
-        template?.last_update_task?.status === 'failed') ||
-      (template?.rhsm_environment_created === false &&
-        template?.last_update_task?.status === 'completed')
-    ) {
-      notify({
-        title: 'Environment not created for template',
-        description:
-          'An error occurred when creating the environment. Cannot assign this template to a system.',
-        variant: AlertVariant.danger,
-        dismissable: true,
-      });
-    }
-  }, [template?.last_update_task]);
 
   const onSetPage = (_, newPage) => setPage(newPage);
 
@@ -229,19 +163,17 @@ export default function AddSystemModal() {
     localStorage.setItem(perPageKey, newPerPage.toString());
   };
 
-  const onClose = () => navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${SYSTEMS_ROUTE}`);
-
-  const handleSelectItem = (id: string) => {
+  const handleSelectSystem = (id: string) => {
     if (selectedList.has(id)) {
-      const newItems = selected.filter((listId) => listId !== id);
+      const newItems = selectedSystems.filter((listId) => listId !== id);
 
-      setSelected([...newItems]);
+      setSelectedSystems([...newItems]);
 
       if (newItems.length % perPage === 0 && page > 1) {
         setPage((prev) => prev - 1);
       }
     } else {
-      setSelected((prev) => [...prev, id]);
+      setSelectedSystems((prev) => [...prev, id]);
     }
   };
 
@@ -249,9 +181,9 @@ export default function AddSystemModal() {
     if (isPageSelected) {
       // Deselect all items that are on the page
       const systemsListSet = new Set(systemsList.map(({ id }) => id));
-      setSelected([...selected.filter((id) => !systemsListSet.has(id))]);
+      setSelectedSystems([...selectedSystems.filter((id) => !systemsListSet.has(id))]);
     } else {
-      setSelected((prev) => [
+      setSelectedSystems((prev) => [
         ...new Set([
           ...prev,
           ...systemsList
@@ -294,41 +226,35 @@ export default function AddSystemModal() {
     }
   }, [filterType, selectedTags, searchQuery]);
 
+  const SystemListRefreshHeader = useMemo(
+    () => (
+      <Flex>
+        <FlexItem>
+          <Title headingLevel='h6'>Select systems</Title>
+        </FlexItem>
+        <FlexItem>
+          <Button
+            id='refreshSystemsList'
+            ouiaId='refresh_systems_list'
+            variant='link'
+            icon={isFetching ? <Spinner isInline /> : <SyncAltIcon />}
+            isDisabled={isLoading || isFetching}
+            onClick={() => queryClient.invalidateQueries(GET_SYSTEMS_KEY)}
+            className={spacing.py_0}
+          >
+            Refresh
+          </Button>
+        </FlexItem>
+      </Flex>
+    ),
+    [isFetching, isLoading, queryClient],
+  );
+
   return (
-    <Modal
-      key={uuid}
-      position='top'
-      aria-labelledby='system-modal-title'
-      ouiaId='system_modal'
-      ouiaSafe={!fetchingOrLoading}
-      variant={ModalVariant.medium}
-      isOpen
-      onClose={onClose}
-    >
-      <ModalHeader
-        title='Assign template to systems'
-        labelId='system-modal-title'
-        description={
-          <>
-            Choose the systems to apply <b>{name}</b> template to now. Be aware that assigning a
-            template to a system with an existing template will overwrite the previous one. The
-            available systems are filtered by the template&apos;s content definition.
-            <Button
-              id='refreshSystemsList'
-              ouiaId='refresh_systems_list'
-              variant='link'
-              className={classes.refreshSystemsList}
-              icon={isFetching ? <Spinner isInline /> : <SyncAltIcon />}
-              isDisabled={isLoading || isFetching}
-              onClick={() => queryClient.invalidateQueries(GET_SYSTEMS_KEY)}
-            >
-              Refresh systems list
-            </Button>
-          </>
-        }
-      />
-      <InnerScrollContainer>
-        <Grid className={classes.mainContainer}>
+    <InnerScrollContainer>
+      <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }} height='100%'>
+        {SystemListRefreshHeader}
+        <FlexItem>
           <InputGroup className={classes.topContainer}>
             <InputGroupItem>
               <InputGroup>
@@ -381,11 +307,11 @@ export default function AddSystemModal() {
                       onChange={() => setToggled(false)}
                     />
                     <ToggleGroupItem
-                      text={`Selected (${selected.length})`}
+                      text={`Selected (${selectedSystems.length})`}
                       buttonId='custom-repositories-selected-toggle-button'
                       data-ouia-component-id='custom-selected-repositories-toggle'
                       isSelected={toggled}
-                      isDisabled={!selected.length}
+                      isDisabled={!selectedSystems.length}
                       onChange={() => {
                         setToggled(true);
                         setPage(1);
@@ -408,37 +334,15 @@ export default function AddSystemModal() {
               />
             </Hide>
           </InputGroup>
-          <Hide hide={!!total_items || fetchingOrLoading}>
-            <Bullseye data-ouia-component-id='systems_list_page'>
-              <EmptyTableState
-                notFiltered={!searchQuery && !!selectedTags}
-                clearFilters={() => setSearchQuery('')}
-                itemName='relevant systems'
-                notFilteredBody='It appears as though you have no systems registered for the associated OS.'
-                notFilteredButton={
-                  <Button
-                    id='goToPatchSystemsButton'
-                    ouiaId='go_to_patch_systems'
-                    variant='primary'
-                    isDisabled={isLoading}
-                    onClick={() =>
-                      navigate(`${rootPath.replace('content', '')}${PATCH_SYSTEMS_ROUTE}`)
-                    }
-                  >
-                    Register a RHEL {version} system
-                  </Button>
-                }
-              />
-            </Bullseye>
-          </Hide>
+
           <Hide hide={isLoading}>
-            <ModalSystemsTable
+            <SystemListTable
               perPage={perPage}
               isFetchingOrLoading={fetchingOrLoading}
               isLoadingOrZeroCount={loadingOrZeroCount}
               systemsList={systemsList}
               selected={selectedList}
-              setSelected={(id) => handleSelectItem(id)}
+              setSelected={(id) => handleSelectSystem(id)}
               selectAllToggle={selectAllToggle}
               isPageSelected={isPageSelected}
             />
@@ -446,7 +350,8 @@ export default function AddSystemModal() {
           <Hide hide={!isLoading}>
             <Loader />
           </Hide>
-          <Flex className={classes.bottomContainer}>
+
+          <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
             <FlexItem />
             <FlexItem>
               <Hide hide={isLoading}>
@@ -463,36 +368,10 @@ export default function AddSystemModal() {
               </Hide>
             </FlexItem>
           </Flex>
-        </Grid>
-      </InnerScrollContainer>
-      <ModalFooter>
-        <Flex gap={{ default: 'gapMd' }}>
-          <ConditionalTooltip
-            content='Cannot assign this template to a system yet.'
-            show={!template?.rhsm_environment_created}
-            setDisabled
-          >
-            <Button
-              isLoading={isAdding}
-              isDisabled={
-                isAdding ||
-                allSystemsAreMinorReleases ||
-                !selected.length ||
-                (!template?.rhsm_environment_created &&
-                  template?.last_update_task?.status !== 'completed')
-              }
-              key='add_system'
-              variant='primary'
-              onClick={() => addSystems().then(onClose)}
-            >
-              Assign
-            </Button>
-          </ConditionalTooltip>
-          <Button key='close' variant='secondary' onClick={onClose}>
-            Close
-          </Button>
-        </Flex>
-      </ModalFooter>
-    </Modal>
+        </FlexItem>
+      </Flex>
+    </InnerScrollContainer>
   );
-}
+};
+
+export default SystemListView;

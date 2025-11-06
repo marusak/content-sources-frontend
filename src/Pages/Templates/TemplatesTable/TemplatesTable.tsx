@@ -217,10 +217,11 @@ const TemplatesTable = () => {
         ouiaId='templates_description'
         paragraph='View all content templates within your organization.'
         aboutData={{
-          header: 'About content templates',
-          text: 'Templates provide consistent content across environments and time. They enable you to control the scope of package and advisory updates that will be installed on selected systems.',
-          docsLabel: 'Content templates documentation',
-          docsURL:
+          headerContent: 'About content templates',
+          bodyContent:
+            'Templates provide consistent content across environments and time. They enable you to control the scope of package and advisory updates that will be installed on selected systems.',
+          linkText: 'Content templates documentation',
+          linkUrl:
             'https://docs.redhat.com/en/documentation/red_hat_insights/1-latest/html/managing_system_content_and_patch_updates_on_rhel_systems/patching-using-content-templates_patch-service-overview',
         }}
       />

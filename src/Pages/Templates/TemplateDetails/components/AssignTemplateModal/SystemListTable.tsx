@@ -21,7 +21,7 @@ import useRootPath from 'Hooks/useRootPath';
 import { TEMPLATES_ROUTE } from 'Routes/constants';
 import TdWithTooltip from 'components/TdWithTooltip/TdWithTooltip';
 import { useParams } from 'react-router-dom';
-import SystemNameCell from './SystemNameCell';
+import SystemNameCell from './components/SystemNameCell';
 import { isMinorRelease } from './AddSystemModal';
 
 const useStyles = createUseStyles({
@@ -53,7 +53,7 @@ interface Props {
   isPageSelected: boolean;
 }
 
-export default function ModalSystemsTable({
+export default function SystemListTable({
   isFetchingOrLoading,
   isLoadingOrZeroCount,
   systemsList,
