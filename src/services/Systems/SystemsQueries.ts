@@ -122,7 +122,7 @@ export const useDeleteTemplateFromSystems = (queryClient: QueryClient) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
       errorNotifier(
-        'Unable to delete the given repository.',
+        'Unable to unassign template from system.',
         'An error occurred',
         err,
         'remove-template-from-system-error',

@@ -40,12 +40,12 @@ const SystemsDeleteKebab = ({ deselectAll, isDisabled, selected, deleteFromSyste
       <DropdownList>
         <ConditionalTooltip
           key='delete'
-          content='Make a selection below to remove this template from multiple systems'
+          content='Make a selection below to unassign this template from multiple systems'
           show={!selected.length}
           setDisabled
         >
           <DropdownItem autoFocus onClick={() => deleteFromSystems(selected)}>
-            {`Remove template from ${selected.length} system(s)`}
+            {`Unassign template from ${selected.length} system(s)`}
           </DropdownItem>
         </ConditionalTooltip>
       </DropdownList>

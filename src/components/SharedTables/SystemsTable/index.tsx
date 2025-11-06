@@ -205,7 +205,7 @@ export default function SystemsTable({
                           items={[
                             {
                               tooltipProps: {
-                                content: 'Remove this template from this system.',
+                                content: 'Unassign this template from this system.',
                               },
                               title: 'Delete',
                               onClick: () => deleteFromSystems([inventory_id]),
