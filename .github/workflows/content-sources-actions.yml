@@ -142,9 +142,6 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: high
-          vulnerability-check: true
-          comment-summary-in-pr: on-failure
           config-file: .github/dependency-review-config.yml
 
   unit-test:
