@@ -130,7 +130,13 @@ test.describe('Templates CRUD', () => {
         page.getByRole('heading', { name: 'Other repositories', exact: true }),
       ).toBeVisible();
       // Verify only the aarch64 custom repo is in the template
+      const modalPage = page.getByTestId('edit_template_modal');
+      await expect(modalPage.getByRole('button', { name: 'Selected' })).toBeEnabled();
+      await modalPage.getByRole('button', { name: 'Selected' }).click();
       await expect(page.getByText(`${repoName}`)).toBeVisible();
+      await expect(
+        modalPage.getByRole('grid', { name: 'custom repositories table' }).locator('tbody tr'),
+      ).toHaveCount(1);
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(page.getByRole('heading', { name: 'Set up date', exact: true })).toBeVisible();
       await page.getByRole('button', { name: 'Next', exact: true }).click();

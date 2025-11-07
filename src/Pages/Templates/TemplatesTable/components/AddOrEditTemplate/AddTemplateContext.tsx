@@ -102,9 +102,9 @@ export const AddTemplateContextProvider = ({ children }: { children: ReactNode }
       if (result) {
         setHardcodeRepositories(result);
       }
-      setSelectedCustomRepos(new Set());
+      if (!uuid) setSelectedCustomRepos(new Set());
     }
-  }, [templateRequest.version, templateRequest.arch]);
+  }, [templateRequest.version, templateRequest.arch, uuid]);
 
   useEffect(() => {
     if (data?.data?.length) {
