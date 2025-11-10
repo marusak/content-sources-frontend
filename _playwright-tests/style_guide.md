@@ -165,8 +165,8 @@ expect(await page.getByText('Success!').isVisible()).toBe(true);
 - `toHaveCount()`: Checks if a locator resolves to a specific number of elements.
 - `toBeEnabled()`: Checks if an element is enabled.
 
-For negative assertions, use the `not` modifier to check that something is not present or not in a certain state:
-Negative assertions: `await expect(page.getByText('Error')).not.toBeVisible();`
+For negative assertions, use the appropriate negative matcher rather than the `not` modifier when available:
+Negative assertions: `await expect(page.getByText('Error')).toBeHidden();`
 
 ### Non-DOM Assertions
 
