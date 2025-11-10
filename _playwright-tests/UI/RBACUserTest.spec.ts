@@ -58,7 +58,7 @@ test.describe('Create, update, and read a repo as admin user', () => {
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();
       await expect(page.getByRole('menu')).toBeVisible();
-      await expect(row.getByRole('menuitem', { name: 'Edit' })).not.toBeVisible({ timeout: 500 });
+      await expect(row.getByRole('menuitem', { name: 'Edit' })).toBeHidden({ timeout: 500 });
       const repoButton = page.getByRole('button', { name: 'Add repositories', exact: true });
       await expect(repoButton).toBeDisabled();
     });
@@ -79,7 +79,7 @@ test.describe('Create, update, and read a repo as admin user', () => {
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();
       await expect(page.getByRole('menu')).toBeVisible();
-      await expect(row.getByRole('menuitem', { name: 'Edit' })).not.toBeVisible({ timeout: 500 });
+      await expect(row.getByRole('menuitem', { name: 'Edit' })).toBeHidden({ timeout: 500 });
       const repoButton = page.getByRole('button', { name: 'Add repositories', exact: true });
       await expect(repoButton).toBeDisabled();
     });
