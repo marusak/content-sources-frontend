@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: integration-group
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
             echo "RBAC=true"
             echo "INTEGRATION=true"
             echo "BASE_URL=\"$STAGE_BASE_URL\""
-            echo "PROXY=\"$STAGE_PROXY\""
+            echo "PROXY=\"$RH_PROXY_URL\""
             echo "ADMIN_USERNAME=\"$STAGE_ADMIN_USERNAME\""
             echo "ADMIN_PASSWORD=\"$STAGE_ADMIN_PASSWORD\""
             echo "READONLY_USERNAME=\"$STAGE_READONLY_USERNAME\""

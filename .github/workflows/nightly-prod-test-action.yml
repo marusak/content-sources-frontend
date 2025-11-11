@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: integration-group
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
           echo "RBAC=true" >> .env
           echo "INTEGRATION=true" >> .env
           echo "BASE_URL=$PROD_BASE_URL" >> .env
-          echo "PROXY=$PROXY" >> .env
+          echo "PROXY=$RH_PROXY_URL" >> .env
           echo "ADMIN_USERNAME=$PROD_ADMIN_USERNAME" >> .env
           echo "ADMIN_PASSWORD=$PROD_ADMIN_PASSWORD" >> .env
           echo "READONLY_USERNAME=$PROD_READONLY_USERNAME" >> .env
