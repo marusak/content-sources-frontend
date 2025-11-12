@@ -23,7 +23,7 @@ module.exports = {
             org: 'red-hat-it',
             project: 'content_sources',
             moduleMetadata: ({ release }) => ({
-              dsn: `https://eb913bd402c07ea0583d4e9a12aa188a@o490301.ingest.us.sentry.io/4510123991171072`,
+              dsn: `https://2578944726a33e0e2e3971c976a87e08@o490301.ingest.us.sentry.io/4510123991171072`,
               org: 'red-hat-it',
               project: 'content-sources',
               release,
