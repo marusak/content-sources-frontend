@@ -32,6 +32,7 @@
     "@patternfly/react-icons": "^6.3.1",
     "@patternfly/react-styles": "^6.3.1",
     "@patternfly/react-table": "^6.3.1",
+    "@patternfly/react-drag-drop": "^6.3.1",
     "@redhat-cloud-services/frontend-components": "^7.0.9",
     "@redhat-cloud-services/frontend-components-config": "^6.7.1",
     "@redhat-cloud-services/frontend-components-notifications": "^6.1.11",
