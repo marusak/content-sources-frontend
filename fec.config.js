@@ -21,9 +21,9 @@ module.exports = {
               authToken: process.env.SENTRY_AUTH_TOKEN,
             }),
             org: 'red-hat-it',
-            project: 'content_sources',
+            project: 'content-sources',
             moduleMetadata: ({ release }) => ({
-              dsn: `https://2578944726a33e0e2e3971c976a87e08@o490301.ingest.us.sentry.io/4510123991171072`,
+              dsn: 'https://2578944726a33e0e2e3971c976a87e08@o490301.ingest.us.sentry.io/4510123991171072',
               org: 'red-hat-it',
               project: 'content-sources',
               release,
