@@ -20,7 +20,7 @@ test.describe('Template use requires a RHEL subscription', () => {
 
     const AddButton = page.getByRole('button', { name: 'Create template', exact: true }).first();
     await expect(AddButton).toBeVisible();
-    await expect(AddButton).not.toBeEnabled({ timeout: 1000 });
+    await expect(AddButton).toBeDisabled({ timeout: 1000 });
     // eslint-disable-next-line playwright/no-force-option
     await AddButton.hover({ force: true });
     const tooltip = page.getByRole('tooltip');

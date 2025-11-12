@@ -49,7 +49,7 @@ export const logInWithUsernameAndPassword = async (
 
     const cookies = await page.context().cookies();
     const found = cookies.find((cookie) => cookie.name === 'cs_jwt');
-    expect(found).not.toBe(undefined);
+    expect(found).toBeDefined();
   }).toPass({
     intervals: [1_000],
     timeout: 30_000,
