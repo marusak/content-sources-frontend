@@ -133,6 +133,12 @@ test.describe('Associated Template CRUD', () => {
       expect(isAttached, 'system should be removed from inventory').toBe(true);
     });
 
+    // https://issues.redhat.com/browse/HMS-9731: backend cache issue with template deletion
+    await test.step('Reload page to ensure UI reflects system removal', async () => {
+      await page.reload();
+      await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
+    });
+
     await test.step('Verify template can now be deleted without warning', async () => {
       const rowTemplate = await getRowByNameOrUrl(page, templateName);
       await rowTemplate.getByLabel('Kebab toggle').click();
