@@ -1,4 +1,4 @@
-name: nightly-prod-test-action
+name: "E2E tests: Prod"
 on:
   schedule:
     - cron: '0 0 * * *' # This cron expression runs the action every 24 hours at midnight UTC
@@ -52,6 +52,7 @@ jobs:
           echo "INTEGRATION=true" >> .env
           echo "BASE_URL=$PROD_BASE_URL" >> .env
           echo "PROXY=$RH_PROXY_URL" >> .env
+          echo "RH_CLIENT_PROXY=$RH_PROXY_URL" >> .env
           echo "ADMIN_USERNAME=$PROD_ADMIN_USERNAME" >> .env
           echo "ADMIN_PASSWORD=$PROD_ADMIN_PASSWORD" >> .env
           echo "READONLY_USERNAME=$PROD_READONLY_USERNAME" >> .env

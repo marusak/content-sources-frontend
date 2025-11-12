@@ -68,12 +68,12 @@ Keep in mind that you have to be connected to the VPN for this to work, even in 
 
 Sometimes the default development proxy started with `yarn start||local` can be
 slow and unstable, which can be problematic while testing. To overcome this you
-can use the [consoledot-testing-proxy](https://github.com/dvagner/consoledot-testing-proxy)
+can use the [frontend-development-proxy](https://github.com/RedHatInsights/frontend-development-proxy)
 and run the app in static mode.
 
 1. `yarn fec static` to start the app in static mode
 
-2. `podman run -d -e HTTPS_PROXY=$RH_PROXY_URL -p 1337:1337 -v "$(pwd)/config:/config:ro,Z" --replace --name consoledot-testing-proxy quay.io/dvagner/consoledot-testing-proxy` to run the proxy against stage
+2. `podman run -d -e HTTPS_PROXY=$RH_PROXY_URL -p 1337:1337 -v "$(pwd)/config:/config:ro,Z" --replace --name frontend-development-proxy quay.io/redhat-user-workloads/hcc-platex-services-tenant/frontend-development-proxy:latest` to run the proxy against stage
 
 ## Unit Testing
 

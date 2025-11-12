@@ -1,4 +1,4 @@
-name: build-playwright-test
+name: UI project tests
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled, unlabeled]
@@ -205,7 +205,7 @@ jobs:
           .github/workflowScripts/waitForBackend.sh
 
       - name: Run testing proxy
-        run: docker run -d --network=host -e HTTPS_PROXY=$RH_PROXY_URL -e ROUTES_JSON_PATH=/config/routes-ci.json -v "$(pwd)/config:/config:ro,Z" --name consoledot-testing-proxy quay.io/dvagner/consoledot-testing-proxy
+        run: docker run -d --network=host -e HTTPS_PROXY=$RH_PROXY_URL -e ROUTES_JSON_PATH=/config/routes-ci.json -v "$(pwd)/config:/config:ro,Z"  --name frontend-development-proxy quay.io/redhat-user-workloads/hcc-platex-services-tenant/frontend-development-proxy:latest
 
       - name: Setup the minimal needed repositories (Small RHEL, EPEL 10)
         working-directory: content-sources-backend

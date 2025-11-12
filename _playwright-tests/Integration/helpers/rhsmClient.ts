@@ -94,7 +94,7 @@ export class RHSMClient {
     const command = [
       'sh',
       '-c',
-      `echo "proxy=${process.env.PROXY}" >> /etc/insights-client/insights-client.conf`,
+      `echo "proxy=${process.env.RH_CLIENT_PROXY}" >> /etc/insights-client/insights-client.conf`,
     ];
     return runCommand(this.name, command);
   }
@@ -270,8 +270,8 @@ const stageConfigureCommand = (): string[] => {
     '--server.insecure=0',
     '--rhsm.baseurl=https://stagecdn.redhat.com',
   ];
-  if (process.env.PROXY !== undefined) {
-    const url = new URL(process.env.PROXY);
+  if (process.env.RH_CLIENT_PROXY !== undefined) {
+    const url = new URL(process.env.RH_CLIENT_PROXY);
     command.push('--server.proxy_hostname=' + url.hostname);
     command.push('--server.proxy_port=' + url.port);
   }

@@ -1,4 +1,4 @@
-name: build-tests
+name: Build & Unit Tests
 on:
   pull_request:
     branches: [main, prod-beta, prod-stable]
