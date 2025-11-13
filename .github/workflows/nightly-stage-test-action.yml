@@ -1,4 +1,4 @@
-name: "E2E tests: Stage"
+name: 'E2E tests: Stage'
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled, unlabeled]
@@ -77,7 +77,7 @@ jobs:
             echo "STABLE_SAM_PASSWORD=\"$STAGE_STABLE_SAM_PASSWORD\""
             echo "RH_CLIENT_PROXY=\"$RH_PROXY_URL\""
           } >> .env 2>/dev/null
-          if [[ ${{ github.event_name }} -eq "pull_request" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "BASE_URL=https://stage.foo.redhat.com:1337" >> .env
           else
             echo "BASE_URL=$STAGE_BASE_URL" >> .env
@@ -131,15 +131,15 @@ jobs:
       - name: Update /etc/hosts
         if: ${{ github.event_name == 'pull_request' }}
         run: sudo npm run patch:hosts
-      
+
       - name: Build front-end
         if: ${{ github.event_name == 'pull_request' }}
         run: yarn build
-      
+
       - name: Frontend run (static)
         if: ${{ github.event_name == 'pull_request' }}
         run: yarn fec static --port 8003 &
-      
+
       - name: Wait for frontend to be ready
         if: ${{ github.event_name == 'pull_request' }}
         timeout-minutes: 3
@@ -149,7 +149,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         run: docker run -d --network=host -e HTTPS_PROXY=$RH_PROXY_URL -e ROUTES_JSON_PATH=/config/routes-ci-integration.json -v "$(pwd)/config:/config:ro,Z" --name frontend-development-proxy quay.io/redhat-user-workloads/hcc-platex-services-tenant/frontend-development-proxy:latest
       ### End of pull request specific steps ###
-      
+
       - name: Run Playwright tests
         run: CURRENTS_PROJECT_ID=jRJFbV CURRENTS_RECORD_KEY=$CURRENTS_RECORD_KEY CURRENTS_CI_BUILD_ID="${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt }}" yarn playwright test
 
