@@ -186,6 +186,7 @@ export class RHSMClient {
    */
   async Unregister(withRhc: boolean) {
     if (withRhc) {
+      console.log('Logging status of rhcd.service before attempting to disconnect');
       const stream = await runCommand(this.name, ['systemctl', 'status', 'rhcd.service']);
       if (stream) {
         console.log(stream.stdout);
