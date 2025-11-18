@@ -122,7 +122,31 @@ export class RHSMClient {
       connect.push('--content-template');
       connect.push(`${template}`);
     }
-    return runCommand(this.name, connect, 75000);
+    const result = await runCommand(this.name, connect, 75000);
+
+    if (result && result.exitCode !== 0) {
+      console.log('RHC registration failed with exit code:', result.exitCode);
+      if (
+        result.stdout &&
+        !result.stdout.includes('--activationkey') &&
+        !result.stdout.includes('--password') &&
+        !result.stdout.includes('-a') &&
+        !result.stdout.includes('-p')
+      ) {
+        console.log('STDOUT:', result.stdout);
+      }
+      if (
+        result.stderr &&
+        !result.stderr.includes('--activationkey') &&
+        !result.stderr.includes('--password') &&
+        !result.stderr.includes('-a') &&
+        !result.stderr.includes('-p')
+      ) {
+        console.log('STDERR:', result.stderr);
+      }
+    }
+
+    return result;
   }
 
   /**
