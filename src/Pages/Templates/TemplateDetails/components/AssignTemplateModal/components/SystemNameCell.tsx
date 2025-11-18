@@ -1,10 +1,10 @@
-import { Button, Flex, FlexItem, Icon, Popover } from '@patternfly/react-core';
-import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon } from '@patternfly/react-icons';
+import { Button, Flex, FlexItem, Icon } from '@patternfly/react-core';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { reduceStringToCharsWithEllipsis } from '../../../../../../helpers';
 import { PATCH_SYSTEMS_ROUTE } from '../../../../../../Routes/constants';
 import type { SystemItem } from '../../../../../../services/Systems/SystemsApi';
 import { isMinorRelease } from '../AddSystemModal';
-import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import HelpPopover from '../../../../../../components/HelpPopover';
 
 type Props = Pick<SystemItem, 'id'> &
   Pick<SystemItem['attributes'], 'display_name' | 'rhsm'> & {
@@ -25,43 +25,25 @@ export default function SystemNameCell({ id, display_name, rhsm, basePath }: Pro
     </Button>
   );
 
-  // todo - refactor Popover to match the new pattern
-
   return isMinorRelease(rhsm) ? (
     <Flex columnGap={{ default: 'columnGapSm' }} alignItems={{ default: 'alignItemsCenter' }}>
       <FlexItem>{name}</FlexItem>
       <FlexItem>
-        <Popover
+        <HelpPopover
+          linkText='Learn how to unset the version'
+          linkUrl={RHSM_DOCS_URL}
           headerContent={`RHEL is locked at version ${rhsm}`}
           headerIcon={<ExclamationTriangleIcon />}
           alertSeverityVariant='warning'
           position='right'
           triggerAction='hover'
           hasAutoWidth
-          bodyContent={
-            <>
-              <p className={spacing.mbSm}>
-                Unset the minor release version to associate a template.
-              </p>
-              <Button
-                variant='link'
-                component='a'
-                icon={<ExternalLinkSquareAltIcon />}
-                iconPosition='end'
-                href={RHSM_DOCS_URL}
-                target='_blank'
-                // Use 'noopener noreferrer' alongside target='_blank' to prevent tabnabbing and protect user privacy
-                rel='noopener noreferrer'
-              >
-                Learn how to unset the version
-              </Button>
-            </>
-          }
+          bodyContent={<p>Unset the minor release version to associate a template.</p>}
         >
           <Icon data-ouia-component-id='system-list-warning-icon' status='warning'>
             <ExclamationTriangleIcon />
           </Icon>
-        </Popover>
+        </HelpPopover>
       </FlexItem>
     </Flex>
   ) : (
