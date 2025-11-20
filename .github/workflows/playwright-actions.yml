@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
@@ -127,12 +127,11 @@ jobs:
           fi
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
 
       - name: Cache - node_modules
-        if: ${{ !cancelled() }}
         uses: actions/cache@v4
         with:
           path: |
@@ -142,21 +141,11 @@ jobs:
           restore-keys: ${{ runner.os }}-frontend-node-modules-
 
       - name: Cache - Backend compose files
-        if: ${{ !cancelled() }}
         uses: actions/cache@v4
         with:
           path: content-sources-backend/release
           key: ${{ runner.os }}-compose-${{ hashFiles('content-sources-backend/compose_files/pulp/docker-compose.yml') }}-${{ hashFiles('content_sources_backend/compose_files/candlepin/Dockerfile') }}
           restore-keys: ${{ runner.os }}-compose-
-
-      - name: Cache - Playwright browsers
-        if: ${{ !cancelled() }}
-        id: cache-playwright-browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('playwright.config.ts') }}
-          restore-keys: ${{ runner.os }}-playwright-
 
       - name: Install Make
         working-directory: content-sources-backend
@@ -187,7 +176,7 @@ jobs:
         run: sudo npm run patch:hosts
 
       - name: Run front-end and back-end setup in parallel
-        run: 'parallel --line-buffer --tagstring "[{#}]:" ::: "yarn install && yarn build && yarn playwright install --with-deps" "cd content-sources-backend && make compose-down compose-clean compose-up"'
+        run: 'parallel --line-buffer --tagstring "[{#}]:" ::: "yarn install --frozen-lockfile && yarn build&& yarn playwright install chromium --only-shell" "cd content-sources-backend && make compose-down compose-clean compose-up"'
 
       - name: Frontend run (static)
         run: yarn fec static --port 8003 &
@@ -223,11 +212,9 @@ jobs:
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: './playwright-ctrf/playwright-ctrf.json'
-        if: ${{ !cancelled() }}
 
       - name: Store front-end Test report
         uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
         with:
           name: playwright-report
           path: playwright-report/

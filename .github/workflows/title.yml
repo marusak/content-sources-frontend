@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - name: Add "Build:" to PR title
         if: github.event.pull_request.user.login == 'red-hat-konflux' && !startsWith(github.event.pull_request.title, 'Build:')
@@ -28,7 +28,7 @@ jobs:
       - uses: deepakputhraya/action-pr-title@master
         with:
           regex: '^Build|Test|^(\w+-\d+(,\w+-\d+)*): .+' # Regex the title should match.
-          disallowed_prefixes: "" # title should not start with the given prefix
+          disallowed_prefixes: '' # title should not start with the given prefix
           prefix_case_sensitive: false # title prefix are case insensitive
           min_length: 5 # Min length of the title
           max_length: 70 # Max length of the title

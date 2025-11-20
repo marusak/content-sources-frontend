@@ -1,4 +1,4 @@
-name: "E2E tests: Prod"
+name: 'E2E tests: Prod'
 on:
   schedule:
     - cron: '0 7 * * *' # This cron expression runs the action every 24 hours at 7 AM UTC
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -26,7 +26,6 @@ jobs:
         uses: ./.github/actions/sparse-checkout-utils
 
       - name: Cache - node_modules
-        if: ${{ !cancelled() }}
         uses: actions/cache@v4
         with:
           path: |
@@ -35,14 +34,16 @@ jobs:
           key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: ${{ runner.os }}-frontend-node-modules-
 
-      - name: Cache Playwright browsers
-        if: ${{ !cancelled() }}
-        id: cache-playwright-browsers
-        uses: actions/cache@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('playwright.config.ts') }}
-          restore-keys: ${{ runner.os }}-playwright-
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup Playwright
+        run: yarn playwright install chromium --only-shell
 
       - name: Create .env file
         run: |
@@ -74,17 +75,6 @@ jobs:
           echo "DOCKER_SOCKET=/var/run/docker.sock" >> .env
           echo "STABLE_SAM_USERNAME=$PROD_STABLE_SAM_USERNAME" >> .env
           echo "STABLE_SAM_PASSWORD=$PROD_STABLE_SAM_PASSWORD" >> .env
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
 
       - name: Run Playwright tests
         run: CURRENTS_PROJECT_ID=jRJFbV CURRENTS_RECORD_KEY=$CURRENTS_RECORD_KEY CURRENTS_CI_BUILD_ID="${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt }}" yarn playwright test

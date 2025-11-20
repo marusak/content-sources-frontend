@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -30,7 +30,6 @@ jobs:
         uses: ./.github/actions/sparse-checkout-utils
 
       - name: Cache - node_modules
-        if: ${{ !cancelled() }}
         uses: actions/cache@v4
         with:
           path: |
@@ -39,14 +38,16 @@ jobs:
           key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: ${{ runner.os }}-frontend-node-modules-
 
-      - name: Cache Playwright browsers
-        if: ${{ !cancelled() }}
-        id: cache-playwright-browsers
-        uses: actions/cache@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('playwright.config.ts') }}
-          restore-keys: ${{ runner.os }}-playwright-
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup Playwright
+        run: yarn playwright install chromium --only-shell
 
       - name: Create .env file
         run: |
@@ -110,17 +111,6 @@ jobs:
           else
             echo "The .nvmrc versions are the same!"
           fi
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
 
       ### Pull request specific steps ###
       # This prevents an error related to minimum watchers when running the front-end and playwright
