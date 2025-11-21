@@ -6,7 +6,7 @@ import {
   TemplatesApi,
   ListTemplatesRequest,
 } from 'test-utils';
-import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
+import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
@@ -81,6 +81,8 @@ test.describe('Test System With Template', () => {
         console.log(reg?.stderr);
       }
       expect(reg?.exitCode, 'Expect registering to be successful').toBe(0);
+
+      await waitForRhcdActive(regClient);
 
       await refreshSubscriptionManager(regClient);
 

@@ -4,7 +4,7 @@ import {
   cleanupTemplates,
   randomName,
 } from '../test-utils/_playwright-tests/test-utils/src';
-import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
+import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 import { pollForSystemTemplateAttachment } from './helpers/systemHelpers';
@@ -80,6 +80,8 @@ test.describe('Associated Template CRUD', () => {
         console.log('Registration stderr:', reg?.stderr);
       }
       expect(reg?.exitCode, 'registration should be successful').toBe(0);
+
+      await waitForRhcdActive(regClient);
 
       await refreshSubscriptionManager(regClient);
     });
