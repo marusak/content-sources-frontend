@@ -272,6 +272,44 @@ export class RHSMClient {
 }
 
 /**
+ * Waits for rhcd service to become active after rhc connect
+ * @param client The RHSMClient instance to execute the command on
+ * @param maxAttempts Maximum number of retry attempts (default: 30)
+ * @param delayMs Delay between attempts in milliseconds (default: 1000)
+ * @returns Promise that resolves when rhcd is active or throws on timeout
+ */
+export async function waitForRhcdActive(
+  client: RHSMClient,
+  maxAttempts: number = 30,
+  delayMs: number = 1000,
+): Promise<void> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = await client.Exec(['systemctl', 'is-active', 'rhcd.service'], 5000);
+
+      if (result && result.exitCode === 0 && result.stdout?.trim() === 'active') {
+        console.log(`rhcd service is active (attempt ${attempt}/${maxAttempts})`);
+        return;
+      }
+
+      console.log(
+        `Waiting for rhcd service to be active, attempt ${attempt}/${maxAttempts} (status: ${result?.stdout?.trim() || 'unknown'})`,
+      );
+    } catch (error) {
+      console.log(`Error checking rhcd status on attempt ${attempt}/${maxAttempts}:`, error);
+    }
+
+    if (attempt < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  throw new Error(
+    `rhcd service did not become active after ${maxAttempts} attempts (${(maxAttempts * delayMs) / 1000}s)`,
+  );
+}
+
+/**
  * Refreshes subscription-manager with retry logic to handle intermittent failures
  * @param client The RHSMClient instance to execute the refresh command on
  * @param maxAttempts Maximum number of retry attempts (default: 3)
