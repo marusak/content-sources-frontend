@@ -12,9 +12,6 @@ jest.mock('react-query', () => ({
 }));
 
 jest.mock('react-router-dom', () => ({
-  useParams: () => ({
-    templateUUID: `${defaultTemplateItem.uuid}`,
-  }),
   useNavigate: () => jest.fn,
   useLocation: () => ({
     pathname: `/mocked/${DETAILS_ROUTE}`,
@@ -22,6 +19,8 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('Hooks/useRootPath', () => () => 'someUrl');
+
+jest.mock('Hooks/useSafeUUIDParam', () => () => defaultTemplateItem.uuid);
 
 jest.mock('services/Systems/SystemsQueries', () => ({
   useListSystemsByTemplateId: jest.fn(),

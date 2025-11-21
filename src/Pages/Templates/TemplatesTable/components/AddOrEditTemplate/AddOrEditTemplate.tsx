@@ -22,7 +22,7 @@ import DefineContentStep from './steps/DefineContentStep';
 import SetUpDateStep from './steps/SetUpDateStep';
 import DetailStep from './steps/DetailStep';
 import ReviewStep from './steps/ReviewStep';
-import { checkValidUUID, formatTemplateDate } from 'helpers';
+import { formatTemplateDate } from 'helpers';
 import { isEmpty } from 'lodash';
 import { createUseStyles } from 'react-jss';
 import { useMemo } from 'react';
@@ -59,9 +59,9 @@ const AddOrEditTemplateBase = () => {
 
   const { isEdit, templateRequest, checkIfCurrentStepValid, editUUID } = useAddTemplateContext();
 
-  // only checking when in EditTemplate mode
-  const isValidUUID = isEdit ? checkValidUUID(editUUID!) : null;
-  if (isValidUUID !== null && !isValidUUID) throw new Error('UUID is invalid');
+  // useSafeUUIDParam in AddTemplateContext already validates the UUID
+  // If in edit mode and UUID is invalid, it will be an empty string
+  if (isEdit && !editUUID) throw new Error('UUID is invalid');
 
   const initialIndex = useMemo(() => {
     const tabValue = urlSearchParams.get('tab');

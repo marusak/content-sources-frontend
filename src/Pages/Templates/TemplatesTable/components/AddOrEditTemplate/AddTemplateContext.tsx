@@ -12,10 +12,11 @@ import { QueryClient, useQueryClient } from 'react-query';
 import { useContentListQuery, useRepositoryParams } from 'services/Content/ContentQueries';
 import { ContentOrigin, NameLabel } from 'services/Content/ContentApi';
 import { hardcodeRedHatReposByArchAndVersion } from '../templateHelpers';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useFetchTemplate } from 'services/Templates/TemplateQueries';
 import useRootPath from 'Hooks/useRootPath';
 import { isDateValid } from 'helpers';
+import useSafeUUIDParam from 'Hooks/useSafeUUIDParam';
 
 export interface AddTemplateContextInterface {
   queryClient: QueryClient;
@@ -36,9 +37,8 @@ export interface AddTemplateContextInterface {
 export const AddTemplateContext = createContext({} as AddTemplateContextInterface);
 
 export const AddTemplateContextProvider = ({ children }: { children: ReactNode }) => {
-  const { templateUUID: uuid } = useParams();
-
-  const { data: editTemplateData, isError } = useFetchTemplate(uuid as string, !!uuid);
+  const uuid = useSafeUUIDParam('templateUUID');
+  const { data: editTemplateData, isError } = useFetchTemplate(uuid, !!uuid);
 
   const navigate = useNavigate();
   const rootPath = useRootPath();

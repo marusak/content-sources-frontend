@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
-import { Outlet, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { SortByDirection, type ThProps } from '@patternfly/react-table';
 import Loader from 'components/Loader';
@@ -24,13 +24,15 @@ import SystemsTable from 'components/SharedTables/SystemsTable';
 import EmptyTableState from 'components/EmptyTableState/EmptyTableState';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import { useAppContext } from 'middleware/AppContext';
-import { ADD_ROUTE } from 'Routes/constants';
+import { ADD_ROUTE, TEMPLATES_ROUTE, SYSTEMS_ROUTE } from 'Routes/constants';
 import Hide from 'components/Hide/Hide';
 import SystemsDeleteKebab from 'components/SharedTables/SystemsTable/Components/SystemsDeleteKebab';
 import { SearchIcon } from '@patternfly/react-icons';
 import { AssignmentMethods } from '../AssignTemplateModal/components/AssignmentMethodSelect';
 import useDebounce from 'Hooks/useDebounce';
 import useHasRegisteredSystems from 'Hooks/useHasRegisteredSystems';
+import useRootPath from 'Hooks/useRootPath';
+import useSafeUUIDParam from '../../../../../Hooks/useSafeUUIDParam';
 
 const useStyles = createUseStyles({
   description: {
@@ -65,9 +67,9 @@ export default function TemplateSystemsTab() {
   const queryClient = useQueryClient();
   const { rbac, subscriptions } = useAppContext();
 
+  const rootPath = useRootPath();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { templateUUID: uuid } = useParams();
+  const uuid = useSafeUUIDParam('templateUUID');
 
   const storedPerPage = Number(localStorage.getItem(perPageKey)) || 20;
   const [page, setPage] = useState(1);
@@ -111,11 +113,11 @@ export default function TemplateSystemsTab() {
     error,
     isError,
     data = { data: [], meta: { total_items: 0, limit: 20, offset: 0 } },
-  } = useListSystemsByTemplateId(uuid as string, page, perPage, debouncedSearchQuery, sortString);
+  } = useListSystemsByTemplateId(uuid, page, perPage, debouncedSearchQuery, sortString);
 
   // Check if there are registered systems compatible with this template
   const { hasRegisteredSystems, isFetchingRegSystems, isErrorFetchingRegSystems } =
-    useHasRegisteredSystems(uuid as string);
+    useHasRegisteredSystems(uuid);
 
   const { mutateAsync: deleteFromSystems, isLoading: isDeleting } =
     useDeleteTemplateFromSystems(queryClient);
@@ -301,7 +303,7 @@ export default function TemplateSystemsTab() {
                         component='a'
                         variant='link'
                         isDisabled={isFetchingRegSystems}
-                        href={`${location.pathname}/${ADD_ROUTE}?method=${AssignmentMethods.ApiRegistration}`}
+                        href={`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${SYSTEMS_ROUTE}/${ADD_ROUTE}?method=${AssignmentMethods.ApiRegistration}`}
                         onClick={(event) => {
                           // Prevent the browser's default anchor behavior to ensure that `navigate` performs client-side routing instead of a full page reload
                           event.preventDefault();

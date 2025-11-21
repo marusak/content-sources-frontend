@@ -12,7 +12,6 @@ const templateUUID = 'banana-uuid';
 const mockRootPath = 'insights/content';
 
 jest.mock('react-router-dom', () => ({
-  useParams: () => ({ templateUUID: templateUUID }),
   useNavigate: jest.fn(),
   Outlet: () => <></>,
 }));
@@ -20,6 +19,8 @@ jest.mock('react-router-dom', () => ({
 jest.mock('dayjs', () => (value) => ({ fromNow: () => value }));
 
 jest.mock('Hooks/useRootPath', () => () => mockRootPath);
+
+jest.mock('Hooks/useSafeUUIDParam', () => () => templateUUID);
 
 jest.mock('Hooks/useHasRegisteredSystems');
 

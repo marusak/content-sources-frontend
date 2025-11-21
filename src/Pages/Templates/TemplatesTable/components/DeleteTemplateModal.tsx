@@ -14,7 +14,7 @@ import {
 import { createUseStyles } from 'react-jss';
 import Hide from 'components/Hide/Hide';
 import { useQueryClient } from 'react-query';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useRootPath from 'Hooks/useRootPath';
 import {
   GET_TEMPLATES_KEY,
@@ -24,7 +24,7 @@ import {
 import { SYSTEMS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import { useListSystemsByTemplateId } from 'services/Systems/SystemsQueries';
 import { ActionButtons } from 'components/ActionButtons/ActionButtons';
-import { checkValidUUID } from 'helpers';
+import useSafeUUIDParam from 'Hooks/useSafeUUIDParam';
 
 const useStyles = createUseStyles({
   description: {
@@ -48,12 +48,11 @@ export default function DeleteTemplateModal() {
   // delete template modal can be placed over templates list page or the template details page
   const isOverTemplateDetail = useLocation().pathname.includes('details');
 
-  const { templateUUID: uuid } = useParams();
-  const isValidUUID = checkValidUUID(uuid!);
+  const uuid = useSafeUUIDParam('templateUUID');
 
-  if (!isValidUUID) throw new Error('UUID is invalid');
+  if (!uuid) throw new Error('UUID is invalid');
 
-  const { data: templateData, isLoading: isTemplateLoading } = useFetchTemplate(uuid!);
+  const { data: templateData, isLoading: isTemplateLoading } = useFetchTemplate(uuid);
 
   const { mutateAsync: deleteTemplate, isLoading: isDeleting } =
     useDeleteTemplateItemMutate(queryClient);
@@ -65,7 +64,7 @@ export default function DeleteTemplateModal() {
     : onClose;
 
   const onSave = async () => {
-    deleteTemplate(uuid as string).then(() => {
+    deleteTemplate(uuid).then(() => {
       queryClient.invalidateQueries(GET_TEMPLATES_KEY);
       onClose();
     });
@@ -74,7 +73,7 @@ export default function DeleteTemplateModal() {
   const {
     isLoading: isLoading,
     data: systems = { data: [], meta: { count: 0, limit: 1, offset: 0 } },
-  } = useListSystemsByTemplateId(uuid as string, 1, 1, '', '');
+  } = useListSystemsByTemplateId(uuid, 1, 1, '', '');
 
   const actionTakingPlace = isLoading || isDeleting;
 

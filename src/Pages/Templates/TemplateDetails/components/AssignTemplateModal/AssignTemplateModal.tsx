@@ -130,15 +130,11 @@ const AssignTemplateModal = () => {
   const handlePrimaryAction = async () =>
     isSystemListMethod ? addSystems().then(onClose) : onClose();
 
-  const primaryButtonProps = isSystemListMethod
-    ? {
-        isLoading: isAdding,
-        isDisabled:
-          isAdding ||
-          !canAssignTemplate ||
-          (!rhsm_environment_created && last_update_task?.status !== 'completed'),
-      }
-    : {};
+  const isPrimaryButtonDisabled =
+    isSystemListMethod &&
+    (isAdding ||
+      !canAssignTemplate ||
+      (!rhsm_environment_created && last_update_task?.status !== 'completed'));
 
   const { hasRegisteredSystems, isFetchingRegSystems, isErrorFetchingRegSystems } =
     useHasRegisteredSystems(uuid);
@@ -263,7 +259,12 @@ const AssignTemplateModal = () => {
             show={!rhsm_environment_created}
             setDisabled
           >
-            <Button variant='primary' onClick={handlePrimaryAction} {...primaryButtonProps}>
+            <Button
+              variant='primary'
+              onClick={handlePrimaryAction}
+              isLoading={isSystemListMethod && isAdding}
+              isDisabled={isPrimaryButtonDisabled}
+            >
               {isSystemListMethod ? 'Save' : 'Close'}
             </Button>
           </ConditionalTooltip>

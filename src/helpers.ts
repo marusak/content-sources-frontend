@@ -68,11 +68,6 @@ export const reduceStringToCharsWithEllipsis = (str: string, maxLength: number =
 export const formatDescription = (description: string): string =>
   description.replace(/\n{3,}/g, '\n\n');
 
-// test a string to be a valid UUID
-const UUIDPATTERN =
-  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
-export const checkValidUUID = (uuidToTest: string): boolean => UUIDPATTERN.test(uuidToTest);
-
 export const isEPELUrl = (repoUrl) => {
   const epelUrls = [
     'https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/',
