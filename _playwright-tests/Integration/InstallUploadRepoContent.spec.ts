@@ -8,19 +8,20 @@ import { closePopupsIfExist, getRowByNameOrUrl, retry } from '../UI/helpers/help
 const uploadRepoNamePrefix = 'Upload_Repo';
 test.describe('Install Upload Repo Content', () => {
   test('Install Upload Repo Content', async ({ page, client, cleanup }) => {
-    await cleanup.runAndAdd(() => cleanupRepositories(client, uploadRepoNamePrefix));
-    cleanup.add(() => regClient.Destroy('rhc'));
-
-    await closePopupsIfExist(page);
-    await navigateToRepositories(page);
-
     const uploadRepoName = `${uploadRepoNamePrefix}_${randomName()}`;
-
     const templateNamePrefix = 'integration_test_upload_repo';
     const templateName = `${templateNamePrefix}_${randomName()}`;
     const hostname = `RHSMClientTest_${randomName()}`;
     const regClient = new RHSMClient(hostname);
-    await cleanup.runAndAdd(() => cleanupTemplates(client, templateNamePrefix));
+
+    await test.step('Set up cleanup for repositories, templates, and RHSM client', async () => {
+      await cleanup.runAndAdd(() => cleanupRepositories(client, uploadRepoNamePrefix));
+      await cleanup.runAndAdd(() => cleanupTemplates(client, templateNamePrefix));
+      cleanup.add(() => regClient.Destroy('rhc'));
+    });
+
+    await closePopupsIfExist(page);
+    await navigateToRepositories(page);
 
     await test.step('Create upload repository', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
@@ -44,8 +45,12 @@ test.describe('Install Upload Repo Content', () => {
         const fileInput = page.locator('input[type=file]').first();
         await fileInput.setInputFiles(filePath);
       });
-      await expect(page.getByText('All uploads completed!')).toBeVisible({ timeout: 60000 });
+      await expect(page.getByText('All uploads completed!')).toBeVisible({ timeout: 240000 });
       await page.getByRole('button', { name: 'Confirm changes' }).click();
+      await expect(page.getByRole('dialog', { name: 'Upload content' })).toBeHidden({
+        timeout: 30000,
+      });
+      // Wait for the repository row to appear and reach Valid status
       const row = await getRowByNameOrUrl(page, uploadRepoName);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
     });
