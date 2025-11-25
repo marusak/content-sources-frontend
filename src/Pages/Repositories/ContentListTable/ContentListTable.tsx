@@ -593,7 +593,12 @@ const ContentListTable = () => {
         { cell: archesDisplay(distribution_arch) },
         { cell: versionDisplay(distribution_versions) },
         { cell: <PackageCount rowData={{ uuid, status, package_count }} /> },
-        { cell: lastIntrospectionDisplay(last_introspection_time) },
+        {
+          cell:
+            origin !== ContentOrigin.UPLOAD
+              ? lastIntrospectionDisplay(last_introspection_time)
+              : 'N/A',
+        },
         {
           cell: (
             <StatusIcon
@@ -604,6 +609,7 @@ const ContentListTable = () => {
                 last_introspection_time,
                 last_introspection_error,
                 last_snapshot_task,
+                origin,
               }}
               retryHandler={introspectRepoForUuid}
             />

@@ -198,10 +198,32 @@ export const defaultContentItem: ContentItem = {
   last_introspection_time: '2023-03-07 17:13:48.619192 -0500 EST',
   failed_introspections_count: 0,
   metadata_verification: false,
-  snapshot: false,
+  snapshot: true,
   module_hotfixes: false,
   last_snapshot_task: defaultSnapshotTask,
   last_introspection_status: 'Pending',
+};
+
+export const defaultContentItem_Upload: ContentItem = {
+  uuid: '31c2db68-47eb-46c3-8dcb-c2dfac350f1a',
+  name: 'SteveTheUploadRepo',
+  package_count: 1,
+  url: '',
+  status: 'Pending',
+  account_id: '',
+  org_id: 'acme',
+  distribution_arch: 'x86_64',
+  gpg_key: defaultPopularRepository.gpg_key,
+  distribution_versions: ['9'],
+  last_introspection_error: '',
+  last_introspection_time: '2023-03-07 17:13:48.619192 -0500 EST',
+  failed_introspections_count: 0,
+  metadata_verification: false,
+  snapshot: true,
+  module_hotfixes: false,
+  last_snapshot_task: defaultSnapshotTask,
+  last_introspection_status: 'Pending',
+  origin: ContentOrigin.UPLOAD,
 };
 
 export const defaultUpdateTemplateTaskCompleted: AdminTask = {

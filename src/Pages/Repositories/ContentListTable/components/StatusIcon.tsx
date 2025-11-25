@@ -22,9 +22,10 @@ import {
 import { createUseStyles } from 'react-jss';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { ContentItem } from 'services/Content/ContentApi';
+import { ContentItem, ContentOrigin } from 'services/Content/ContentApi';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import { useAppContext } from 'middleware/AppContext';
+import Hide from 'components/Hide/Hide';
 
 dayjs.extend(relativeTime);
 
@@ -48,6 +49,7 @@ interface Props {
     | 'last_introspection_time'
     | 'last_introspection_error'
     | 'last_snapshot_task'
+    | 'origin'
   >;
   retryHandler?: (string) => Promise<void>;
 }
@@ -56,33 +58,37 @@ interface DescriptionProps {
   error?: string;
   count?: number;
   time?: string;
+  origin?: ContentOrigin;
 }
 
 interface FooterProps {
   retryHandler?: (string) => Promise<void>;
   uuid: string;
+  origin?: ContentOrigin;
 }
 
-const PopoverDescription = ({ error, count, time }: DescriptionProps) => {
+const PopoverDescription = ({ error, count, time, origin }: DescriptionProps) => {
   const timeText = time === '' || time === undefined ? 'Never' : dayjs(time).fromNow();
   return (
     <div>
       {error}
       <Flex>
-        <Stack className='pf-u-mt-sm'>
-          <StackItem className='pf-u-font-weight-bold'>Last introspection</StackItem>
-          <StackItem> {timeText} </StackItem>
-        </Stack>
-        <Stack className='pf-u-mt-sm'>
-          <StackItem className='pf-u-font-weight-bold'>Failed attempts</StackItem>
-          <StackItem> {count} </StackItem>
-        </Stack>
+        <Hide hide={origin === ContentOrigin.UPLOAD}>
+          <Stack className='pf-u-mt-sm'>
+            <StackItem className='pf-u-font-weight-bold'>Last introspection</StackItem>
+            <StackItem> {timeText} </StackItem>
+          </Stack>
+          <Stack className='pf-u-mt-sm'>
+            <StackItem className='pf-u-font-weight-bold'>Failed attempts</StackItem>
+            <StackItem> {count} </StackItem>
+          </Stack>
+        </Hide>
       </Flex>
     </div>
   );
 };
 
-const PopoverFooter = ({ retryHandler, uuid }: FooterProps) => {
+const PopoverFooter = ({ retryHandler, uuid, origin }: FooterProps) => {
   const { rbac } = useAppContext();
   return (
     <Flex>
@@ -91,9 +97,15 @@ const PopoverFooter = ({ retryHandler, uuid }: FooterProps) => {
         show={!rbac?.repoWrite}
         setDisabled
       >
-        <Button variant='link' isInline onClick={() => (retryHandler ? retryHandler(uuid) : null)}>
-          Retry
-        </Button>
+        <Hide hide={origin === ContentOrigin.UPLOAD}>
+          <Button
+            variant='link'
+            isInline
+            onClick={() => (retryHandler ? retryHandler(uuid) : null)}
+          >
+            Retry
+          </Button>
+        </Hide>
       </ConditionalTooltip>
     </Flex>
   );
@@ -107,6 +119,7 @@ const StatusIcon = ({
     last_introspection_time: lastIntrospectionTime,
     last_introspection_error: error,
     last_snapshot_task,
+    origin,
   },
   retryHandler,
 }: Props) => {
@@ -159,10 +172,13 @@ const StatusIcon = ({
                   error={showError(last_snapshot_task?.error, error)}
                   count={failedIntrospectionsCount}
                   time={lastIntrospectionTime}
+                  origin={origin}
                 />
               }
               position='left'
-              footerContent={<PopoverFooter retryHandler={retryHandler} uuid={uuid} />}
+              footerContent={
+                <PopoverFooter retryHandler={retryHandler} uuid={uuid} origin={origin} />
+              }
             >
               <Button variant='link' isInline>
                 <StatusText color='red' isLink>
@@ -194,10 +210,13 @@ const StatusIcon = ({
                   error={showError(last_snapshot_task?.error, error)}
                   count={failedIntrospectionsCount}
                   time={lastIntrospectionTime}
+                  origin={origin}
                 />
               }
               position='left'
-              footerContent={<PopoverFooter retryHandler={retryHandler} uuid={uuid} />}
+              footerContent={
+                <PopoverFooter retryHandler={retryHandler} uuid={uuid} origin={origin} />
+              }
             >
               <StatusText color='gold' isLink>
                 Unavailable
