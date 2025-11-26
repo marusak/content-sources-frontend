@@ -7,7 +7,7 @@ import {
 import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
-import { pollForSystemTemplateAttachment } from './helpers/systemHelpers';
+import { pollForSystemTemplateAttachment, isInInventory } from './helpers/systemHelpers';
 
 const templateNamePrefix = 'associated_template_test';
 const templateName = `${templateNamePrefix}-${randomName()}`;
@@ -89,7 +89,13 @@ test.describe('Associated Template CRUD', () => {
     await test.step('Verify system is attached to template', async () => {
       hostname = await regClient.GetHostname();
       console.log('System hostname:', hostname);
-      const isAttached = await pollForSystemTemplateAttachment(page, hostname, true, 10_000, 6);
+
+      // Check if system exists in inventory before polling
+      await test.step('Check initial system state in inventory', async () => {
+        await isInInventory(page, hostname, true);
+      });
+
+      const isAttached = await pollForSystemTemplateAttachment(page, hostname, true, 10_000, 12);
       expect(isAttached, 'system should be attached to template').toBe(true);
     });
 
