@@ -16,10 +16,15 @@ test.describe('Check RHEL repos have hourly snapshot tasks', () => {
 
       for (const repo of rhelRepos!) {
         // Check that a snapshot was attempted (lastSnapshotTask exists)
-        expect(repo.lastSnapshotTask?.createdAt).toBeDefined();
+        const createdAt = repo.lastSnapshotTask?.createdAt;
+        expect(createdAt).toBeDefined();
 
         // Check if the snapshot task is under 60 minutes old (queued every 45 min + 15 min guard time)
-        const taskQueuedAt = new Date(repo.lastSnapshotTask!.createdAt!);
+        const taskQueuedAt = new Date(createdAt!);
+
+        const timestamp = taskQueuedAt.getTime();
+        expect(isNaN(timestamp)).toBeFalsy();
+
         const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000);
         console.log(
           `Repo: ${repo.name}, Task queued at: ${taskQueuedAt.toISOString()} (${taskQueuedAt.toUTCString()}), Age: ${Math.round((Date.now() - taskQueuedAt.getTime()) / 60000)} minutes`,
