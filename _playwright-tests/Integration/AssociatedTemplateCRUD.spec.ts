@@ -19,6 +19,9 @@ test.describe('Associated Template CRUD', () => {
     client,
     cleanup,
   }) => {
+    // Increase timeout for CI environment because template validation can take up to 11 minutes
+    test.setTimeout(900000); // 15 minutes
+
     let hostname: string;
     await test.step('Set up cleanup for templates and RHSM client', async () => {
       await cleanup.runAndAdd(() => cleanupTemplates(client, templateNamePrefix));

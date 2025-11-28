@@ -8,6 +8,9 @@ import { closePopupsIfExist, getRowByNameOrUrl, retry } from '../UI/helpers/help
 const uploadRepoNamePrefix = 'Upload_Repo';
 test.describe('Install Upload Repo Content', () => {
   test('Install Upload Repo Content', async ({ page, client, cleanup }) => {
+    // Increase timeout for CI environment because template validation can take up to 11 minutes
+    test.setTimeout(900000); // 15 minutes
+
     const uploadRepoName = `${uploadRepoNamePrefix}_${randomName()}`;
     const templateNamePrefix = 'integration_test_upload_repo';
     const templateName = `${templateNamePrefix}_${randomName()}`;
