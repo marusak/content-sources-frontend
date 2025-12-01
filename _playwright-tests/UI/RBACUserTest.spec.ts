@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { deleteAllRepos } from './helpers/deleteRepositories';
 import { randomName, randomUrl } from './helpers/repoHelpers';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 const repoNamePrefix = 'Repo-RBAC';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -16,7 +16,7 @@ test.describe('Create, update, and read a repo as admin user', () => {
   test('Login as admin and manage repo', async ({ page }) => {
     await test.step('Create a repository', async () => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       await deleteAllRepos(page, `&search=${repoNamePrefix}`);
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
       await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
@@ -53,7 +53,7 @@ test.describe('Create, update, and read a repo as admin user', () => {
 
     test('Login as read-only user and attempt to edit', async ({ page }) => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       const row = await getRowByNameOrUrl(page, `${repoName}-Edited`);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();
@@ -74,7 +74,7 @@ test.describe('Create, update, and read a repo as admin user', () => {
 
     test('Login as rhel-operator user and attempt to edit', async ({ page }) => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       const row = await getRowByNameOrUrl(page, `${repoName}-Edited`);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
       await row.getByLabel('Kebab toggle').click();

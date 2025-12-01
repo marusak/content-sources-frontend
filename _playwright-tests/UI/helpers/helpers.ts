@@ -13,12 +13,10 @@ export const snapshotTimestampFormat = 'DD MMM YYYY - HH:mm:ss';
 
 export const randomName = () => (Math.random() + 1).toString(36).substring(2, 6);
 
-export const closePopupsIfExist = async (page: Page) => {
+export const closeGenericPopupsIfExist = async (page: Page) => {
   const locatorsToCheck = [
-    page.locator('.pf-v6-c-alert.notification-item button'), // This closes all toast pop-ups
     page.locator(`button[id^="pendo-close-guide-"]`), // This closes the pendo guide pop-up
     page.locator(`button[id="truste-consent-button"]`), // This closes the trusted consent pop-up
-    page.getByLabel('close-notification'), // This closes a one off info notification (May be covered by the toast above, needs recheck.)
   ];
 
   for (const locator of locatorsToCheck) {
@@ -31,6 +29,20 @@ export const closePopupsIfExist = async (page: Page) => {
       }
     });
   }
+};
+
+export const closeNotificationPopup = async (
+  page: Page,
+  popupText: string | RegExp,
+  type: 'success' | 'danger' = 'success', // add other types like info, warning as needed
+  timeout: number = 60000,
+) => {
+  const alertSelector = `.pf-v6-c-alert.pf-m-${type}`;
+  const locator = page.locator(alertSelector).filter({ hasText: popupText });
+
+  await expect(locator.first()).toBeVisible({ timeout });
+  await locator.first().getByRole('button').first().click();
+  await expect(locator.first()).toBeHidden();
 };
 
 export const filterByNameOrUrl = async (locator: Locator | Page, name: string) => {

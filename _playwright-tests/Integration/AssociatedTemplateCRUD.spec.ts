@@ -6,7 +6,7 @@ import {
 } from '../test-utils/_playwright-tests/test-utils/src';
 import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 import { pollForSystemTemplateAttachment, isInInventory } from './helpers/systemHelpers';
 
 const templateNamePrefix = 'associated_template_test';
@@ -30,7 +30,7 @@ test.describe('Associated Template CRUD', () => {
 
     await test.step('Navigate to templates and create a new template', async () => {
       await navigateToTemplates(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
       await page.getByRole('button', { name: 'Create template' }).click();
       await page.getByRole('button', { name: 'filter architecture' }).click();

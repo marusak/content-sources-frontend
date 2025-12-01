@@ -2,7 +2,7 @@ import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 const repoNamePrefix = 'snapshot-package-list-test';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -18,7 +18,7 @@ test.describe('Snapshot Package Count and List', () => {
       cleanupRepositories(client, repoNamePrefix, repoUrl, editedRepoUrl),
     );
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     await test.step('Create a repository', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();

@@ -1,7 +1,11 @@
 import { test, expect } from 'test-utils';
 import { cleanupRepositories } from 'test-utils/helpers';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl, getRowCellByHeader } from './helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  getRowCellByHeader,
+} from './helpers/helpers';
 
 test.describe('Introspect Repositories', () => {
   const repoName = 'introspection-test';
@@ -15,7 +19,7 @@ test.describe('Introspect Repositories', () => {
   test('Create and delete an introspection repository', async ({ page, client, cleanup }) => {
     await cleanup.runAndAdd(() => cleanupRepositories(client, repoName, repoUrl));
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     await test.step('Open the add repository modal', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();

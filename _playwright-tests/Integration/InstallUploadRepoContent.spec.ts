@@ -3,7 +3,12 @@ import { test, expect, cleanupRepositories, cleanupTemplates, randomName } from 
 import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToRepositories, navigateToTemplates } from '../UI/helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl, retry } from '../UI/helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  retry,
+  closeNotificationPopup,
+} from '../UI/helpers/helpers';
 
 const uploadRepoNamePrefix = 'Upload_Repo';
 test.describe('Install Upload Repo Content', () => {
@@ -23,7 +28,7 @@ test.describe('Install Upload Repo Content', () => {
       cleanup.add(() => regClient.Destroy('rhc'));
     });
 
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
     await navigateToRepositories(page);
 
     await test.step('Create upload repository', async () => {
@@ -53,6 +58,7 @@ test.describe('Install Upload Repo Content', () => {
       await expect(page.getByRole('dialog', { name: 'Upload content' })).toBeHidden({
         timeout: 30000,
       });
+      await closeNotificationPopup(page, `One rpm successfully uploaded to ${uploadRepoName}`);
       // Wait for the repository row to appear and reach Valid status
       const row = await getRowByNameOrUrl(page, uploadRepoName);
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });

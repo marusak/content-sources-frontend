@@ -1,14 +1,14 @@
 import path from 'path';
 import { test, expect, cleanupRepositories } from 'test-utils';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl, retry } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl, retry } from './helpers/helpers';
 
 const uploadRepoName = 'Upload Repo!';
 
 test.describe('Upload Repositories', () => {
   test('Upload repo creation and deletion', async ({ page, client, cleanup }) => {
     await cleanup.runAndAdd(() => cleanupRepositories(client, uploadRepoName));
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
     await navigateToRepositories(page);
 
     await test.step('Create upload repository', async () => {

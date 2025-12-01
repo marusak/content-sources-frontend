@@ -1,7 +1,7 @@
 import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName, randomUrl } from 'test-utils/helpers';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 const repoNamePrefix = 'Repo-CRUD';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -11,7 +11,7 @@ test.describe('Custom Repositories CRUD', () => {
   test('Add, Read, update, delete a repo', async ({ page, client, cleanup }) => {
     await cleanup.runAndAdd(() => cleanupRepositories(client, repoNamePrefix));
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     await test.step('Create a repository', async () => {
       // Click on the 'Add repositories' button

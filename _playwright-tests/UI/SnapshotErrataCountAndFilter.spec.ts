@@ -1,7 +1,7 @@
 import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 test.describe('Snapshot Errata Count and Filter', () => {
   test('Verify errata count matches after snapshotting and test filtering', async ({
@@ -20,7 +20,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
       cleanupRepositories(client, repoNamePrefix, firstRepoUrl, secondRepoUrl),
     );
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     await test.step('Create repository with first snapshot (4 errata)', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();

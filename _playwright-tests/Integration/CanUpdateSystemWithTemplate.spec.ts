@@ -9,7 +9,7 @@ import {
 import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 
 const templateNamePrefix = 'integration_test_template';
 const templateName = `${templateNamePrefix}-${randomName()}`;
@@ -35,7 +35,7 @@ test.describe('Test System With Template', () => {
     });
     await test.step('Navigate to templates, ensure the Create template button can be clicked', async () => {
       await navigateToTemplates(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
     });
     await test.step('Create a template with oldest snapshots', async () => {

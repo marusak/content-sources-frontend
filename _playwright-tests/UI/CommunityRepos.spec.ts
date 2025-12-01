@@ -1,13 +1,13 @@
 import { test, expect } from 'test-utils';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 const repoName10 = 'EPEL 10 Everything x86_64';
 
 test.describe('Community EPEL repositories', () => {
   test('Verify community EPEL repos exist and cannot be edited', async ({ page }) => {
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
     await expect(page).toHaveTitle('Repositories - Content | RHEL');
 
     await test.step('Custom and EPEL tabs are selected by default', async () => {

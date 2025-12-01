@@ -2,7 +2,7 @@ import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 const repoNamePrefix = 'GPG-key';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -17,7 +17,7 @@ test.describe('Test GPG keys', () => {
     await test.step('Delete any GPG key test repos that exist', async () => {
       await cleanup.runAndAdd(() => cleanupRepositories(client, repoName, url));
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
     });
 
     await test.step('Create a repository', async () => {

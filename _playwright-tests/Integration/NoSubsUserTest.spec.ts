@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
-import { closePopupsIfExist } from '../UI/helpers/helpers';
+import { closeGenericPopupsIfExist } from '../UI/helpers/helpers';
 
 test.describe('Template use requires a RHEL subscription', () => {
   test.skip(
@@ -16,7 +16,7 @@ test.describe('Template use requires a RHEL subscription', () => {
     page,
   }) => {
     await navigateToTemplates(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     const AddButton = page.getByRole('button', { name: 'Create template', exact: true }).first();
     await expect(AddButton).toBeVisible();

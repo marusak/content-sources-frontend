@@ -1,6 +1,6 @@
 import { test, expect } from 'test-utils';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 
 test.describe('Red Hat Repositories', () => {
   const smallRHRepo = 'Red Hat CodeReady Linux Builder for RHEL 9 ARM 64 (RPMs)';
@@ -8,7 +8,7 @@ test.describe('Red Hat Repositories', () => {
   test.beforeEach(async ({ page }) => {
     await test.step('Navigate to repositories page', async () => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
     });
 
     await test.step('Navigate to Red Hat repositories', async () => {

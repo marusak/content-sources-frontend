@@ -1,7 +1,7 @@
 import { test, expect } from 'test-utils';
 import { cleanupRepositories } from 'test-utils/helpers';
 
-import { closePopupsIfExist } from './helpers/helpers';
+import { closeGenericPopupsIfExist } from './helpers/helpers';
 import { navigateToRepositories } from './helpers/navHelpers';
 import { bulkCreateRepos } from './helpers/createRepositories';
 
@@ -13,7 +13,7 @@ test.describe('Custom repositories pagination', () => {
       await cleanup.runAndAdd(() => cleanupRepositories(client, repoNamePrefix));
       await bulkCreateRepos(page, 12, repoNamePrefix);
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       await page.getByPlaceholder(/^Filter by name.*$/).fill(repoNamePrefix);
     });
 

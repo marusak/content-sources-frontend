@@ -2,7 +2,7 @@ import { test, expect } from 'test-utils';
 import { cleanupRepositories, cleanupTemplates, randomName } from 'test-utils/helpers';
 
 import { navigateToRepositories, navigateToTemplates } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
 import { createCustomRepo } from './helpers/createRepositories';
 import { randomUrl } from './helpers/repoHelpers';
 
@@ -24,7 +24,7 @@ test.describe('Templates CRUD', () => {
     });
     await test.step('Create repositories', async () => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
 
       // Create first repo (aarch64, with snapshot)
       await createCustomRepo(page, repoName);

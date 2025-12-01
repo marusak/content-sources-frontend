@@ -2,7 +2,7 @@ import { expect, test } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 import { navigateToRepositories, navigateToTemplates } from './helpers/navHelpers';
 import {
-  closePopupsIfExist,
+  closeGenericPopupsIfExist,
   getRowByNameOrUrl,
   validateSnapshotTimestamp,
   waitForLastTaskStatus,
@@ -16,7 +16,7 @@ test.describe('Snapshot Repositories', () => {
 
     await cleanup.runAndAdd(() => cleanupRepositories(client, repoName, repoUrl));
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     await test.step('Open the add repository modal', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
@@ -120,7 +120,7 @@ test.describe('Snapshot Repositories', () => {
       );
     });
     await navigateToRepositories(page);
-    await closePopupsIfExist(page);
+    await closeGenericPopupsIfExist(page);
 
     await test.step('Create a repository', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();

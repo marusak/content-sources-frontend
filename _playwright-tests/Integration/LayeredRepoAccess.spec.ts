@@ -1,6 +1,6 @@
 import { test, expect } from 'test-utils';
 import { navigateToRepositories } from '../UI/helpers/navHelpers';
-import { clearFilters, closePopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
+import { clearFilters, closeGenericPopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
 
 const repos = [
   'https://cdn.redhat.com/content/dist/layered/rhel9/x86_64/rhocp-ironic/4.16/os/',
@@ -22,7 +22,7 @@ test.describe('Test layered repos access is restricted', () => {
   test('User with only a RHEL subscription cannot access layered repos', async ({ page }) => {
     await test.step('Show only the Red Hat repos', async () => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       await page.getByRole('button', { name: 'Custom', exact: true }).click();
       await page.getByRole('button', { name: 'Red Hat', exact: true }).click();
       await expect(page.getByRole('button', { name: 'Custom', exact: true })).toHaveAttribute(
@@ -70,7 +70,7 @@ test.describe('Test layered repos access is granted', () => {
   test('User with necessary subscriptions can access layered repos', async ({ page }) => {
     await test.step('Show only the Red Hat repos', async () => {
       await navigateToRepositories(page);
-      await closePopupsIfExist(page);
+      await closeGenericPopupsIfExist(page);
       await page.getByRole('button', { name: 'Custom', exact: true }).click();
       await page.getByRole('button', { name: 'Red Hat', exact: true }).click();
       await expect(page.getByRole('button', { name: 'Custom', exact: true })).toHaveAttribute(
