@@ -25,9 +25,8 @@ export default function ReviewStep() {
   const archesDisplay = (arch?: string) =>
     distribution_arches.find(({ label }) => arch === label)?.name || 'Select architecture';
 
-  const versionDisplay = (
-    version?: string,
-  ): string => // arm64 aarch64
+  const versionDisplay = (version?: string): string =>
+    // arm64 aarch64
     distribution_versions.find(({ label }) => version === label)?.name || 'Select version';
 
   const reviewTemplate = useMemo(() => {
