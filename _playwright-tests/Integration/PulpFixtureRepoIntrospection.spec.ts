@@ -1,10 +1,16 @@
 import { test, expect, RepositoriesApi, FeaturesApi } from 'test-utils';
+import pulpFixtures from './data/pulp_fixtures.json';
 
 /**
  * Pulp Fixture Repository Introspection Test using stable_sam user
- * This test validates that existing Pulp project fixture repositories can be successfully
- * introspected via the API. The stable_sam user already has access to these repositories.
- * Need to pass headers to the API calls to authenticate the request.
+ * This test validates that existing Pulp project fixture repositories are being successfully
+ * introspected. The stable_sam user already has these repositories created.
+ *
+ * If repositories are missing, they will be automatically created with snapshot enabled.
+ *
+ * Pulp fixtures repository data is stored in: ./data/pulp_fixtures.json
+ * This list was selected by jsherrill to test the introspection feature.
+ * https://fixtures.pulpproject.org/
  */
 
 test.describe('Pulp Fixture Repository Introspection', () => {
@@ -30,6 +36,43 @@ test.describe('Pulp Fixture Repository Introspection', () => {
       expect(features.snapshots).toBeDefined();
       expect(features.snapshots?.accessible).toBe(true);
       expect(features.snapshots?.enabled).toBe(true);
+    });
+
+    await test.step('Ensure all pulp fixture repos exist (create if missing)', async () => {
+      const createdRepos: string[] = [];
+
+      for (const [name, repoUrl] of Object.entries(pulpFixtures)) {
+        // Check if repo with this URL already exists
+        const existingRepos = await repositoriesApi.listRepositories({
+          search: repoUrl,
+        });
+
+        if (existingRepos.meta?.count === 0) {
+          console.log(`Repo url ${repoUrl} not found. Creating...`);
+          try {
+            await repositoriesApi.createRepository({
+              apiRepositoryRequest: {
+                name: name,
+                url: repoUrl,
+                snapshot: true,
+              },
+            });
+            createdRepos.push(name);
+            console.log(`Created repository: ${name}`);
+          } catch (error) {
+            // Repository might already exist with a different name
+            console.log(
+              `Failed to create repository ${name} with url ${repoUrl}: ${error instanceof Error ? error.message : error}`,
+            );
+          }
+        }
+      }
+
+      if (createdRepos.length > 0) {
+        console.log(`Created ${createdRepos.length} new repositories: ${createdRepos.join(', ')}`);
+      } else {
+        console.log('All pulp fixture repositories already exist');
+      }
     });
 
     const pulpReposResponse = await repositoriesApi.listRepositories({
