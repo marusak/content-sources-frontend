@@ -79,19 +79,20 @@ test.describe('Upload Repositories', () => {
       await row.getByRole('button', { name: 'Kebab toggle' }).click();
       await page.getByRole('menuitem', { name: 'Delete' }).click();
 
-      // Click on the 'Delete' button
+      // Wait for the delete modal to fully load (shows repo name when data is ready)
+      await expect(page.getByText('Delete repositories?')).toBeVisible();
+      await expect(page.getByRole('dialog').getByText(uploadRepoName)).toBeVisible();
+
+      // Click Delete and wait for the API response
       await Promise.all([
-        // Verify the 'Delete repositories?' dialog is visible
-        expect(page.getByText('Delete repositories?')).toBeVisible(),
-        // Wait for the successful API call
         page.waitForResponse(
           (resp) =>
             resp.url().includes('bulk_delete') && resp.status() >= 200 && resp.status() < 300,
         ),
-        // Click the 'Delete' button
         page.getByRole('button', { name: 'Delete' }).click(),
-        expect(row).toBeHidden(),
       ]);
+
+      await expect(row).toBeHidden();
     });
   });
 });
