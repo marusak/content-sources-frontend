@@ -1,11 +1,30 @@
 import { render } from '@testing-library/react';
 import UploadContent from './UploadContent';
 import React from 'react';
+import { useFetchContent, useGetSnapshotList } from 'services/Content/ContentQueries';
+import { defaultMetaItem, defaultSnapshotItem } from 'testingHelpers';
 
 jest.mock('Hooks/useRootPath', () => () => 'someUrl');
 
 jest.mock('services/Content/ContentQueries', () => ({
   useAddUploadsQuery: () => ({ mutateAsync: jest.fn() }),
+  useFetchContent: jest.fn(),
+  useGetSnapshotList: jest.fn(),
+}));
+
+(useFetchContent as jest.Mock).mockImplementation(() => ({
+  data: {},
+  isLoading: false,
+  isSuccess: false,
+}));
+
+(useGetSnapshotList as jest.Mock).mockImplementation(() => ({
+  data: {
+    meta: defaultMetaItem,
+    data: [defaultSnapshotItem],
+  },
+  isLoading: false,
+  isFetching: false,
 }));
 
 jest.mock('react-router-dom', () => ({

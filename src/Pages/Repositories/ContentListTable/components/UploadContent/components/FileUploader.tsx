@@ -22,6 +22,8 @@ import { createUpload, uploadChunk } from 'services/Content/ContentApi';
 import Loader from 'components/Loader';
 import { DownloadIcon, FileIcon, UploadIcon } from '@patternfly/react-icons';
 import useDebounce from 'Hooks/useDebounce';
+import { useParams } from 'react-router-dom';
+import { useFetchContent, useGetSnapshotList } from 'services/Content/ContentQueries';
 
 const useStyles = createUseStyles({
   mainDropzone: {
@@ -48,9 +50,44 @@ interface Props {
 
 export default function FileUploader({ setFileUUIDs, isLoading, setChildLoading }: Props) {
   const classes = useStyles();
+  const { repoUUID: uuid } = useParams();
   const [currentFiles, setCurrentFiles] = useState<Record<string, FileInfo>>({});
   const [isBatching, setIsBatching] = useState(false);
   const [isHashing, setisHashing] = useState(false);
+
+  const {
+    data: repositoryData,
+    isLoading: isLoadingRepo,
+    refetch: refetchRepo,
+  } = useFetchContent(uuid!, !!uuid);
+
+  const {
+    data: snapshotData,
+    isLoading: isLoadingSnapshots,
+    refetch: refetchSnapshots,
+  } = useGetSnapshotList(uuid!, 1, 1, '');
+
+  // determine whether repository is ready for rpms (status is Valid OR has at least one snapshot)
+  const isRepoReady = useMemo(() => {
+    if (isLoadingRepo || isLoadingSnapshots) return false;
+    const hasValidStatus = repositoryData?.status === 'Valid';
+    const hasSnapshots = (snapshotData?.data?.length ?? 0) > 0;
+    return hasValidStatus || hasSnapshots;
+  }, [repositoryData?.status, snapshotData?.data?.length, isLoadingRepo, isLoadingSnapshots]);
+
+  const isCheckingRepoStatus = isLoadingRepo || isLoadingSnapshots;
+
+  // poll every 10 seconds for repository status and snapshots if not ready
+  useEffect(() => {
+    if (!uuid || isRepoReady || isCheckingRepoStatus) return;
+
+    const intervalId = setInterval(() => {
+      refetchRepo();
+      refetchSnapshots();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [uuid, isRepoReady, isCheckingRepoStatus, refetchRepo, refetchSnapshots]);
 
   const [fileCountGreaterThanZero, fileCount, completedCount, failedCount, hasRetrying] = useMemo(
     () => [
@@ -354,6 +391,13 @@ export default function FileUploader({ setFileUUIDs, isLoading, setChildLoading 
 
   const uploadMainProps = useMemo(() => {
     switch (true) {
+      case !isRepoReady:
+        return {
+          titleIcon: <StatusIcon status='running' removeText />,
+          titleText: 'Checking repository status',
+          infoText: 'Please wait until the repository is ready for uploads.',
+          isUploadButtonHidden: true,
+        };
       case isHashing:
         return {
           titleIcon: <StatusIcon status='running' removeText />,
@@ -386,16 +430,25 @@ export default function FileUploader({ setFileUUIDs, isLoading, setChildLoading 
           infoText: 'Accepted file types: .rpm',
         };
     }
-  }, [isHashing, fileCountGreaterThanZero, fileCount, completedCount, failedCount]);
+  }, [
+    isCheckingRepoStatus,
+    isHashing,
+    fileCountGreaterThanZero,
+    fileCount,
+    completedCount,
+    failedCount,
+    isRepoReady,
+  ]);
 
   const actionOngoing = uploadMainProps.isUploadButtonHidden;
+  const isUploadDisabled = actionOngoing || !isRepoReady || isCheckingRepoStatus;
   if (isLoading) return <Loader minHeight='20vh' />;
 
   return (
     <MultipleFileUpload
       onFileDrop={handleFileDrop}
       dropzoneProps={{
-        disabled: actionOngoing,
+        disabled: isUploadDisabled,
         maxSize: 16242783756,
         accept: {
           'application/x-rpm': ['.rpm'],

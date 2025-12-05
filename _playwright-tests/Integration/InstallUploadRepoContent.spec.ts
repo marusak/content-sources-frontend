@@ -64,6 +64,7 @@ test.describe('Install Upload Repo Content', () => {
       const repo = await waitWhileRepositoryIsPending(client, repoUuid);
       expect(repo.status).toBe('Valid');
 
+      await expect(page.getByText('Drag and drop files here')).toBeVisible();
       const filePath = path.join(__dirname, '../UI/fixtures/bear-4.1-1.noarch.rpm');
       await retry(page, async (page) => {
         const fileInput = page.locator('input[type=file]').first();
@@ -75,8 +76,9 @@ test.describe('Install Upload Repo Content', () => {
         timeout: 30000,
       });
       await closeNotificationPopup(page, `One rpm successfully uploaded to ${uploadRepoName}`);
-      // Wait for the repository row to appear and reach Valid status
+      // Wait for the repository row to appear, display 1 package, and reach Valid status
       const row = await getRowByNameOrUrl(page, uploadRepoName);
+      await expect(row.getByTestId('package_count_button')).toHaveText('1');
       await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
     });
 

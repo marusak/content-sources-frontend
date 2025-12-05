@@ -62,6 +62,7 @@ test.describe('Upload Repositories', () => {
       expect(repo.status).toBe('Valid');
 
       // Handle the file chooser and upload the file
+      await expect(page.getByText('Drag and drop files here')).toBeVisible();
       await retry(page, async (page) => {
         await page
           .locator('#pf-modal-part-1  > div')
