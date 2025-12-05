@@ -1,5 +1,5 @@
 import path from 'path';
-import { test, expect, cleanupRepositories } from 'test-utils';
+import { test, expect, cleanupRepositories, waitWhileRepositoryIsPending } from 'test-utils';
 import { navigateToRepositories } from './helpers/navHelpers';
 import { closeGenericPopupsIfExist, getRowByNameOrUrl, retry } from './helpers/helpers';
 
@@ -45,13 +45,21 @@ test.describe('Upload Repositories', () => {
       }
 
       // Click 'Save and upload content'
-      await Promise.all([
+      const [, bulkCreateResponse] = await Promise.all([
         page.getByRole('button', { name: 'Save and upload content' }).click(),
         page.waitForResponse(
           (resp) =>
             resp.url().includes('/bulk_create/') && resp.status() >= 200 && resp.status() < 300,
         ),
       ]);
+
+      // Upload can fail if repository is not valid HMS-9856
+      // Poll API until repository is no longer pending, then verify it's Valid
+      const bulkCreateData = await bulkCreateResponse.json();
+      const repoUuid = bulkCreateData[0]?.uuid;
+      expect(repoUuid).toBeTruthy();
+      const repo = await waitWhileRepositoryIsPending(client, repoUuid);
+      expect(repo.status).toBe('Valid');
 
       // Handle the file chooser and upload the file
       await retry(page, async (page) => {

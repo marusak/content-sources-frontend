@@ -1,5 +1,12 @@
 import path from 'path';
-import { test, expect, cleanupRepositories, cleanupTemplates, randomName } from 'test-utils';
+import {
+  test,
+  expect,
+  cleanupRepositories,
+  cleanupTemplates,
+  randomName,
+  waitWhileRepositoryIsPending,
+} from 'test-utils';
 import { RHSMClient, refreshSubscriptionManager } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToRepositories, navigateToTemplates } from '../UI/helpers/navHelpers';
@@ -40,7 +47,7 @@ test.describe('Install Upload Repo Content', () => {
       await page.getByRole('menuitem', { name: 'x86_64' }).click();
       await page.getByRole('button', { name: 'filter OS version' }).click();
       await page.getByRole('menuitem', { name: 'el9' }).click();
-      await Promise.all([
+      const [, bulkCreateResponse] = await Promise.all([
         page.getByRole('button', { name: 'Save and upload content' }).click(),
         page.waitForResponse(
           (resp) =>
@@ -48,6 +55,15 @@ test.describe('Install Upload Repo Content', () => {
           { timeout: 600000 },
         ),
       ]);
+
+      // Upload can fail if repository is not valid HMS-9856
+      // Poll API until repository is no longer pending, then verify it's Valid
+      const bulkCreateData = await bulkCreateResponse.json();
+      const repoUuid = bulkCreateData[0]?.uuid;
+      expect(repoUuid).toBeTruthy();
+      const repo = await waitWhileRepositoryIsPending(client, repoUuid);
+      expect(repo.status).toBe('Valid');
+
       const filePath = path.join(__dirname, '../UI/fixtures/bear-4.1-1.noarch.rpm');
       await retry(page, async (page) => {
         const fileInput = page.locator('input[type=file]').first();
