@@ -192,7 +192,9 @@ export default function SystemsTable({
                     <Td className={groups.length ? '' : classes.forceDisabled}>
                       <Workspace workspace={groups} />
                     </Td>
-                    <Td className={installable ? '' : classes.forceDisabled}>{installable}</Td>
+                    <Td className={installable ? '' : classes.forceDisabled}>
+                      {installable ? installable : 'No installable advisories'}
+                    </Td>
                     <Td className={applicable ? '' : classes.forceDisabled}>{applicable}</Td>
                     <Td>{last_upload ? dayjs(last_upload).fromNow() : ''}</Td>
                     <Td isActionCell>
