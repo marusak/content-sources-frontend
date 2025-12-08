@@ -5,6 +5,7 @@ import {
   closeGenericPopupsIfExist,
   getRowByNameOrUrl,
   getRowCellByHeader,
+  waitForValidStatus,
 } from './helpers/helpers';
 
 test.describe('Introspect Repositories', () => {
@@ -43,8 +44,7 @@ test.describe('Introspect Repositories', () => {
     });
 
     await test.step('Wait for status to be "Valid"', async () => {
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 180_000 });
+      await waitForValidStatus(page, repoName, 180_000);
     });
 
     await test.step('Open the packages modal', async () => {

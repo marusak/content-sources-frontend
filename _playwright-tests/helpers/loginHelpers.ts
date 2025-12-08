@@ -17,9 +17,7 @@ export const logout = async (page: Page) => {
   await expect(async () => {
     expect(page.url()).not.toBe('/insights/content/repositories');
   }).toPass();
-  await expect(async () =>
-    expect(page.getByText('Log in to your Red Hat account')).toBeVisible(),
-  ).toPass();
+  await expect(page.getByText('Log in to your Red Hat account')).toBeVisible();
 };
 
 export const logInWithUsernameAndPassword = async (
@@ -33,9 +31,7 @@ export const logInWithUsernameAndPassword = async (
 
   await page.goto('/insights/content/repositories');
 
-  await expect(async () =>
-    expect(page.getByText('Log in to your Red Hat account')).toBeVisible(),
-  ).toPass();
+  await expect(page.getByText('Log in to your Red Hat account')).toBeVisible();
 
   const login = page.getByRole('textbox');
   await login.fill(username);

@@ -2,7 +2,11 @@ import { test, expect } from 'test-utils';
 import { cleanupRepositories, cleanupTemplates, randomName } from 'test-utils/helpers';
 
 import { navigateToRepositories, navigateToTemplates } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  waitForValidStatus,
+} from './helpers/helpers';
 import { createCustomRepo } from './helpers/createRepositories';
 import { randomUrl } from './helpers/repoHelpers';
 
@@ -28,8 +32,7 @@ test.describe('Templates CRUD', () => {
 
       // Create first repo (aarch64, with snapshot)
       await createCustomRepo(page, repoName);
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60_000 });
+      await waitForValidStatus(page, repoName);
 
       // Create second repo (x86_64, with snapshot)
       const repoDataX86 = {
@@ -44,8 +47,7 @@ test.describe('Templates CRUD', () => {
         data: repoDataX86,
         headers: { 'Content-Type': 'application/json' },
       });
-      const rowX86 = await getRowByNameOrUrl(page, repoNameX86);
-      await expect(rowX86.getByText('Valid')).toBeVisible({ timeout: 60_000 });
+      await waitForValidStatus(page, repoNameX86);
 
       // Create third repo ( Any arch, introspect only, no snapshots )
       const repoDataNoSnaps = {
@@ -60,8 +62,7 @@ test.describe('Templates CRUD', () => {
         data: repoDataNoSnaps,
         headers: { 'Content-Type': 'application/json' },
       });
-      const rowNoSnaps = await getRowByNameOrUrl(page, repoNameNoSnaps);
-      await expect(rowNoSnaps.getByText('Valid')).toBeVisible({ timeout: 60_000 });
+      await waitForValidStatus(page, repoNameNoSnaps);
     });
     await test.step('Create a template', async () => {
       await navigateToTemplates(page);
@@ -107,8 +108,7 @@ test.describe('Templates CRUD', () => {
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
-      const rowTemplate = await getRowByNameOrUrl(page, templateName);
-      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await waitForValidStatus(page, templateName);
     });
     await test.step('Read and update values in the template', async () => {
       const rowTemplate = await getRowByNameOrUrl(page, templateName);
@@ -150,8 +150,7 @@ test.describe('Templates CRUD', () => {
     });
     await test.step('Delete the template', async () => {
       await navigateToTemplates(page);
-      const rowTemplate = await getRowByNameOrUrl(page, `${templateName}-edited`);
-      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const rowTemplate = await waitForValidStatus(page, `${templateName}-edited`);
       await rowTemplate.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'Delete' }).click();
       await expect(page.getByText('Delete template?')).toBeVisible();

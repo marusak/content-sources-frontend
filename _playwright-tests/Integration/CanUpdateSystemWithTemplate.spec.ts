@@ -9,7 +9,11 @@ import {
 import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  waitForValidStatus,
+} from '../UI/helpers/helpers';
 
 const templateNamePrefix = 'integration_test_template';
 const templateName = `${templateNamePrefix}-${randomName()}`;
@@ -65,8 +69,7 @@ test.describe('Test System With Template', () => {
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
-      const rowTemplate = await getRowByNameOrUrl(page, `${templateName}`);
-      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 660000 });
+      await waitForValidStatus(page, templateName, 660000);
     });
 
     await test.step('Create RHSM client and register the template', async () => {

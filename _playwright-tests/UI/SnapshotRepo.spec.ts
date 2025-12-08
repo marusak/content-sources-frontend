@@ -6,6 +6,7 @@ import {
   getRowByNameOrUrl,
   validateSnapshotTimestamp,
   waitForLastTaskStatus,
+  waitForValidStatus,
 } from './helpers/helpers';
 
 test.describe('Snapshot Repositories', () => {
@@ -53,8 +54,7 @@ test.describe('Snapshot Repositories', () => {
     });
 
     await test.step('Enable snapshotting for the created repository', async () => {
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const row = await waitForValidStatus(page, repoName);
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'Edit' }).click({ timeout: 60000 });
       await page.getByRole('textbox', { name: 'Name', exact: true }).fill(editedRepoName);
@@ -63,12 +63,11 @@ test.describe('Snapshot Repositories', () => {
     });
 
     await test.step('Trigger snapshot manually', async () => {
-      const edited_row = await getRowByNameOrUrl(page, editedRepoName);
-      await expect(edited_row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const edited_row = await waitForValidStatus(page, editedRepoName);
       await edited_row.getByLabel('Kebab toggle').click();
       // Trigger a snapshot manually
       await page.getByRole('menuitem', { name: 'Trigger snapshot' }).click();
-      await expect(edited_row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await waitForValidStatus(page, editedRepoName);
       await edited_row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
       // Verify that snapshot is in snapshots list
@@ -131,15 +130,13 @@ test.describe('Snapshot Repositories', () => {
         .getByRole('textbox', { name: 'URL', exact: true })
         .fill('https://fedorapeople.org/groups/katello/fakerepos/zoo/');
       await page.getByRole('button', { name: 'Save', exact: true }).click();
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 70000 });
+      await waitForValidStatus(page, repoName, 70000);
     });
 
     await test.step('Edit the repository', async () => {
       for (let i = 2; i <= 4; i++) {
         await test.step(`Edit repository and create snapshot ${i}`, async () => {
-          const row = await getRowByNameOrUrl(page, repoName);
-          await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+          const row = await waitForValidStatus(page, repoName);
 
           // Open the edit modal
           await row.getByLabel('Kebab toggle').click();
@@ -152,8 +149,7 @@ test.describe('Snapshot Repositories', () => {
         });
       }
 
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const row = await waitForValidStatus(page, repoName);
       await row.getByRole('button', { name: 'Kebab toggle' }).click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
       await expect(page.getByRole('button', { name: '1 - 4 of 4' }).first()).toBeVisible({
@@ -193,8 +189,7 @@ test.describe('Snapshot Repositories', () => {
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
 
-      const templateRow = await getRowByNameOrUrl(page, templateName);
-      await expect(templateRow.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const templateRow = await waitForValidStatus(page, templateName);
       await expect(templateRow.getByText('Use latest')).toBeVisible();
     });
 

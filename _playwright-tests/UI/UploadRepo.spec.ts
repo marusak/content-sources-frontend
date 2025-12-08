@@ -1,7 +1,12 @@
 import path from 'path';
 import { test, expect, cleanupRepositories, waitWhileRepositoryIsPending } from 'test-utils';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl, retry } from './helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  retry,
+  waitForValidStatus,
+} from './helpers/helpers';
 
 const uploadRepoName = 'Upload Repo!';
 
@@ -76,10 +81,8 @@ test.describe('Upload Repositories', () => {
       // Confirm changes
       await page.getByRole('button', { name: 'Confirm changes' }).click();
 
-      // There might be many rows at this point, we need to ensure that we filter the repo
-      const row = await getRowByNameOrUrl(page, uploadRepoName);
       // Verify the 'Valid' status
-      await expect(row.getByText('Valid')).toBeVisible();
+      await waitForValidStatus(page, uploadRepoName);
     });
 
     await test.step('Delete one upload repository', async () => {

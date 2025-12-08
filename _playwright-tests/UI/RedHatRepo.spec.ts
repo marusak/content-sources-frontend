@@ -1,6 +1,6 @@
 import { test, expect } from 'test-utils';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, waitForValidStatus } from './helpers/helpers';
 
 test.describe('Red Hat Repositories', () => {
   const smallRHRepo = 'Red Hat CodeReady Linux Builder for RHEL 9 ARM 64 (RPMs)';
@@ -18,8 +18,7 @@ test.describe('Red Hat Repositories', () => {
 
   test('Verify snapshotting of Red Hat repositories', async ({ page }) => {
     await test.step('Wait for status to be "Valid"', async () => {
-      const row = await getRowByNameOrUrl(page, smallRHRepo);
-      await expect(row.getByText('Valid', { exact: true })).toBeVisible({ timeout: 210_000 });
+      await waitForValidStatus(page, smallRHRepo, 210_000);
     });
 
     await test.step('Check repository snapshots', async () => {

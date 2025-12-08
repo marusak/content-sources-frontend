@@ -12,9 +12,9 @@ import { runCmd } from './helpers/helpers';
 import { navigateToRepositories, navigateToTemplates } from '../UI/helpers/navHelpers';
 import {
   closeGenericPopupsIfExist,
-  getRowByNameOrUrl,
   retry,
   closeNotificationPopup,
+  waitForValidStatus,
 } from '../UI/helpers/helpers';
 
 const uploadRepoNamePrefix = 'Upload_Repo';
@@ -77,9 +77,8 @@ test.describe('Install Upload Repo Content', () => {
       });
       await closeNotificationPopup(page, `One rpm successfully uploaded to ${uploadRepoName}`);
       // Wait for the repository row to appear, display 1 package, and reach Valid status
-      const row = await getRowByNameOrUrl(page, uploadRepoName);
+      const row = await waitForValidStatus(page, uploadRepoName);
       await expect(row.getByTestId('package_count_button')).toHaveText('1');
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
     });
 
     await test.step('Navigate to templates, and create a template with the upload repository', async () => {
@@ -99,8 +98,7 @@ test.describe('Install Upload Repo Content', () => {
         page.getByRole('heading', { name: 'Other repositories', exact: true }),
       ).toBeVisible();
       const modalPage = page.getByTestId('add_template_modal');
-      const rowUploadRepo = await getRowByNameOrUrl(modalPage, uploadRepoName);
-      await expect(rowUploadRepo.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const rowUploadRepo = await waitForValidStatus(modalPage, uploadRepoName);
       await rowUploadRepo.getByLabel('Select row').click();
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByText('Use the latest content', { exact: true }).click();
@@ -111,8 +109,7 @@ test.describe('Install Upload Repo Content', () => {
       await page.getByRole('button', { name: 'Next', exact: true }).click();
       await page.getByRole('button', { name: 'Create other options' }).click();
       await page.getByText('Create template only', { exact: true }).click();
-      const rowTemplate = await getRowByNameOrUrl(page, `${templateName}`);
-      await expect(rowTemplate.getByText('Valid')).toBeVisible({ timeout: 660000 });
+      await waitForValidStatus(page, templateName, 660000);
     });
 
     await test.step('Register system with template using RHSM client', async () => {

@@ -31,6 +31,18 @@ export const closeGenericPopupsIfExist = async (page: Page) => {
   }
 };
 
+export async function waitForValidStatus(
+  pageOrLocator: Page | Locator,
+  rowName?: string,
+  timeout = 60000,
+  message?: string,
+  exact?: true,
+): Promise<Locator> {
+  const locator = await getRowByNameOrUrl(pageOrLocator, rowName!);
+  await expect(locator.getByText('Valid', { exact }), message).toBeVisible({ timeout });
+  return locator;
+}
+
 export const closeNotificationPopup = async (
   page: Page,
   popupText: string | RegExp,

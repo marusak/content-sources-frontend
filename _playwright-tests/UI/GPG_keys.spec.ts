@@ -2,7 +2,7 @@ import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import { closeGenericPopupsIfExist, waitForValidStatus } from './helpers/helpers';
 
 const repoNamePrefix = 'GPG-key';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -51,8 +51,7 @@ test.describe('Test GPG keys', () => {
 
     await test.step('Change to Metadata GPG Key', async () => {
       // Search for the created repo
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const row = await waitForValidStatus(page, repoName);
       // Open edit modal
       await row.getByRole('button', { name: 'Kebab toggle' }).click();
       await page.getByRole('menuitem', { name: 'Edit' }).click();

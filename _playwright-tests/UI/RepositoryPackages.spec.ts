@@ -2,7 +2,11 @@ import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  waitForValidStatus,
+} from './helpers/helpers';
 
 const repoNamePrefix = 'snapshot-package-list-test';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -30,8 +34,7 @@ test.describe('Snapshot Package Count and List', () => {
     });
 
     await test.step('Wait for status to be "Valid"', async () => {
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await waitForValidStatus(page, repoName);
     });
 
     await test.step('Verify the package count matches the snapshot', async () => {
@@ -51,8 +54,7 @@ test.describe('Snapshot Package Count and List', () => {
       await page.getByPlaceholder('Enter name', { exact: true }).fill(editedRepo);
       await page.getByRole('textbox', { name: 'URL', exact: true }).fill(editedRepoUrl);
       await page.getByRole('button', { name: 'Save changes', exact: true }).click();
-      const editedRow = await getRowByNameOrUrl(page, editedRepo);
-      await expect(editedRow.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await waitForValidStatus(page, editedRepo);
     });
 
     await test.step('Verify the package count matches the edited snapshot', async () => {

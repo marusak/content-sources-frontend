@@ -1,7 +1,11 @@
 import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName, randomUrl } from 'test-utils/helpers';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  waitForValidStatus,
+} from './helpers/helpers';
 
 const repoNamePrefix = 'Repo-CRUD';
 const repoName = `${repoNamePrefix}-${randomName()}`;
@@ -27,13 +31,11 @@ test.describe('Custom Repositories CRUD', () => {
     });
 
     await test.step('Wait for status to be "Valid"', async () => {
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await waitForValidStatus(page, repoName);
     });
 
     await test.step('Read the repo', async () => {
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const row = await waitForValidStatus(page, repoName);
       await row.getByLabel('Kebab toggle').click();
       // Click on the Edit button to see the repo
       await page.getByRole('menuitem', { name: 'Edit' }).click();
@@ -53,13 +55,11 @@ test.describe('Custom Repositories CRUD', () => {
     });
 
     await test.step('Wait for status to be "Valid"', async () => {
-      const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      await waitForValidStatus(page, repoName);
     });
 
     await test.step('Confirm repo was updated', async () => {
-      const row = await getRowByNameOrUrl(page, `${repoName}-Edited`);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60000 });
+      const row = await waitForValidStatus(page, `${repoName}-Edited`);
       await row.getByLabel('Kebab toggle').click();
       // Click on the Edit button to see the repo
       await page.getByRole('menuitem', { name: 'Edit' }).click();

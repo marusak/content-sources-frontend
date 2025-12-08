@@ -1,7 +1,11 @@
 import { test, expect } from 'test-utils';
 import { cleanupRepositories, randomName } from 'test-utils/helpers';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closeGenericPopupsIfExist, getRowByNameOrUrl } from './helpers/helpers';
+import {
+  closeGenericPopupsIfExist,
+  getRowByNameOrUrl,
+  waitForValidStatus,
+} from './helpers/helpers';
 
 test.describe('Snapshot Errata Count and Filter', () => {
   test('Verify errata count matches after snapshotting and test filtering', async ({
@@ -37,8 +41,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
     });
 
     await test.step('Wait for repository to be valid and verify errata count', async () => {
-      const row = await getRowByNameOrUrl(page, firstSnapshotName);
-      await expect(row.getByText('Valid')).toBeVisible({ timeout: 180_000 });
+      const row = await waitForValidStatus(page, firstSnapshotName, 180_000);
 
       await row.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
@@ -70,8 +73,7 @@ test.describe('Snapshot Errata Count and Filter', () => {
     });
 
     await test.step('Verify edited repository has 6 errata', async () => {
-      const editedRow = await getRowByNameOrUrl(page, secondSnapshotName);
-      await expect(editedRow.getByText('Valid')).toBeVisible({ timeout: 180_000 });
+      const editedRow = await waitForValidStatus(page, secondSnapshotName, 180_000);
 
       await editedRow.getByLabel('Kebab toggle').click();
       await page.getByRole('menuitem', { name: 'View all snapshots' }).click();
