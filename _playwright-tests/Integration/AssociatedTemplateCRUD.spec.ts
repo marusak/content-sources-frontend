@@ -12,6 +12,7 @@ import {
   waitForValidStatus,
 } from '../UI/helpers/helpers';
 import { pollForSystemTemplateAttachment, isInInventory } from './helpers/systemHelpers';
+import { performance } from 'perf_hooks';
 
 const templateNamePrefix = 'associated_template_test';
 const templateName = `${templateNamePrefix}-${randomName()}`;
@@ -73,6 +74,9 @@ test.describe('Associated Template CRUD', () => {
     await test.step('Register system with template using RHSM client', async () => {
       await regClient.Boot('rhel9');
 
+      hostname = await regClient.GetHostname();
+      console.log('System hostname:', hostname);
+
       const reg = await regClient.RegisterRHC(
         process.env.ACTIVATION_KEY_1,
         process.env.ORG_ID_1,
@@ -84,10 +88,7 @@ test.describe('Associated Template CRUD', () => {
       }
       expect(reg?.exitCode, 'registration should be successful').toBe(0);
 
-
-    await test.step('Verify system is attached to template', async () => {
-      hostname = await regClient.GetHostname();
-      console.log('System hostname:', hostname);
+      const start = performance.now();
 
       await expect
         .poll(async () => await isInInventory(page, hostname, true), {
@@ -97,6 +98,11 @@ test.describe('Associated Template CRUD', () => {
         })
         .toBe(true);
 
+      const durationSec = (performance.now() - start) / 1000;
+      console.log(`Timing: Wait on host to appear in Patch - ${durationSec.toFixed(3)} seconds`);
+    });
+
+    await test.step('Verify system is attached to template', async () => {
       const isAttached = await pollForSystemTemplateAttachment(page, hostname, true, 10_000, 12);
       expect(isAttached, 'system should be attached to template').toBe(true);
     });
