@@ -93,10 +93,13 @@ test.describe('Associated Template CRUD', () => {
       hostname = await regClient.GetHostname();
       console.log('System hostname:', hostname);
 
-      // Check if system exists in inventory before polling
-      await test.step('Check initial system state in inventory', async () => {
-        await isInInventory(page, hostname, true);
-      });
+      await expect
+        .poll(async () => await isInInventory(page, hostname, true), {
+          message: 'System did not appear in inventory in time',
+          timeout: 600_000,
+          intervals: [10_000],
+        })
+        .toBe(true);
 
       const isAttached = await pollForSystemTemplateAttachment(page, hostname, true, 10_000, 12);
       expect(isAttached, 'system should be attached to template').toBe(true);
