@@ -4,7 +4,7 @@ import {
   cleanupTemplates,
   randomName,
 } from '../test-utils/_playwright-tests/test-utils/src';
-import { RHSMClient, refreshSubscriptionManager, waitForRhcdActive } from './helpers/rhsmClient';
+import { RHSMClient } from './helpers/rhsmClient';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import {
   closeGenericPopupsIfExist,
@@ -84,10 +84,6 @@ test.describe('Associated Template CRUD', () => {
       }
       expect(reg?.exitCode, 'registration should be successful').toBe(0);
 
-      await waitForRhcdActive(regClient);
-
-      await refreshSubscriptionManager(regClient);
-    });
 
     await test.step('Verify system is attached to template', async () => {
       hostname = await regClient.GetHostname();
