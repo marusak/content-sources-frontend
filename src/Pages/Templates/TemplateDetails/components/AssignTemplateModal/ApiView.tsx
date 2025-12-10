@@ -28,7 +28,7 @@ const ApiView = ({ template: { uuid, name }, variant }: Props) => {
           clickTip='Copied'
           variant={ClipboardCopyVariant.expansion}
         >
-          {variant === 'registered' ? rhcCommand : curlCommand}
+          {variant === 'registered' ? curlCommand : rhcCommand}
         </ClipboardCopy>
       </FlexItem>
 
