@@ -8,5 +8,15 @@
     "ignorePaths": [
       ".pre-commit-config.yaml"
     ],
-    "cloneSubmodules": true
+    "cloneSubmodules": true,
+    "packageRules": [
+      {
+        "description": "Disable all npm dependency updates",
+        "matchManagers": ["npm"],
+        "enabled": false
+      }
+    ],
+    "lockFileMaintenance": {
+        "enabled": false
+    }
 }
