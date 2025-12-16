@@ -21,15 +21,23 @@ test.describe('Snapshot Listing Filter by Org ID', () => {
     let samRepoUuid: string;
 
     await test.step('List repository using stable_sam user', async () => {
-      const reposResponse = await repositoriesApi.listRepositories({ search: testRepoUrl });
+      await expect
+        .poll(
+          async () => {
+            const reposResponse = await repositoriesApi.listRepositories({ search: testRepoUrl });
 
-      expect(reposResponse.data).toBeDefined();
-      expect(reposResponse.data?.length).toBe(1);
+            expect(reposResponse.data).toBeDefined();
+            expect(reposResponse.data?.length).toBe(1);
+            const samRepo = reposResponse.data![0];
 
-      const samRepo = reposResponse.data![0];
-      expect(samRepo.uuid).toBeDefined();
-      samRepoUuid = samRepo.uuid!;
-      await expect.poll(async () => samRepo.status, { timeout: 180000 }).toBe('Valid');
+            expect(samRepo.uuid).toBeDefined();
+            samRepoUuid = samRepo.uuid!;
+
+            return samRepo.status;
+          },
+          { timeout: 180_000 },
+        )
+        .toBe('Valid');
     });
 
     await test.step('Get repository data with snapshot UUID', async () => {
