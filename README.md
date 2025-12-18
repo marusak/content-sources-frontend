@@ -107,7 +107,7 @@ One can also: `yarn test` to run the unit tests directly.
 
 For tips and recommendations on how to write Playwright tests. Check out the Playwright [style guide](/_playwright-tests/style_guide.md) in this repo.
 
-It is recommended to test using vs-code and the [Playwright Test module for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright). But other editors do have similar plugins to for ease of use, if so desired
+It is recommended to test using vs-code and the [Playwright Test module for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright). But other editors do have similar plugins to for ease of use, if so desired.
 
 For running the integration tests you will need to point playwright to stage directly (i.e.: set proxy and change URL, check `playwright_example.env`), set the `INTEGRATION` flag to true and run the tests.
 
