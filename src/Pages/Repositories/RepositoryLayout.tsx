@@ -13,6 +13,7 @@ import { createUseStyles } from 'react-jss';
 import { last } from 'lodash';
 import Header from 'components/Header/Header';
 import RepositoryQuickStart from 'components/QuickStart/RepositoryQuickStart';
+import ServiceUnavailableAlert from 'components/ServiceUnavailableAlert/ServiceUnavailableAlert';
 import {
   ADMIN_TASKS_ROUTE,
   POPULAR_REPOSITORIES_ROUTE,
@@ -20,6 +21,7 @@ import {
   REPOSITORIES_ROUTE,
 } from '../../Routes/constants';
 import { useAppContext } from 'middleware/AppContext';
+import { useFlag } from '@unleash/proxy-client-react';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import Hide from 'components/Hide/Hide';
 
@@ -32,6 +34,7 @@ const useStyles = createUseStyles({
 export default function RepositoryLayout() {
   const { pathname } = useLocation();
   const { features } = useAppContext();
+  const serviceUnavailable = useFlag('content-sources.service-unavailable');
   const classes = useStyles();
   const currentRoute = useMemo(() => last(pathname.split('/')), [pathname]);
 
@@ -80,6 +83,7 @@ export default function RepositoryLayout() {
         ouiaId='custom_repositories_description'
         paragraph='View all repositories within your organization.'
       />
+      {serviceUnavailable && <ServiceUnavailableAlert />}
       <Hide hide={dismissed || !features?.communityrepos?.enabled}>
         <Grid className={spacing.pLgOnSm}>
           <Alert

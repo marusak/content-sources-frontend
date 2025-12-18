@@ -27,6 +27,7 @@ import { createUseStyles } from 'react-jss';
 import { SkeletonTable } from '@patternfly/react-component-groups';
 import Hide from 'components/Hide/Hide';
 import EmptyTableState from 'components/EmptyTableState/EmptyTableState';
+import ServiceUnavailableAlert from 'components/ServiceUnavailableAlert/ServiceUnavailableAlert';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { TemplateFilterData, TemplateItem } from 'services/Templates/TemplateApi';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
@@ -41,6 +42,7 @@ import { useTemplateList } from 'services/Templates/TemplateQueries';
 import StatusIcon from './components/StatusIcon';
 import { ExclamationTriangleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const useStyles = createUseStyles({
   topContainer: {
@@ -86,6 +88,7 @@ const TemplatesTable = () => {
   const [activeSortDirection, setActiveSortDirection] = useState<'asc' | 'desc'>('desc');
   const [polling, setPolling] = useState(false);
   const [pollCount, setPollCount] = useState(0);
+  const serviceUnavailable = useFlag('content-sources.service-unavailable');
 
   const defaultValues: TemplateFilterData = {
     arch: '',
@@ -225,6 +228,7 @@ const TemplatesTable = () => {
             'https://docs.redhat.com/en/documentation/red_hat_insights/1-latest/html/managing_system_content_and_patch_updates_on_rhel_systems/patching-using-content-templates_patch-service-overview',
         }}
       />
+      {serviceUnavailable && <ServiceUnavailableAlert />}
       <Grid data-ouia-component-id='content_template_list_page'>
         <Outlet />
         <Flex className={classes.topContainer}>
