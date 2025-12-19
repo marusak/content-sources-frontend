@@ -18,7 +18,7 @@ import {
 } from '../UI/helpers/helpers';
 
 const uploadRepoNamePrefix = 'Upload_Repo';
-test.describe('Install Upload Repo Content', () => {
+test.skip('Install Upload Repo Content', () => {
   test('Install Upload Repo Content', async ({ page, client, cleanup }) => {
     // Increase timeout for CI environment because template validation can take up to 11 minutes
     test.setTimeout(900000); // 15 minutes

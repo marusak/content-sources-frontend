@@ -122,6 +122,7 @@ export class RHSMClient {
       connect.push('--content-template');
       connect.push(`${template}`);
     }
+    console.log(">>>>>>>>", connect);
     const result = await runCommand(this.name, connect, 75000);
 
     if (result && result.exitCode !== 0) {

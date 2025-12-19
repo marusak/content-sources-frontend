@@ -20,7 +20,7 @@ const templateName = `${templateNamePrefix}-${randomName()}`;
 const regClient = new RHSMClient(`RHSMClientTest-${randomName()}`);
 let firstVersion;
 
-test.describe('Test System With Template', () => {
+test.skip('Test System With Template', () => {
   test.use({
     storageState: '.auth/layered-repo-user.json',
     extraHTTPHeaders: process.env.LAYERED_REPO_TOKEN

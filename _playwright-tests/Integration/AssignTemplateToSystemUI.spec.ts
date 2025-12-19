@@ -31,6 +31,9 @@ test.describe('Assign Template to System via UI', () => {
       await waitForRhcdActive(regClient);
       await refreshSubscriptionManager(regClient);
 
+      const ff = await runCmd("ff", ["sh", "-c", "cat /etc/yum.repos.d/*"], regClient);
+      console.log(ff);
+
       const packageUrl = await runCmd(
         'Get download URL for vim-enhanced from base CDN',
         ['dnf', 'repoquery', '--location', 'vim-enhanced'],
