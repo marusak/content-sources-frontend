@@ -18,7 +18,7 @@ import {
 const templateNamePrefix = 'integration_test_template';
 const templateName = `${templateNamePrefix}-${randomName()}`;
 const regClient = new RHSMClient(`RHSMClientTest-${randomName()}`);
-let firstVersion;
+let firstCount;
 
 test.describe('Test System With Template', () => {
   test.use({
@@ -37,11 +37,12 @@ test.describe('Test System With Template', () => {
       await cleanup.runAndAdd(() => cleanupTemplates(client, templateNamePrefix));
       cleanup.add(() => regClient.Destroy('rhc'));
     });
-    await test.step('Navigate to templates, ensure the Create template button can be clicked', async () => {
+
+    await test.step('Navigate to templates', async () => {
       await navigateToTemplates(page);
       await closeGenericPopupsIfExist(page);
-      await expect(page.getByRole('button', { name: 'Create template' })).toBeVisible();
     });
+
     await test.step('Create a template with oldest snapshots', async () => {
       await page.getByRole('button', { name: 'Create template' }).click();
       await page.getByRole('button', { name: 'filter architecture' }).click();
@@ -94,13 +95,13 @@ test.describe('Test System With Template', () => {
 
       await runCmd('Clean cached metadata', ['dnf', 'clean', 'all'], regClient);
 
-      const exist = await runCmd(
+      const count = await runCmd(
         'List available packages',
-        ['sh', '-c', 'dnf updateinfo --list --all | grep RH | sort | tail -n 1'],
+        ['sh', '-c', 'dnf updateinfo --list --all | grep RH | wc -l'],
         regClient,
         10 * 60 * 1000,
       );
-      firstVersion = exist?.stdout?.toString();
+      firstCount = count?.stdout?.toString();
     });
 
     await test.step('Update the template date to latest', async () => {
@@ -161,18 +162,16 @@ test.describe('Test System With Template', () => {
     });
 
     await test.step('Install from the updated template', async () => {
-      await refreshSubscriptionManager(regClient);
-
       await runCmd('Clean cached metadata', ['dnf', 'clean', 'all'], regClient);
 
-      const updateInfo = await runCmd(
+      const updateCount = await runCmd(
         'List available packages',
-        ['sh', '-c', 'dnf updateinfo --list --all | grep RH | sort | tail -n 1'],
+        ['sh', '-c', 'dnf updateinfo --list --all | grep RH | wc -l'],
         regClient,
         10 * 60 * 1000,
       );
-      const secondVersion = updateInfo?.stdout?.toString();
-      expect(secondVersion, 'Expect that there is a new errata').not.toBe(firstVersion);
+      const secondCount = updateCount?.stdout?.toString();
+      expect(secondCount, 'Expect that there are more erratas').not.toBe(firstCount);
 
       await runCmd(
         'vim-enhanced should not be installed',
