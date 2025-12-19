@@ -11,6 +11,7 @@ import {
   getRowByNameOrUrl,
   waitForValidStatus,
 } from '../UI/helpers/helpers';
+import { runCmd } from './helpers/helpers';
 import { pollForSystemTemplateAttachment, isInInventory } from './helpers/systemHelpers';
 import { performance } from 'perf_hooks';
 
@@ -18,7 +19,7 @@ const templateNamePrefix = 'associated_template_test';
 const templateName = `${templateNamePrefix}-${randomName()}`;
 const regClient = new RHSMClient(`AssociatedTemplateCRUDTest-${randomName()}`);
 
-test.skip('Associated Template CRUD', () => {
+test.describe('Associated Template CRUD', () => {
   test('Warn against template deletion when associated to a system and not warn after unregistration', async ({
     page,
     client,
@@ -97,6 +98,9 @@ test.skip('Associated Template CRUD', () => {
           intervals: [10_000],
         })
         .toBe(true);
+
+      const ff = await runCmd('ff', ['sh', '-c', 'subscription-manager identity'], regClient);
+      console.log(ff);
 
       const durationSec = (performance.now() - start) / 1000;
       console.log(`Timing: Wait on host to appear in Patch - ${durationSec.toFixed(3)} seconds`);

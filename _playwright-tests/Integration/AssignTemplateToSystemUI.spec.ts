@@ -1,8 +1,9 @@
 import { test, expect, cleanupTemplates, randomName } from 'test-utils';
-import { refreshSubscriptionManager, RHSMClient, waitForRhcdActive } from './helpers/rhsmClient';
+import { refreshSubscriptionManager, RHSMClient } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';
 import { closeGenericPopupsIfExist, getRowByNameOrUrl } from '../UI/helpers/helpers';
+import { isInInventory } from './helpers/systemHelpers';
 
 test.describe('Assign Template to System via UI', () => {
   const templateNamePrefix = 'Template_test_for_system_assignment';
@@ -27,11 +28,16 @@ test.describe('Assign Template to System via UI', () => {
         console.log('Registration stdout:', reg?.stdout);
         console.log('Registration stderr:', reg?.stderr);
       }
-      expect(reg?.exitCode, 'Expect registering to be successful').toBe(0);
-      await waitForRhcdActive(regClient);
-      await refreshSubscriptionManager(regClient);
 
-      const ff = await runCmd("ff", ["sh", "-c", "cat /etc/yum.repos.d/*"], regClient);
+      await expect
+        .poll(async () => await isInInventory(page, hostname, true), {
+          message: 'System did not appear in inventory in time',
+          timeout: 600_000,
+          intervals: [10_000],
+        })
+        .toBe(true);
+
+      const ff = await runCmd('ff', ['sh', '-c', 'subscription-manager identity'], regClient);
       console.log(ff);
 
       const packageUrl = await runCmd(
