@@ -12,6 +12,7 @@ export default defineConfig({
   forbidOnly: false,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 3 : undefined,
+  globalSetup: process.env.COLLECT_COVERAGE === 'true' ? './_playwright-tests/global-coverage-setup.ts' : undefined,
   reporter: process.env.CI
     ? [
         ['html', { outputFolder: 'playwright-report' }],

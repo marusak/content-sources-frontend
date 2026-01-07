@@ -64,50 +64,45 @@ Coverage is collected for:
 
 ## Using Coverage in Tests
 
-### Option 1: Use Coverage Helper Functions
+Coverage is automatically collected when `COLLECT_COVERAGE=true` is set. You have two options:
+
+### Option 1: Use test-with-coverage (Recommended for coverage)
+
+Import from `test-with-coverage` instead of `test-utils` to automatically get coverage:
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { collectJSCoverage } from './helpers/coverage-helper';
+import { test, expect } from '../test-with-coverage';
 
-test('My test with coverage', async ({ page }) => {
-  await page.coverage.startJSCoverage();
-  
-  // Your test code here
+test('My test', async ({ page }) => {
+  // Coverage is automatically collected when COLLECT_COVERAGE=true
   await page.goto('/some-page');
-  
-  // Collect coverage
-  await collectJSCoverage(page, 'My test with coverage');
+  // ... your test code
 });
 ```
 
-### Option 2: Use Coverage Fixture
+This is a drop-in replacement for `test-utils` - it includes all the same exports plus automatic coverage collection.
+
+### Option 2: Keep using test-utils (No coverage)
+
+If you continue using `test-utils`, coverage won't be collected:
 
 ```typescript
-import { test, expect } from './fixtures/coverage-fixture';
+import { test, expect } from 'test-utils';
 
-test('My test with coverage', async ({ coveragePage }) => {
-  // Coverage is automatically collected
-  await coveragePage.goto('/some-page');
-});
-```
-
-### Option 3: Manual Coverage Collection
-
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('My test with coverage', async ({ page }) => {
-  await page.coverage.startJSCoverage();
-  
-  // Your test code
+test('My test', async ({ page }) => {
+  // No coverage collected
   await page.goto('/some-page');
-  
-  // Stop and save coverage
-  const coverage = await page.coverage.stopJSCoverage();
-  // Save coverage data...
 });
 ```
+
+### How It Works
+
+The `test-with-coverage` module automatically extends the `page` fixture from `test-utils`. When `COLLECT_COVERAGE=true`:
+1. Coverage collection starts before each test
+2. Your test runs normally using the `page` fixture
+3. Coverage data is collected and saved after the test completes
+
+The `page` fixture works exactly the same - you just get coverage collection automatically!
 
 ## Coverage Reports
 
