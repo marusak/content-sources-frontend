@@ -1,4 +1,5 @@
-import { test, expect, cleanupTemplates, randomName } from 'test-utils';
+import { test } from '../fixtures/coverage-fixture';
+import { expect, cleanupTemplates, randomName } from 'test-utils';
 import { refreshSubscriptionManager, RHSMClient } from './helpers/rhsmClient';
 import { runCmd } from './helpers/helpers';
 import { navigateToTemplates } from '../UI/helpers/navHelpers';

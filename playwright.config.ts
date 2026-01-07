@@ -20,6 +20,12 @@ export default defineConfig({
           { outputDir: 'playwright-ctrf', outputFile: 'playwright-ctrf.json' },
         ],
         ['@currents/playwright'],
+        ...(process.env.COLLECT_COVERAGE === 'true' ? [['json', { outputFile: 'test-results/results.json' }]] : []),
+      ]
+    : process.env.COLLECT_COVERAGE === 'true'
+    ? [
+        ['list'],
+        ['json', { outputFile: 'test-results/results.json' }],
       ]
     : 'list',
   globalTimeout: (process.env.INTEGRATION ? 35 : 20) * 60 * 1000,

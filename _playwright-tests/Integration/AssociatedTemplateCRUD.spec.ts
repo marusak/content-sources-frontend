@@ -99,7 +99,7 @@ test.describe('Associated Template CRUD', () => {
         .toBe(true);
 
       const durationSec = (performance.now() - start) / 1000;
-      console.log(`Timing: Wait on host to appear in Patch - ${durationSec.toFixed(3)} seconds`);
+      console.log(`Timing: pw_processed_by_patch_s ${durationSec.toFixed(3)}`);
     });
 
     await test.step('Verify system is attached to template', async () => {

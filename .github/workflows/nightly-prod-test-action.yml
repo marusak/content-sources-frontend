@@ -93,6 +93,15 @@ jobs:
           path: ./playwright-ctrf
           retention-days: 10
 
+      - name: Extract timing metrics
+        run: |
+          mkdir -p metrics
+          grep -h -R "Timing:" playwright-report \
+          | sed -E 's/^[[:space:]]*"Timing: (.*)\\n",*/\1/' \
+          > metrics/metrics.prom
+          echo "Generated metrics:"
+          cat metrics/metrics.prom
+
       - name: Notify Slack on success
         uses: slackapi/slack-github-action@v2.1.1
         if: ${{ success() && github.event_name == 'schedule' && !cancelled() }}

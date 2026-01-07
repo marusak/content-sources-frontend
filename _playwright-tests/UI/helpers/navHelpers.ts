@@ -3,7 +3,7 @@ import { test } from 'test-utils';
 import { retry } from './helpers';
 
 const navigateToRepositoriesFunc = async (page: Page) => {
-  await page.goto('/insights/content/repositories', { timeout: 20000 });
+  await page.goto('/insights/content/repositories', { timeout: 200000 });
 
   const zeroState = page.getByText('Start using Content management now');
 

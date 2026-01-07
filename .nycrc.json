@@ -1,0 +1,35 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "all": true,
+  "check-coverage": false,
+  "reporter": [
+    "text",
+    "text-summary",
+    "html",
+    "lcov",
+    "json"
+  ],
+  "report-dir": "coverage",
+  "include": [
+    "src/**/*.{ts,tsx}"
+  ],
+  "exclude": [
+    "**/*.spec.{ts,tsx}",
+    "**/*.test.{ts,tsx}",
+    "**/node_modules/**",
+    "**/coverage/**",
+    "**/dist/**",
+    "**/_playwright-tests/**",
+    "**/test-results/**",
+    "**/playwright-report/**",
+    "**/config/**",
+    "**/*.config.{js,ts}",
+    "**/testingHelpers.tsx"
+  ],
+  "lines": 70,
+  "functions": 70,
+  "branches": 70,
+  "statements": 70
+}
+
+
