@@ -5,7 +5,6 @@ import { STAGE_DESCRIPTIONS, type Stage } from '../../mockVulnerabilities';
 type StageCardProps = {
   stage: Stage;
   count: number;
-  avgAge: number;
   stuckCount: number;
   className?: string;
 };

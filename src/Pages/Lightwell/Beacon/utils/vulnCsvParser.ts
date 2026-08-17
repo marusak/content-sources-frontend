@@ -1,3 +1,5 @@
+import Papa from 'papaparse';
+
 import type {
   Complexity,
   CustomerPriority,
@@ -48,11 +50,23 @@ function normalizeCustomerPriority(raw: string): CustomerPriority | undefined {
   return undefined;
 }
 
-export function parseVulnCsv(content: string): ParsedVulnRow[] {
-  const lines = content.trim().split('\n');
-  if (lines.length < 2) return [];
+function parseCsvRows(content: string): string[][] {
+  const { data, errors } = Papa.parse<string[]>(content.trim(), {
+    skipEmptyLines: true,
+  });
 
-  const header = lines[0].split(',').map((h) => h.trim().toLowerCase());
+  if (errors.length > 0) {
+    return [];
+  }
+
+  return data.filter((row) => row.some((cell) => cell.trim().length > 0));
+}
+
+export function parseVulnCsv(content: string): ParsedVulnRow[] {
+  const rows = parseCsvRows(content);
+  if (rows.length < 2) return [];
+
+  const header = rows[0].map((h) => h.trim().toLowerCase());
   const idxId = header.indexOf('vulnerability_id');
   const idxPurl = header.findIndex((h) => h === 'purl' || h === 'packageurl');
   const idxName = header.indexOf('component_name');
@@ -67,13 +81,13 @@ export function parseVulnCsv(content: string): ParsedVulnRow[] {
   const idxReproducer = header.findIndex((h) => h.includes('reproducer_included'));
   const idxPriority = header.findIndex((h) => h.includes('customer_priority'));
 
-  const rows: ParsedVulnRow[] = [];
+  const parsed: ParsedVulnRow[] = [];
 
-  for (let i = 1; i < lines.length; i++) {
-    const cols = parseCsvLine(lines[i]);
+  for (let i = 1; i < rows.length; i++) {
+    const cols = rows[i];
     if (cols.length < 3) continue;
 
-    rows.push({
+    parsed.push({
       vulnerabilityId: cols[idxId]?.trim() || `UNKNOWN-${i}`,
       purl: (idxPurl >= 0 ? cols[idxPurl]?.trim() : '') || '',
       componentName: (idxName >= 0 ? cols[idxName]?.trim() : '') || '',
@@ -91,27 +105,7 @@ export function parseVulnCsv(content: string): ParsedVulnRow[] {
     });
   }
 
-  return rows;
-}
-
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      inQuotes = !inQuotes;
-    } else if (ch === ',' && !inQuotes) {
-      result.push(current);
-      current = '';
-    } else {
-      current += ch;
-    }
-  }
-  result.push(current);
-  return result;
+  return parsed;
 }
 
 const COMPLEXITIES: Complexity[] = [

@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { Nav, NavList, NavItem, Panel, PanelMain, PanelMainBody } from '@patternfly/react-core';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useMatch } from 'react-router-dom';
 
 import { useLightwellRootPath } from 'Hooks/Lightwell/navigation/useLightwellRootPath';
 import { useDrawerContentSubnavPortal } from 'Hooks/Lightwell/navigation/useDrawerContentSubnavPortal';
@@ -29,15 +29,19 @@ const NAV_ITEMS: NavItemConfig[] = [
 // page__main-container — not inside page content.
 // Detail routes (e.g. package pages) are rendered outside of this layout.
 export default function LightwellNavLayout() {
-  const { pathname } = useLocation();
   const rootPath = useLightwellRootPath();
   const subnavPortalContainer = useDrawerContentSubnavPortal();
+  const beaconMatch = useMatch({ path: `${rootPath}/beacon`, end: true });
+  const lensMatch = useMatch({ path: `${rootPath}/lens`, end: true });
+  const repositoriesMatch = useMatch({ path: rootPath, end: true });
 
-  const activeKey: NavItemConfig['key'] = pathname.endsWith('/beacon')
+  const activeKey: NavItemConfig['key'] = beaconMatch
     ? 'beacon'
-    : pathname.endsWith('/lens')
+    : lensMatch
       ? 'lens'
-      : 'repositories';
+      : repositoriesMatch
+        ? 'repositories'
+        : 'repositories';
 
   const panel = (
     <Panel variant='secondary'>

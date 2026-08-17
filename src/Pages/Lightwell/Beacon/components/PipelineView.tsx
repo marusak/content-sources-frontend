@@ -17,10 +17,8 @@ export function PipelineView({
   const stageStats = STAGES.map((stage) => {
     const items = vulnerabilities.filter((v) => v.stage === stage);
     const count = items.length;
-    const totalAge = items.reduce((sum, v) => sum + v.ageDays, 0);
-    const avgAge = count > 0 ? Math.round(totalAge / count) : 0;
     const stuckCount = items.filter((v) => v.ageDays > stuckThreshold).length;
-    return { stage, count, avgAge, stuckCount };
+    return { stage, count, stuckCount };
   });
 
   return (
@@ -33,7 +31,6 @@ export function PipelineView({
                 <StageCard
                   stage={stat.stage}
                   count={stat.count}
-                  avgAge={stat.avgAge}
                   stuckCount={stat.stuckCount}
                 />
               </FlexItem>
