@@ -2131,7 +2131,15 @@
     "@parcel/watcher-win32-ia32" "2.5.6"
     "@parcel/watcher-win32-x64" "2.5.6"
 
-"@patternfly/react-component-groups@^6.0.0", "@patternfly/react-component-groups@^6.1.0":
+"@patternfly/react-catalog-view-extension@^6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@patternfly/react-catalog-view-extension/-/react-catalog-view-extension-6.5.0.tgz#8971bf9c301cd144274991a53bc9e9fca91c012d"
+  integrity sha512-7H/3wyiU4EJuoayfoDQ5yUQMpeOCLBcTgduWlQM8/5ZSNKjr9Q53jmwcEztq6CQiUpWzBxuEZARZNfsQGnrRpg==
+  dependencies:
+    "@patternfly/react-core" "^6.5.1"
+    "@patternfly/react-styles" "^6.5.1"
+
+"@patternfly/react-component-groups@^6.0.0", "@patternfly/react-component-groups@^6.1.0", "@patternfly/react-component-groups@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@patternfly/react-component-groups/-/react-component-groups-6.5.0.tgz#8a2e839b638978f93a22a59012b3cb8532709a74"
   integrity sha512-uvrAuUixZW618gsQY06nOcQWZclsCtOa5mixi6KQKOyrpH9GgtrihJ/fVJsA1a5HcZzC4SKIdd3wkXArs/vxEg==

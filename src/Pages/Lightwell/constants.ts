@@ -20,6 +20,7 @@ export const LIGHTWELL_DEMO_FEATURE_NAME = 'lightwell-network-demo';
 export const LIGHTWELL_ROUTE = '/lightwell';
 export const LIGHTWELL_ORIGIN = 'lightwell';
 export const LIGHTWELL_USE_MOCK = false;
+export const LIGHTWELL_BEACON_USE_MOCK = true;
 
 export const lightwellReposPerPageKey = 'lightwellRepositoriesPerPage';
 export const lightwellPkgsPerPageKey = 'lightwellPackagesPerPage';

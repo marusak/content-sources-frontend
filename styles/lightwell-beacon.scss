@@ -1,0 +1,174 @@
+/* Beacon — pipeline, filters, table, and batch list */
+
+.lightwell-beacon-content {
+  max-width: 1400px;
+}
+
+/* Pipeline */
+.lightwell-pipeline {
+  padding: var(--pf-t--global--spacer--sm) 0;
+}
+
+.lightwell-pipeline-arrow {
+  color: var(--pf-t--global--text--color--subtle);
+  font-size: 10px;
+  padding: 0 var(--pf-t--global--spacer--xs);
+}
+
+/* Stage cards (read-only pipeline visuals) */
+.lightwell-stage-card {
+  text-align: center;
+  min-width: 100px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.lightwell-stage-card--stuck {
+  border-left: 3px solid var(--pf-t--global--color--status--warning--default);
+}
+
+.lightwell-stage-card-body {
+  padding: var(--pf-t--global--spacer--sm) !important;
+}
+
+.lightwell-stage-card-label {
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+  display: block;
+  margin-bottom: var(--pf-t--global--spacer--xs);
+}
+
+.lightwell-stage-card-count {
+  margin: var(--pf-t--global--spacer--xs) 0;
+  text-align: center;
+}
+
+.lightwell-stage-card-number {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+  line-height: 1.2;
+}
+
+.lightwell-stage-card-stuck {
+  display: block;
+  color: var(--pf-t--global--color--status--warning--default);
+  font-weight: var(--pf-t--global--font--weight--body--bold);
+}
+
+/* Summary stats */
+.lightwell-stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: var(--pf-t--global--font--weight--heading--bold);
+  line-height: 1.2;
+}
+
+.lightwell-help-btn {
+  padding: 0;
+  font-size: var(--pf-t--global--font--size--body--sm);
+}
+
+.lightwell-stat--critical {
+  color: var(--pf-t--global--color--status--danger--default);
+}
+
+.lightwell-stat--stuck {
+  color: var(--pf-t--global--color--status--warning--default);
+}
+
+.lightwell-stat--embargo {
+  color: #6753ac;
+}
+
+/* Filter panel — sticky on page scroll (matches coverage analyzer prototype) */
+.lightwell-filter-panel {
+  position: sticky;
+  top: var(--pf-t--global--spacer--md);
+  align-self: flex-start;
+  min-width: 200px;
+  max-width: 220px;
+  max-height: calc(100vh - 100px);
+  padding-right: var(--pf-t--global--spacer--md);
+  overflow-y: auto;
+  border-right: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.lightwell-filter-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: var(--pf-t--global--spacer--md);
+}
+
+.lightwell-filter-count {
+  color: var(--pf-t--global--text--color--link--default);
+}
+
+/* Vulnerability table */
+.lightwell-beacon-table-area {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.lightwell-vuln-table {
+  margin-top: var(--pf-t--global--spacer--md);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.lightwell-vuln-table__scroll {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.lightwell-vuln-table .pf-v6-c-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.lightwell-cvss-vector {
+  font-family: var(--pf-t--global--font--family--mono);
+  font-size: var(--pf-t--global--font--size--body--sm);
+  max-width: 160px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.lightwell-flag-label {
+  margin-right: var(--pf-t--global--spacer--xs);
+}
+
+/* Batch list */
+.lightwell-batch-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pf-t--global--spacer--xs);
+}
+
+.lightwell-batch-stage-label {
+  font-size: 11px;
+}
+
+.lightwell-batch-expanded {
+  padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+}
+
+.lightwell-batch-no-vulns {
+  color: var(--pf-t--global--text--color--subtle);
+  font-style: italic;
+}
+
+/* Tab content */
+.lightwell-tab-content {
+  padding-top: var(--pf-t--global--spacer--lg);
+}
+
+/* File format hint */
+.lightwell-file-formats {
+  color: var(--pf-t--global--text--color--subtle);
+}
