@@ -145,7 +145,7 @@ const Beacon = () => {
       if (selectedSeverities.size > 0 && !selectedSeverities.has(v.severity)) return false;
       if (selectedStages.size > 0 && !selectedStages.has(v.stage)) return false;
       if (selectedComplexities.size > 0 && !selectedComplexities.has(v.complexity)) return false;
-      if (selectedBatches.size > 0 && (!v.batchId || !selectedBatches.has(v.batchId))) return false;
+      if (selectedBatches.size > 0 && (!v.ltwlsupt_ticket_id || !selectedBatches.has(v.ltwlsupt_ticket_id))) return false;
       if (showEmbargo && !v.embargo) return false;
       if (showDuplicates && !v.duplicate) return false;
       return true;
@@ -289,7 +289,7 @@ const Beacon = () => {
                         {batches.map((batch) => (
                           <FilterSidePanelCategoryItem
                             key={batch.id}
-                            count={vulnerabilities.filter((v) => v.batchId === batch.id).length}
+                            count={vulnerabilities.filter((v) => v.ltwlsupt_ticket_id === batch.id).length}
                             checked={selectedBatches.has(batch.id)}
                             onClick={() => toggleBatch(batch.id)}
                           >

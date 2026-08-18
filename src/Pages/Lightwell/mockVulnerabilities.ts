@@ -62,7 +62,7 @@ export interface Vulnerability {
   embargo: boolean;
   duplicate: boolean;
   duplicateOf?: string;
-  batchId?: string;
+  ltwlsupt_ticket_id?: string;
 }
 
 export interface Batch {
@@ -110,7 +110,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 2,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v2',
@@ -134,7 +134,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 1,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v3',
@@ -158,7 +158,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 3,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v4',
@@ -182,7 +182,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 1,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v5',
@@ -206,7 +206,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 4,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v6',
@@ -230,7 +230,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 2,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v7',
@@ -254,7 +254,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 1,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v8',
@@ -278,7 +278,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 5,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
 
   // Classified (7) - batch-2 (4), batch-3 (3)
@@ -304,7 +304,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 8,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v10',
@@ -328,7 +328,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 7,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v11',
@@ -352,7 +352,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 6,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v12',
@@ -376,7 +376,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 9,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v13',
@@ -400,7 +400,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 6,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v14',
@@ -424,7 +424,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 10,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v15',
@@ -448,7 +448,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 11,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
 
   // Fix in Progress (9) - batch-2 (7), batch-1 (2)
@@ -474,7 +474,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 15,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v17',
@@ -498,7 +498,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 12,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v18',
@@ -522,7 +522,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 14,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v19',
@@ -546,7 +546,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 10,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v20',
@@ -570,7 +570,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 18,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v21',
@@ -594,7 +594,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 13,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v22',
@@ -618,7 +618,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 20,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v23',
@@ -642,7 +642,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 11,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v24',
@@ -666,7 +666,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 9,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
 
   // Validation (8) - batch-2 (4), batch-1 (3), batch-3 (1)
@@ -692,7 +692,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 25,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v26',
@@ -716,7 +716,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 20,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v27',
@@ -740,7 +740,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 18,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v28',
@@ -764,7 +764,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 22,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v29',
@@ -788,7 +788,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 28,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v30',
@@ -812,7 +812,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 30,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v31',
@@ -836,7 +836,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 32,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v32',
@@ -861,7 +861,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     embargo: false,
     duplicate: true,
     duplicateOf: 'LWL-2026-4027',
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
 
   // Lightwell Network (7) - batch-1 (4), batch-3 (1), batch-2 (2)
@@ -887,7 +887,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 35,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v34',
@@ -911,7 +911,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 30,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v35',
@@ -935,7 +935,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 28,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
   {
     uuid: 'v36',
@@ -959,7 +959,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 33,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v37',
@@ -983,7 +983,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 25,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v38',
@@ -1007,7 +1007,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 31,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v39',
@@ -1032,7 +1032,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     embargo: false,
     duplicate: true,
     duplicateOf: 'LWL-2026-3998',
-    batchId: 'batch-2',
+    ltwlsupt_ticket_id: 'batch-2',
   },
 
   // Lightwell Network (formerly Upstreaming) (6) - batch-1 (3), batch-3 (3)
@@ -1058,7 +1058,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 38,
     embargo: true,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v41',
@@ -1082,7 +1082,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 40,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v42',
@@ -1106,7 +1106,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 36,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v43',
@@ -1130,7 +1130,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 35,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v44',
@@ -1154,7 +1154,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 34,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v45',
@@ -1178,7 +1178,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 42,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
 
   // Lightwell Network (formerly Published) (7) - batch-1 (6), batch-3 (1)
@@ -1204,7 +1204,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 45,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v47',
@@ -1228,7 +1228,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 40,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v48',
@@ -1252,7 +1252,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 38,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v49',
@@ -1276,7 +1276,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 43,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v50',
@@ -1300,7 +1300,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 37,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-3',
+    ltwlsupt_ticket_id: 'batch-3',
   },
   {
     uuid: 'v51',
@@ -1324,7 +1324,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 41,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
   {
     uuid: 'v52',
@@ -1348,7 +1348,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 44,
     embargo: false,
     duplicate: false,
-    batchId: 'batch-1',
+    ltwlsupt_ticket_id: 'batch-1',
   },
 ];
 

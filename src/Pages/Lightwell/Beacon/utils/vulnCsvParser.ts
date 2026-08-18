@@ -143,6 +143,6 @@ export function convertToVulnerabilities(rows: ParsedVulnRow[], batchId: string)
     ageDays: 0,
     embargo: false,
     duplicate: false,
-    batchId,
+    ltwlsupt_ticket_id: batchId,
   }));
 }

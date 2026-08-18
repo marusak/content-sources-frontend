@@ -40,7 +40,7 @@ export function BatchList({ batches, vulnerabilities, className }: BatchListProp
         </Thead>
         {batches.map((batch) => {
           const isExpanded = expandedBatches.has(batch.id);
-          const batchVulns = vulnerabilities.filter((v) => v.batchId === batch.id);
+          const batchVulns = vulnerabilities.filter((v) => v.ltwlsupt_ticket_id === batch.id);
 
           return (
             <Tbody key={batch.id} isExpanded={isExpanded}>
