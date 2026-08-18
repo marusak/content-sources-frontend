@@ -1,7 +1,11 @@
 /* Beacon — pipeline, filters, and table */
 
 .lightwell-beacon-content {
-  max-width: 1400px;
+  width: 100%;
+}
+
+.lightwell-beacon-layout {
+  width: 100%;
 }
 
 /* Pipeline */
@@ -98,8 +102,17 @@
 
 /* Vulnerability table */
 .lightwell-beacon-table-area {
+  flex: 1 1 auto;
   min-width: 0;
-  max-width: 100%;
+  width: 100%;
+}
+
+.lightwell-beacon-table-area > .pf-v6-c-stack {
+  width: 100%;
+}
+
+.lightwell-beacon-table-area .pf-v6-c-card {
+  width: 100%;
 }
 
 .lightwell-vuln-table {

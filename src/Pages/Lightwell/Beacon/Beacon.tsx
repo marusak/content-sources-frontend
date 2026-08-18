@@ -155,7 +155,11 @@ const Beacon = () => {
         ) : (
           <Stack hasGutter className='lightwell-beacon-content'>
             <StackItem>
-              <Flex gap={{ default: 'gapMd' }} alignItems={{ default: 'alignItemsFlexStart' }}>
+              <Flex
+                gap={{ default: 'gapMd' }}
+                alignItems={{ default: 'alignItemsFlexStart' }}
+                className='lightwell-beacon-layout'
+              >
                 <FlexItem className='lightwell-filter-panel'>
                   <span className='lightwell-filter-panel-header'>
                     <Title headingLevel='h4' size='md'>
