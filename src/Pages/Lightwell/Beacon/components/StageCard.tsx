@@ -5,18 +5,13 @@ import { STAGE_DESCRIPTIONS, type Stage } from '../../mockVulnerabilities';
 type StageCardProps = {
   stage: Stage;
   count: number;
-  stuckCount: number;
   className?: string;
 };
 
-export function StageCard({ stage, count, stuckCount, className }: StageCardProps) {
-  const isStuck = stuckCount > 0;
-
+export function StageCard({ stage, count, className }: StageCardProps) {
   return (
     <Tooltip content={STAGE_DESCRIPTIONS[stage]}>
-      <Card
-        className={`lightwell-stage-card ${isStuck ? 'lightwell-stage-card--stuck' : ''} ${className ?? ''}`}
-      >
+      <Card className={`lightwell-stage-card ${className ?? ''}`}>
         <CardHeader>
           <CardTitle className='lightwell-stage-card-label'>{stage}</CardTitle>
         </CardHeader>
@@ -25,11 +20,6 @@ export function StageCard({ stage, count, stuckCount, className }: StageCardProp
             <span className='lightwell-stage-card-number'>{count}</span>
             <Content component='small'>vulnerabilities</Content>
           </div>
-          {isStuck && (
-            <Content component='small' className='lightwell-stage-card-stuck'>
-              {stuckCount} blocked
-            </Content>
-          )}
         </CardBody>
       </Card>
     </Tooltip>

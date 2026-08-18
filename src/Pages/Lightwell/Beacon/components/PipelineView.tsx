@@ -5,20 +5,13 @@ import { StageCard } from './StageCard';
 
 type PipelineViewProps = {
   vulnerabilities: Vulnerability[];
-  stuckThreshold?: number;
   className?: string;
 };
 
-export function PipelineView({
-  vulnerabilities,
-  stuckThreshold = 30,
-  className,
-}: PipelineViewProps) {
+export function PipelineView({ vulnerabilities, className }: PipelineViewProps) {
   const stageStats = STAGES.map((stage) => {
-    const items = vulnerabilities.filter((v) => v.stage === stage);
-    const count = items.length;
-    const stuckCount = items.filter((v) => v.ageDays > stuckThreshold).length;
-    return { stage, count, stuckCount };
+    const count = vulnerabilities.filter((v) => v.stage === stage).length;
+    return { stage, count };
   });
 
   return (
@@ -28,11 +21,7 @@ export function PipelineView({
           <FlexItem key={stat.stage} flex={{ default: 'flex_1' }}>
             <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapNone' }}>
               <FlexItem flex={{ default: 'flex_1' }}>
-                <StageCard
-                  stage={stat.stage}
-                  count={stat.count}
-                  stuckCount={stat.stuckCount}
-                />
+                <StageCard stage={stat.stage} count={stat.count} />
               </FlexItem>
               {idx < stageStats.length - 1 && (
                 <FlexItem className='lightwell-pipeline-arrow'>&#9654;</FlexItem>

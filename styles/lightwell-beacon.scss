@@ -24,10 +24,6 @@
   flex-direction: column;
 }
 
-.lightwell-stage-card--stuck {
-  border-left: 3px solid var(--pf-t--global--color--status--warning--default);
-}
-
 .lightwell-stage-card-body {
   padding: var(--pf-t--global--spacer--sm) !important;
 }
@@ -48,12 +44,6 @@
   font-size: 1.75rem;
   font-weight: var(--pf-t--global--font--weight--body--bold);
   line-height: 1.2;
-}
-
-.lightwell-stage-card-stuck {
-  display: block;
-  color: var(--pf-t--global--color--status--warning--default);
-  font-weight: var(--pf-t--global--font--weight--body--bold);
 }
 
 /* Summary stats */
