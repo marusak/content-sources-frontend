@@ -1,23 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { LIGHTWELL_BEACON_USE_MOCK } from '../../constants';
-import {
-  mockBatches,
-  mockVulnerabilities,
-  type Batch,
-  type Vulnerability,
-} from '../../mockVulnerabilities';
+import { mockVulnerabilities, type Vulnerability } from '../../mockVulnerabilities';
 
 export type BeaconData = {
   vulnerabilities: Vulnerability[];
-  batches: Batch[];
 };
 
 async function fetchBeaconData(): Promise<BeaconData> {
   if (LIGHTWELL_BEACON_USE_MOCK) {
     return {
       vulnerabilities: [...mockVulnerabilities],
-      batches: [...mockBatches],
     };
   }
 

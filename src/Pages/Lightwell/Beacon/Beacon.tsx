@@ -9,18 +9,11 @@ import {
   Flex,
   FlexItem,
   Label,
-  Modal,
-  ModalBody,
-  ModalHeader,
   PageSection,
   Popover,
   Skeleton,
   Stack,
   StackItem,
-  Tab,
-  TabContent,
-  Tabs,
-  TabTitleText,
   Title,
 } from '@patternfly/react-core';
 import {
@@ -29,21 +22,17 @@ import {
   FilterSidePanelCategoryItem,
 } from '@patternfly/react-catalog-view-extension';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
-import UploadIcon from '@patternfly/react-icons/dist/esm/icons/upload-icon';
 
 import LightwellPageHeader from '../components/LightwellPageHeader';
 import {
   STAGES,
-  type Batch,
   type Complexity,
   type Severity,
   type Stage,
   type Vulnerability,
 } from '../mockVulnerabilities';
-import { BatchList } from './components/BatchList';
 import { ExportMenu } from './components/ExportMenu';
 import { PipelineView } from './components/PipelineView';
-import { VulnFileUpload } from './components/VulnFileUpload';
 import { VulnerabilityTable } from './components/VulnerabilityTable';
 import { useBeaconData } from './hooks/useBeaconData';
 
@@ -61,47 +50,27 @@ const COMPLEXITIES: Complexity[] = [
 const Beacon = () => {
   const { isLoading, isError, error, data } = useBeaconData();
 
-  const [activeTab, setActiveTab] = useState(0);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [uploadedVulns, setUploadedVulns] = useState<Vulnerability[]>([]);
-  const [uploadedBatches, setUploadedBatches] = useState<Batch[]>([]);
-
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
   const [selectedStages, setSelectedStages] = useState<Set<Stage>>(new Set());
   const [selectedComplexities, setSelectedComplexities] = useState<Set<Complexity>>(new Set());
-  const [selectedBatches, setSelectedBatches] = useState<Set<string>>(new Set());
+  const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
   const [showEmbargo, setShowEmbargo] = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
 
   if (isError) throw error;
 
-  const baseVulnerabilities = data?.vulnerabilities ?? [];
-  const baseBatches = data?.batches ?? [];
-  const vulnerabilities = [...baseVulnerabilities, ...uploadedVulns];
-  const batches = [...baseBatches, ...uploadedBatches];
+  const vulnerabilities = data?.vulnerabilities ?? [];
+  const ltwlsuptTicketIds = [
+    ...new Set(
+      vulnerabilities
+        .map((v) => v.ltwlsupt_ticket_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ].sort();
 
   const toggleShowAllCategory = (key: string) => {
     setShowAllCategories((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleBatchCreated = (name: string, newVulns: Vulnerability[]) => {
-    setUploadedVulns((prev) => [...prev, ...newVulns]);
-
-    const stageCount: Record<Stage, number> = {} as Record<Stage, number>;
-    for (const s of STAGES) stageCount[s] = 0;
-    for (const v of newVulns) stageCount[v.stage]++;
-
-    const newBatch: Batch = {
-      id: `batch-${Date.now()}`,
-      name,
-      createdDate: new Date().toISOString().split('T')[0],
-      vulnerabilityCount: newVulns.length,
-      stages: stageCount,
-    };
-    setUploadedBatches((prev) => [newBatch, ...prev]);
-    setIsUploadModalOpen(false);
-    setActiveTab(1);
   };
 
   const toggleSeverity = (sev: Severity) => {
@@ -131,11 +100,11 @@ const Beacon = () => {
     });
   };
 
-  const toggleBatch = (batchId: string) => {
-    setSelectedBatches((prev) => {
+  const toggleLtwlsuptTicket = (ticketId: string) => {
+    setSelectedLtwlsuptTickets((prev) => {
       const next = new Set(prev);
-      if (next.has(batchId)) next.delete(batchId);
-      else next.add(batchId);
+      if (next.has(ticketId)) next.delete(ticketId);
+      else next.add(ticketId);
       return next;
     });
   };
@@ -145,21 +114,23 @@ const Beacon = () => {
       if (selectedSeverities.size > 0 && !selectedSeverities.has(v.severity)) return false;
       if (selectedStages.size > 0 && !selectedStages.has(v.stage)) return false;
       if (selectedComplexities.size > 0 && !selectedComplexities.has(v.complexity)) return false;
-      if (selectedBatches.size > 0 && (!v.ltwlsupt_ticket_id || !selectedBatches.has(v.ltwlsupt_ticket_id))) return false;
+      if (
+        selectedLtwlsuptTickets.size > 0 &&
+        (!v.ltwlsupt_ticket_id || !selectedLtwlsuptTickets.has(v.ltwlsupt_ticket_id))
+      )
+        return false;
       if (showEmbargo && !v.embargo) return false;
       if (showDuplicates && !v.duplicate) return false;
       return true;
     });
 
   const filteredVulns = applyFilters(vulnerabilities);
-  const filteredBatches =
-    selectedBatches.size > 0 ? batches.filter((b) => selectedBatches.has(b.id)) : batches;
 
   const activeFilterCount =
     selectedSeverities.size +
     selectedStages.size +
     selectedComplexities.size +
-    selectedBatches.size +
+    selectedLtwlsuptTickets.size +
     (showEmbargo ? 1 : 0) +
     (showDuplicates ? 1 : 0);
 
@@ -169,23 +140,7 @@ const Beacon = () => {
         title='Beacon'
         ouiaId='lightwell-beacon-header'
         description='Track vulnerability remediation progress through the Lightwell fix pipeline.'
-        actions={
-          <Flex gap={{ default: 'gapSm' }}>
-            <FlexItem>
-              <Button
-                variant='secondary'
-                icon={<UploadIcon />}
-                onClick={() => setIsUploadModalOpen(true)}
-                ouiaId='lightwell-beacon-upload-button'
-              >
-                Upload CSV
-              </Button>
-            </FlexItem>
-            <FlexItem>
-              <ExportMenu vulnerabilities={filteredVulns} />
-            </FlexItem>
-          </Flex>
-        }
+        actions={<ExportMenu vulnerabilities={filteredVulns} />}
       />
 
       <PageSection hasBodyWrapper={false} data-ouia-component-id='lightwell-beacon-page'>
@@ -265,6 +220,27 @@ const Beacon = () => {
                       ))}
                     </FilterSidePanelCategory>
 
+                    {ltwlsuptTicketIds.length > 0 && (
+                      <FilterSidePanelCategory
+                        title='LTWLSUPT_TICKET'
+                        showAll={!!showAllCategories.ltwlsuptTicket}
+                        onShowAllToggle={() => toggleShowAllCategory('ltwlsuptTicket')}
+                      >
+                        {ltwlsuptTicketIds.map((ticketId) => (
+                          <FilterSidePanelCategoryItem
+                            key={ticketId}
+                            count={
+                              vulnerabilities.filter((v) => v.ltwlsupt_ticket_id === ticketId).length
+                            }
+                            checked={selectedLtwlsuptTickets.has(ticketId)}
+                            onClick={() => toggleLtwlsuptTicket(ticketId)}
+                          >
+                            {ticketId}
+                          </FilterSidePanelCategoryItem>
+                        ))}
+                      </FilterSidePanelCategory>
+                    )}
+
                     <FilterSidePanelCategory title='Flags'>
                       <FilterSidePanelCategoryItem
                         checked={showEmbargo}
@@ -279,25 +255,6 @@ const Beacon = () => {
                         Duplicates only
                       </FilterSidePanelCategoryItem>
                     </FilterSidePanelCategory>
-
-                    {batches.length > 0 && (
-                      <FilterSidePanelCategory
-                        title='LTWWLSUPT Ticket ID'
-                        showAll={!!showAllCategories.batch}
-                        onShowAllToggle={() => toggleShowAllCategory('batch')}
-                      >
-                        {batches.map((batch) => (
-                          <FilterSidePanelCategoryItem
-                            key={batch.id}
-                            count={vulnerabilities.filter((v) => v.ltwlsupt_ticket_id === batch.id).length}
-                            checked={selectedBatches.has(batch.id)}
-                            onClick={() => toggleBatch(batch.id)}
-                          >
-                            {batch.name}
-                          </FilterSidePanelCategoryItem>
-                        ))}
-                      </FilterSidePanelCategory>
-                    )}
                   </FilterSidePanel>
                 </FlexItem>
                 <FlexItem flex={{ default: 'flex_1' }} className='lightwell-beacon-table-area'>
@@ -450,35 +407,7 @@ const Beacon = () => {
                       </Card>
                     </StackItem>
                     <StackItem>
-                      <Tabs
-                        activeKey={activeTab}
-                        onSelect={(_e, idx) => setActiveTab(idx as number)}
-                        ouiaId='lightwell-beacon-tabs'
-                      >
-                        <Tab
-                          eventKey={0}
-                          title={<TabTitleText>All Vulnerabilities</TabTitleText>}
-                        />
-                        <Tab
-                          eventKey={1}
-                          title={<TabTitleText>Batches ({filteredBatches.length})</TabTitleText>}
-                        />
-                      </Tabs>
-
-                      <TabContent
-                        id='tab-vulns'
-                        hidden={activeTab !== 0}
-                        className='lightwell-tab-content'
-                      >
-                        <VulnerabilityTable vulnerabilities={filteredVulns} batches={batches} />
-                      </TabContent>
-                      <TabContent
-                        id='tab-batches'
-                        hidden={activeTab !== 1}
-                        className='lightwell-tab-content'
-                      >
-                        <BatchList batches={filteredBatches} vulnerabilities={filteredVulns} />
-                      </TabContent>
+                      <VulnerabilityTable vulnerabilities={filteredVulns} />
                     </StackItem>
                   </Stack>
                 </FlexItem>
@@ -487,19 +416,6 @@ const Beacon = () => {
           </Stack>
         )}
       </PageSection>
-
-      <Modal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        aria-labelledby='upload-modal-title'
-        aria-describedby='upload-modal-body'
-        ouiaId='lightwell-beacon-upload-modal'
-      >
-        <ModalHeader title='Upload Vulnerability CSV' labelId='upload-modal-title' />
-        <ModalBody id='upload-modal-body'>
-          <VulnFileUpload onBatchCreated={handleBatchCreated} />
-        </ModalBody>
-      </Modal>
     </>
   );
 };

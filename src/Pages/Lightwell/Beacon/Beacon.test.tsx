@@ -8,7 +8,7 @@ jest.mock('./hooks/useBeaconData', () => ({
 }));
 
 import { useBeaconData } from './hooks/useBeaconData';
-import { mockBatches, mockVulnerabilities } from '../mockVulnerabilities';
+import { mockVulnerabilities } from '../mockVulnerabilities';
 
 const renderBeacon = () =>
   render(
@@ -24,7 +24,6 @@ beforeEach(() => {
     error: null,
     data: {
       vulnerabilities: mockVulnerabilities,
-      batches: mockBatches,
     },
   });
 });
@@ -37,7 +36,6 @@ it('renders the beacon page with status summary and vulnerability table', async 
   });
 
   expect(screen.getByText('Status Summary')).toBeInTheDocument();
-  expect(screen.getByText('All Vulnerabilities')).toBeInTheDocument();
   expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
   expect(document.querySelector('.lightwell-filter-panel')).toBeInTheDocument();
 });

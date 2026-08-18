@@ -1,4 +1,4 @@
-/* Beacon — pipeline, filters, table, and batch list */
+/* Beacon — pipeline, filters, and table */
 
 .lightwell-beacon-content {
   max-width: 1400px;
@@ -141,34 +141,4 @@
 
 .lightwell-flag-label {
   margin-right: var(--pf-t--global--spacer--xs);
-}
-
-/* Batch list */
-.lightwell-batch-stages {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--pf-t--global--spacer--xs);
-}
-
-.lightwell-batch-stage-label {
-  font-size: 11px;
-}
-
-.lightwell-batch-expanded {
-  padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
-}
-
-.lightwell-batch-no-vulns {
-  color: var(--pf-t--global--text--color--subtle);
-  font-style: italic;
-}
-
-/* Tab content */
-.lightwell-tab-content {
-  padding-top: var(--pf-t--global--spacer--lg);
-}
-
-/* File format hint */
-.lightwell-file-formats {
-  color: var(--pf-t--global--text--color--subtle);
 }

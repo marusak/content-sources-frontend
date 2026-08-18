@@ -65,14 +65,6 @@ export interface Vulnerability {
   ltwlsupt_ticket_id?: string;
 }
 
-export interface Batch {
-  id: string;
-  name: string;
-  createdDate: string;
-  vulnerabilityCount: number;
-  stages: Record<Stage, number>;
-}
-
 function daysAgo(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() - days);
@@ -1349,53 +1341,5 @@ export const mockVulnerabilities: Vulnerability[] = [
     embargo: false,
     duplicate: false,
     ltwlsupt_ticket_id: 'batch-1',
-  },
-];
-
-export const mockBatches: Batch[] = [
-  {
-    id: 'batch-1',
-    name: 'Batch 1',
-    createdDate: daysAgo(45),
-    vulnerabilityCount: 18,
-    stages: {
-      Submitted: 0,
-      Classified: 0,
-      'Fix in Progress': 2,
-      Validation: 3,
-      'Lightwell Network': 13,
-      Upstreaming: 0,
-      Published: 0,
-    },
-  },
-  {
-    id: 'batch-2',
-    name: 'Batch 2',
-    createdDate: daysAgo(20),
-    vulnerabilityCount: 22,
-    stages: {
-      Submitted: 5,
-      Classified: 4,
-      'Fix in Progress': 7,
-      Validation: 4,
-      'Lightwell Network': 2,
-      Upstreaming: 0,
-      Published: 0,
-    },
-  },
-  {
-    id: 'batch-3',
-    name: 'Batch 3',
-    createdDate: daysAgo(10),
-    vulnerabilityCount: 12,
-    stages: {
-      Submitted: 3,
-      Classified: 3,
-      'Fix in Progress': 0,
-      Validation: 1,
-      'Lightwell Network': 5,
-      Upstreaming: 0,
-      Published: 0,
-    },
   },
 ];
