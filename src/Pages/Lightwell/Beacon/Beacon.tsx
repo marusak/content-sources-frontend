@@ -8,7 +8,6 @@ import {
   Content,
   Flex,
   FlexItem,
-  Label,
   PageSection,
   Popover,
   Skeleton,
@@ -379,13 +378,6 @@ const Beacon = () => {
                               </Content>
                             </FlexItem>
                             <FlexItem style={{ textAlign: 'center' }}>
-                              <Label
-                                color='grey'
-                                isCompact
-                                style={{ marginBottom: 'var(--pf-t--global--spacer--xs)' }}
-                              >
-                                Nice to have
-                              </Label>
                               <span className='lightwell-stat-number lightwell-stat--stuck'>
                                 {filteredVulns.filter((v) => v.ageDays > 30).length}
                               </span>
