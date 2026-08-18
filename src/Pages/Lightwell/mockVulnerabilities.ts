@@ -40,7 +40,7 @@ export const COMPLEXITY_SLA: Record<Complexity, number | null> = {
 export type CustomerPriority = 'Priority 1' | 'Priority 2' | 'Priority 3' | 'Priority 4';
 
 export interface Vulnerability {
-  id: string;
+  uuid: string;
   vulnerabilityId: string;
   purl: string;
   componentName: string;
@@ -89,7 +89,7 @@ function daysAgoTimestamp(days: number): string {
 export const mockVulnerabilities: Vulnerability[] = [
   // Submitted (8) - batch-2 (5), batch-3 (3)
   {
-    id: 'v1',
+    uuid: 'v1',
     vulnerabilityId: 'LWL-2026-4401',
     purl: 'pkg:maven/org.apache.logging.log4j/log4j-core@2.17.1',
     componentName: 'log4j-core',
@@ -113,7 +113,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v2',
+    uuid: 'v2',
     vulnerabilityId: 'LWL-2026-4402',
     purl: 'pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.14.0',
     componentName: 'jackson-databind',
@@ -137,7 +137,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v3',
+    uuid: 'v3',
     vulnerabilityId: 'LWL-2026-4403',
     purl: 'pkg:maven/org.springframework/spring-web@5.3.20',
     componentName: 'spring-web',
@@ -161,7 +161,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v4',
+    uuid: 'v4',
     vulnerabilityId: 'LWL-2026-4404',
     purl: 'pkg:pypi/requests@2.28.0',
     componentName: 'requests',
@@ -185,7 +185,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v5',
+    uuid: 'v5',
     vulnerabilityId: 'LWL-2026-4405',
     purl: 'pkg:npm/express@4.18.2',
     componentName: 'express',
@@ -209,7 +209,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v6',
+    uuid: 'v6',
     vulnerabilityId: 'LWL-2026-4406',
     purl: 'pkg:maven/commons-io/commons-io@2.11.0',
     componentName: 'Apache Commons IO',
@@ -233,7 +233,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v7',
+    uuid: 'v7',
     vulnerabilityId: 'LWL-2026-4407',
     purl: 'pkg:nuget/Newtonsoft.Json@13.0.1',
     componentName: 'Newtonsoft.Json',
@@ -257,7 +257,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v8',
+    uuid: 'v8',
     vulnerabilityId: 'LWL-2026-4408',
     purl: 'pkg:maven/org.apache.httpcomponents/httpclient@4.5.13',
     componentName: 'Apache HttpClient',
@@ -283,7 +283,7 @@ export const mockVulnerabilities: Vulnerability[] = [
 
   // Classified (7) - batch-2 (4), batch-3 (3)
   {
-    id: 'v9',
+    uuid: 'v9',
     vulnerabilityId: 'LWL-2026-4301',
     purl: 'pkg:maven/org.apache.struts/struts2-core@2.5.30',
     componentName: 'struts2-core',
@@ -307,7 +307,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v10',
+    uuid: 'v10',
     vulnerabilityId: 'LWL-2026-4302',
     purl: 'pkg:pypi/django@4.1.0',
     componentName: 'Django',
@@ -331,7 +331,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v11',
+    uuid: 'v11',
     vulnerabilityId: 'LWL-2026-4303',
     purl: 'pkg:npm/lodash@4.17.21',
     componentName: 'lodash',
@@ -355,7 +355,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v12',
+    uuid: 'v12',
     vulnerabilityId: 'LWL-2026-4304',
     purl: 'pkg:maven/org.cryptolib/cryptolib-core@1.70',
     componentName: 'CryptoLib Core',
@@ -379,7 +379,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v13',
+    uuid: 'v13',
     vulnerabilityId: 'LWL-2026-4305',
     purl: 'pkg:pypi/flask@2.2.0',
     componentName: 'Flask',
@@ -403,7 +403,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v14',
+    uuid: 'v14',
     vulnerabilityId: 'LWL-2026-4306',
     purl: 'pkg:npm/axios@1.3.0',
     componentName: 'axios',
@@ -427,7 +427,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v15',
+    uuid: 'v15',
     vulnerabilityId: 'LWL-2026-4307',
     purl: 'pkg:nuget/System.Text.Json@7.0.0',
     componentName: 'System.Text.Json',
@@ -453,7 +453,7 @@ export const mockVulnerabilities: Vulnerability[] = [
 
   // Fix in Progress (9) - batch-2 (7), batch-1 (2)
   {
-    id: 'v16',
+    uuid: 'v16',
     vulnerabilityId: 'LWL-2026-4201',
     purl: 'pkg:maven/org.apache.tomcat/tomcat-catalina@9.0.65',
     componentName: 'Tomcat Catalina',
@@ -477,7 +477,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v17',
+    uuid: 'v17',
     vulnerabilityId: 'LWL-2026-4202',
     purl: 'pkg:pypi/numpy@1.24.0',
     componentName: 'NumPy',
@@ -501,7 +501,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v18',
+    uuid: 'v18',
     vulnerabilityId: 'LWL-2026-4203',
     purl: 'pkg:npm/jsonwebtoken@9.0.0',
     componentName: 'jsonwebtoken',
@@ -525,7 +525,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v19',
+    uuid: 'v19',
     vulnerabilityId: 'LWL-2026-4204',
     purl: 'pkg:maven/com.google.guava/guava@31.1-jre',
     componentName: 'Guava',
@@ -549,7 +549,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v20',
+    uuid: 'v20',
     vulnerabilityId: 'LWL-2026-4205',
     purl: 'pkg:pypi/pillow@9.4.0',
     componentName: 'Pillow',
@@ -573,7 +573,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v21',
+    uuid: 'v21',
     vulnerabilityId: 'LWL-2026-4206',
     purl: 'pkg:nuget/Microsoft.Data.SqlClient@5.1.0',
     componentName: 'Microsoft.Data.SqlClient',
@@ -597,7 +597,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v22',
+    uuid: 'v22',
     vulnerabilityId: 'LWL-2026-4207',
     purl: 'pkg:maven/org.yaml/snakeyaml@1.33',
     componentName: 'SnakeYAML',
@@ -621,7 +621,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v23',
+    uuid: 'v23',
     vulnerabilityId: 'LWL-2026-4208',
     purl: 'pkg:npm/minimatch@3.0.4',
     componentName: 'minimatch',
@@ -645,7 +645,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v24',
+    uuid: 'v24',
     vulnerabilityId: 'LWL-2026-4209',
     purl: 'pkg:pypi/cryptography@39.0.0',
     componentName: 'cryptography',
@@ -671,7 +671,7 @@ export const mockVulnerabilities: Vulnerability[] = [
 
   // Validation (8) - batch-2 (4), batch-1 (3), batch-3 (1)
   {
-    id: 'v25',
+    uuid: 'v25',
     vulnerabilityId: 'LWL-2026-4101',
     purl: 'pkg:maven/org.apache.commons/commons-text@1.9',
     componentName: 'Apache Commons Text',
@@ -695,7 +695,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v26',
+    uuid: 'v26',
     vulnerabilityId: 'LWL-2026-4102',
     purl: 'pkg:pypi/urllib3@1.26.15',
     componentName: 'urllib3',
@@ -719,7 +719,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v27',
+    uuid: 'v27',
     vulnerabilityId: 'LWL-2026-4103',
     purl: 'pkg:npm/semver@7.3.8',
     componentName: 'semver',
@@ -743,7 +743,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v28',
+    uuid: 'v28',
     vulnerabilityId: 'LWL-2026-4104',
     purl: 'pkg:maven/io.netty/netty-codec-http@4.1.86.Final',
     componentName: 'Netty',
@@ -767,7 +767,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v29',
+    uuid: 'v29',
     vulnerabilityId: 'LWL-2026-4105',
     purl: 'pkg:nuget/System.Security.Cryptography.Xml@7.0.0',
     componentName: 'System.Security.Cryptography.Xml',
@@ -791,7 +791,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v30',
+    uuid: 'v30',
     vulnerabilityId: 'LWL-2026-4106',
     purl: 'pkg:pypi/paramiko@3.1.0',
     componentName: 'Paramiko',
@@ -815,7 +815,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v31',
+    uuid: 'v31',
     vulnerabilityId: 'LWL-2026-4107',
     purl: 'pkg:maven/com.h2database/h2@2.1.214',
     componentName: 'H2 Database',
@@ -839,7 +839,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v32',
+    uuid: 'v32',
     vulnerabilityId: 'LWL-2026-4108',
     purl: 'pkg:npm/ua-parser-js@0.7.33',
     componentName: 'ua-parser-js',
@@ -866,7 +866,7 @@ export const mockVulnerabilities: Vulnerability[] = [
 
   // Lightwell Network (7) - batch-1 (4), batch-3 (1), batch-2 (2)
   {
-    id: 'v33',
+    uuid: 'v33',
     vulnerabilityId: 'LWL-2026-4001',
     purl: 'pkg:maven/org.apache.shiro/shiro-core@1.10.0',
     componentName: 'Apache Shiro',
@@ -890,7 +890,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v34',
+    uuid: 'v34',
     vulnerabilityId: 'LWL-2026-4002',
     purl: 'pkg:pypi/pyyaml@6.0',
     componentName: 'PyYAML',
@@ -914,7 +914,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v35',
+    uuid: 'v35',
     vulnerabilityId: 'LWL-2026-4003',
     purl: 'pkg:npm/node-forge@1.3.1',
     componentName: 'node-forge',
@@ -938,7 +938,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-2',
   },
   {
-    id: 'v36',
+    uuid: 'v36',
     vulnerabilityId: 'LWL-2026-4004',
     purl: 'pkg:maven/org.hibernate/hibernate-core@5.6.14.Final',
     componentName: 'Hibernate',
@@ -962,7 +962,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v37',
+    uuid: 'v37',
     vulnerabilityId: 'LWL-2026-4005',
     purl: 'pkg:nuget/Azure.Identity@1.8.0',
     componentName: 'Azure.Identity',
@@ -986,7 +986,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v38',
+    uuid: 'v38',
     vulnerabilityId: 'LWL-2026-4006',
     purl: 'pkg:pypi/jinja2@3.1.2',
     componentName: 'Jinja2',
@@ -1010,7 +1010,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v39',
+    uuid: 'v39',
     vulnerabilityId: 'LWL-2026-4007',
     purl: 'pkg:maven/net.minidev/json-smart@2.4.8',
     componentName: 'json-smart',
@@ -1037,7 +1037,7 @@ export const mockVulnerabilities: Vulnerability[] = [
 
   // Lightwell Network (formerly Upstreaming) (6) - batch-1 (3), batch-3 (3)
   {
-    id: 'v40',
+    uuid: 'v40',
     vulnerabilityId: 'LWL-2026-3901',
     purl: 'pkg:maven/org.eclipse.jetty/jetty-server@11.0.13',
     componentName: 'Jetty',
@@ -1061,7 +1061,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v41',
+    uuid: 'v41',
     vulnerabilityId: 'LWL-2026-3902',
     purl: 'pkg:pypi/setuptools@67.0.0',
     componentName: 'setuptools',
@@ -1085,7 +1085,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v42',
+    uuid: 'v42',
     vulnerabilityId: 'LWL-2026-3903',
     purl: 'pkg:npm/tar@6.1.13',
     componentName: 'tar',
@@ -1109,7 +1109,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v43',
+    uuid: 'v43',
     vulnerabilityId: 'LWL-2026-3904',
     purl: 'pkg:maven/org.apache.poi/poi@5.2.3',
     componentName: 'Apache POI',
@@ -1133,7 +1133,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v44',
+    uuid: 'v44',
     vulnerabilityId: 'LWL-2026-3905',
     purl: 'pkg:nuget/SecureNet.Cryptography@2.1.1',
     componentName: 'SecureNet.Cryptography',
@@ -1157,7 +1157,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v45',
+    uuid: 'v45',
     vulnerabilityId: 'LWL-2026-3906',
     purl: 'pkg:pypi/lxml@4.9.2',
     componentName: 'lxml',
@@ -1183,7 +1183,7 @@ export const mockVulnerabilities: Vulnerability[] = [
 
   // Lightwell Network (formerly Published) (7) - batch-1 (6), batch-3 (1)
   {
-    id: 'v46',
+    uuid: 'v46',
     vulnerabilityId: 'LWL-2026-3801',
     purl: 'pkg:maven/org.postgresql/postgresql@42.5.1',
     componentName: 'PostgreSQL JDBC',
@@ -1207,7 +1207,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v47',
+    uuid: 'v47',
     vulnerabilityId: 'LWL-2026-3802',
     purl: 'pkg:pypi/certifi@2022.12.7',
     componentName: 'certifi',
@@ -1231,7 +1231,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v48',
+    uuid: 'v48',
     vulnerabilityId: 'LWL-2026-3803',
     purl: 'pkg:npm/glob-parent@5.1.2',
     componentName: 'glob-parent',
@@ -1255,7 +1255,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v49',
+    uuid: 'v49',
     vulnerabilityId: 'LWL-2026-3804',
     purl: 'pkg:maven/com.squareup.okhttp3/okhttp@4.10.0',
     componentName: 'OkHttp',
@@ -1279,7 +1279,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v50',
+    uuid: 'v50',
     vulnerabilityId: 'LWL-2026-3805',
     purl: 'pkg:nuget/Microsoft.AspNetCore.App@7.0.0',
     componentName: 'ASP.NET Core',
@@ -1303,7 +1303,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-3',
   },
   {
-    id: 'v51',
+    uuid: 'v51',
     vulnerabilityId: 'LWL-2026-3806',
     purl: 'pkg:pypi/werkzeug@2.2.3',
     componentName: 'Werkzeug',
@@ -1327,7 +1327,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     batchId: 'batch-1',
   },
   {
-    id: 'v52',
+    uuid: 'v52',
     vulnerabilityId: 'LWL-2026-3807',
     purl: 'pkg:maven/org.codehaus.plexus/plexus-utils@3.4.2',
     componentName: 'plexus-utils',

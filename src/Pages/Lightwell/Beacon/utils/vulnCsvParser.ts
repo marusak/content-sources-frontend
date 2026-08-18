@@ -122,7 +122,7 @@ export function convertToVulnerabilities(rows: ParsedVulnRow[], batchId: string)
   const nowTimestamp = now.toISOString().replace('T', ' ').substring(0, 16);
 
   return rows.map((row, idx) => ({
-    id: `${batchId}-${idx}`,
+    uuid: `${batchId}-${idx}`,
     vulnerabilityId: row.vulnerabilityId,
     purl: row.purl,
     componentName: row.componentName,

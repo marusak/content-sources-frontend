@@ -97,7 +97,7 @@ export function BatchList({ batches, vulnerabilities, className }: BatchListProp
                           </Thead>
                           <Tbody>
                             {batchVulns.map((v) => (
-                              <Tr key={v.id}>
+                              <Tr key={v.uuid}>
                                 <Td dataLabel='Vulnerability ID'>{v.vulnerabilityId}</Td>
                                 <Td dataLabel='Package'>
                                   {v.componentName} {v.componentVersion}
