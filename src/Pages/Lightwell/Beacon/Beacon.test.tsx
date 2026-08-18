@@ -7,7 +7,12 @@ jest.mock('./hooks/useBeaconData', () => ({
   useBeaconData: jest.fn(),
 }));
 
+jest.mock('services/Lightwell/CustomerQueries', () => ({
+  useCustomerIdsQuery: jest.fn(),
+}));
+
 import { useBeaconData } from './hooks/useBeaconData';
+import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
 import { mockVulnerabilities } from '../mockVulnerabilities';
 
 const renderBeacon = () =>
@@ -18,6 +23,11 @@ const renderBeacon = () =>
   );
 
 beforeEach(() => {
+  (useCustomerIdsQuery as jest.Mock).mockReturnValue({
+    isLoading: false,
+    data: ['CID-01', 'CID-214', 'CID-34'],
+  });
+
   (useBeaconData as jest.Mock).mockReturnValue({
     isLoading: false,
     isError: false,
@@ -38,6 +48,8 @@ it('renders the beacon page with status summary and vulnerability table', async 
   expect(screen.getByText('Status Summary')).toBeInTheDocument();
   expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
   expect(document.querySelector('.lightwell-filter-panel')).toBeInTheDocument();
+  expect(screen.getByText('Customer ID')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'CID-01' })).toBeInTheDocument();
 });
 
 it('shows loading skeleton while data is fetching', () => {
@@ -51,4 +63,6 @@ it('shows loading skeleton while data is fetching', () => {
   renderBeacon();
 
   expect(screen.getByText('Beacon')).toBeInTheDocument();
+  expect(screen.getByText('Customer ID')).toBeInTheDocument();
+  expect(screen.getByText('Filters')).toBeInTheDocument();
 });

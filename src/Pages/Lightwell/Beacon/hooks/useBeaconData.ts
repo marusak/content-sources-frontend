@@ -7,7 +7,7 @@ export type BeaconData = {
   vulnerabilities: Vulnerability[];
 };
 
-async function fetchBeaconData(): Promise<BeaconData> {
+async function fetchBeaconData(_customerId: string): Promise<BeaconData> {
   if (LIGHTWELL_BEACON_USE_MOCK) {
     return {
       vulnerabilities: [...mockVulnerabilities],
@@ -17,10 +17,11 @@ async function fetchBeaconData(): Promise<BeaconData> {
   throw new Error('Beacon API is not yet available');
 }
 
-export function useBeaconData() {
+export function useBeaconData(customerId?: string) {
   return useQuery({
-    queryKey: ['lightwell-beacon'],
-    queryFn: fetchBeaconData,
+    queryKey: ['lightwell-beacon', customerId],
+    queryFn: () => fetchBeaconData(customerId!),
     staleTime: 20_000,
+    enabled: Boolean(customerId),
   });
 }

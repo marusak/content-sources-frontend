@@ -30,6 +30,7 @@ import {
   type Stage,
   type Vulnerability,
 } from '../mockVulnerabilities';
+import { CustomerIdSelect } from './components/CustomerIdSelect';
 import { ExportMenu } from './components/ExportMenu';
 import { PipelineView } from './components/PipelineView';
 import { VulnerabilityTable } from './components/VulnerabilityTable';
@@ -47,7 +48,8 @@ const COMPLEXITIES: Complexity[] = [
 ];
 
 const Beacon = () => {
-  const { isLoading, isError, error, data } = useBeaconData();
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
+  const { isLoading, isError, error, data } = useBeaconData(selectedCustomerId);
 
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
   const [selectedStages, setSelectedStages] = useState<Set<Stage>>(new Set());
@@ -143,25 +145,19 @@ const Beacon = () => {
       />
 
       <PageSection hasBodyWrapper={false} data-ouia-component-id='lightwell-beacon-page'>
-        {isLoading ? (
-          <Stack hasGutter>
-            <StackItem>
-              <Skeleton height='120px' />
-            </StackItem>
-            <StackItem>
-              <Skeleton height='400px' />
-            </StackItem>
-          </Stack>
-        ) : (
-          <Stack hasGutter className='lightwell-beacon-content'>
-            <StackItem>
-              <Flex
-                gap={{ default: 'gapMd' }}
-                alignItems={{ default: 'alignItemsFlexStart' }}
-                className='lightwell-beacon-layout'
-              >
-                <FlexItem className='lightwell-filter-panel'>
-                  <span className='lightwell-filter-panel-header'>
+        <Stack hasGutter className='lightwell-beacon-content'>
+          <StackItem>
+            <Flex
+              gap={{ default: 'gapMd' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              className='lightwell-beacon-layout'
+            >
+              <FlexItem className='lightwell-filter-panel'>
+                <CustomerIdSelect
+                  selectedCustomerId={selectedCustomerId}
+                  onCustomerIdChange={setSelectedCustomerId}
+                />
+                <span className='lightwell-filter-panel-header'>
                     <Title headingLevel='h4' size='md'>
                       Filters
                     </Title>
@@ -261,6 +257,16 @@ const Beacon = () => {
                   </FilterSidePanel>
                 </FlexItem>
                 <FlexItem flex={{ default: 'flex_1' }} className='lightwell-beacon-table-area'>
+                  {isLoading || !selectedCustomerId ? (
+                    <Stack hasGutter>
+                      <StackItem>
+                        <Skeleton height='120px' />
+                      </StackItem>
+                      <StackItem>
+                        <Skeleton height='400px' />
+                      </StackItem>
+                    </Stack>
+                  ) : (
                   <Stack hasGutter>
                     <StackItem>
                       <Card isGlass>
@@ -406,11 +412,11 @@ const Beacon = () => {
                       <VulnerabilityTable vulnerabilities={filteredVulns} />
                     </StackItem>
                   </Stack>
+                  )}
                 </FlexItem>
               </Flex>
             </StackItem>
           </Stack>
-        )}
       </PageSection>
     </>
   );

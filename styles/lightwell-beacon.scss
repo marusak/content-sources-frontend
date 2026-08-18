@@ -88,6 +88,10 @@
   border-right: 1px solid var(--pf-t--global--border--color--default);
 }
 
+.lightwell-filter-panel .pf-v6-c-form__group {
+  margin-bottom: var(--pf-t--global--spacer--md);
+}
+
 .lightwell-filter-panel-header {
   display: flex;
   justify-content: space-between;
