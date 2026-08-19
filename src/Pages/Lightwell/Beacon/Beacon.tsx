@@ -122,13 +122,13 @@ const Beacon = () => {
     isError,
     error,
   } = useBeaconData(selectedCustomerId, apiFilters);
-  const { data: baselineData, isLoading: isLoadingBaseline } = useBeaconData(
+  const { data: baselineData } = useBeaconData(
     selectedCustomerId,
     undefined,
     { enabled: Boolean(selectedCustomerId) && hasApiFilters },
   );
 
-  const isLoading = isLoadingDisplay || (hasApiFilters && isLoadingBaseline);
+  const isLoading = !displayData && isLoadingDisplay;
   const countData = hasApiFilters ? baselineData : displayData;
 
   if (isError) throw error;

@@ -20,6 +20,14 @@ export const useBeaconVulnerabilitiesQuery = (
     queryFn: async (): Promise<BeaconData> => getVulnerabilities(customerId!, filters),
     staleTime: 20_000,
     enabled: options?.enabled ?? Boolean(customerId),
+    placeholderData: (previousData, previousQuery) => {
+      if (!previousData || !previousQuery) {
+        return undefined;
+      }
+
+      const previousCustomerId = previousQuery.queryKey[1];
+      return previousCustomerId === customerId ? previousData : undefined;
+    },
     meta: {
       title: 'Error loading beacon vulnerabilities',
       id: 'get-beacon-vulnerabilities-error',
