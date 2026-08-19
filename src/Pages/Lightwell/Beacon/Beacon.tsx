@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -49,6 +49,7 @@ const COMPLEXITIES: Complexity[] = [
   'Ecosystem Unavailable',
   "Won't Fix",
 ];
+const DEFAULT_PER_PAGE = 20;
 
 function buildBeaconFilters(
   selectedSeverities: Set<Severity>,
@@ -92,6 +93,8 @@ const Beacon = () => {
   const [showDuplicates, setShowDuplicates] = useState(false);
   const [showBlocked, setShowBlocked] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
 
   const apiFilters = useMemo(
     () =>
@@ -116,14 +119,27 @@ const Beacon = () => {
   );
   const hasApiFilters = apiFilters !== undefined;
 
+  const pagination = useMemo(
+    () => ({
+      limit: perPage,
+      offset: (page - 1) * perPage,
+    }),
+    [page, perPage],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCustomerId, apiFilters]);
+
   const {
     data: displayData,
     isLoading: isLoadingDisplay,
     isError,
     error,
-  } = useBeaconData(selectedCustomerId, apiFilters);
+  } = useBeaconData(selectedCustomerId, apiFilters, pagination);
   const { data: baselineData } = useBeaconData(
     selectedCustomerId,
+    undefined,
     undefined,
     { enabled: Boolean(selectedCustomerId) && hasApiFilters },
   );
@@ -197,6 +213,12 @@ const Beacon = () => {
     (showEmbargo ? 1 : 0) +
     (showDuplicates ? 1 : 0) +
     (showBlocked ? 1 : 0);
+
+  const onSetPage = (_event: unknown, newPage: number) => setPage(newPage);
+  const onPerPageSelect = (_event: unknown, newPerPage: number, newPage: number) => {
+    setPerPage(newPerPage);
+    setPage(newPage);
+  };
 
   return (
     <>
@@ -485,12 +507,19 @@ const Beacon = () => {
                               </Content>
                             </FlexItem>
                           </Flex>
-                          <PipelineView vulnerabilities={filteredVulns} />
+                          <PipelineView stageCounts={displayMeta?.stageCounts} />
                         </CardBody>
                       </Card>
                     </StackItem>
                     <StackItem>
-                      <VulnerabilityTable vulnerabilities={filteredVulns} />
+                      <VulnerabilityTable
+                        vulnerabilities={filteredVulns}
+                        itemCount={displayMeta?.count ?? 0}
+                        page={page}
+                        perPage={perPage}
+                        onSetPage={onSetPage}
+                        onPerPageSelect={onPerPageSelect}
+                      />
                     </StackItem>
                   </Stack>
                   )}

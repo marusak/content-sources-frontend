@@ -1,18 +1,18 @@
 import { Flex, FlexItem } from '@patternfly/react-core';
 
-import { STAGES, type Vulnerability } from '../../mockVulnerabilities';
+import { STAGES } from '../../mockVulnerabilities';
 import { StageCard } from './StageCard';
 
 type PipelineViewProps = {
-  vulnerabilities: Vulnerability[];
+  stageCounts?: Record<string, number>;
   className?: string;
 };
 
-export function PipelineView({ vulnerabilities, className }: PipelineViewProps) {
-  const stageStats = STAGES.map((stage) => {
-    const count = vulnerabilities.filter((v) => v.stage === stage).length;
-    return { stage, count };
-  });
+export function PipelineView({ stageCounts = {}, className }: PipelineViewProps) {
+  const stageStats = STAGES.map((stage) => ({
+    stage,
+    count: stageCounts[stage] ?? 0,
+  }));
 
   return (
     <div className={`lightwell-pipeline ${className ?? ''}`}>

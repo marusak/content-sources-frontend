@@ -23,6 +23,11 @@ export type BeaconVulnerabilityFilters = {
   flags?: BeaconVulnerabilityFlag[];
 };
 
+export type BeaconPagination = {
+  limit: number;
+  offset: number;
+};
+
 export type BeaconVulnerabilityMeta = {
   count: number;
   criticalCount: number;
@@ -257,6 +262,7 @@ const MOCK_CUSTOMER_BATCHES: Record<string, string> = {
 export const getVulnerabilities = async (
   customerId: string,
   filters?: BeaconVulnerabilityFilters,
+  pagination?: BeaconPagination,
 ): Promise<BeaconData> => {
   if (LIGHTWELL_BEACON_USE_MOCK) {
     const batchId = MOCK_CUSTOMER_BATCHES[customerId];
@@ -271,10 +277,29 @@ export const getVulnerabilities = async (
       (v) => v.ltwlsupt_ticket_id === batchId,
     );
     const filteredVulnerabilities = filterMockVulnerabilities(customerVulnerabilities, filters);
+    const paginatedVulnerabilities = pagination
+      ? filteredVulnerabilities.slice(
+          pagination.offset,
+          pagination.offset + pagination.limit,
+        )
+      : filteredVulnerabilities;
 
     return {
-      vulnerabilities: filteredVulnerabilities,
+      vulnerabilities: paginatedVulnerabilities,
       meta: computeMockMeta(filteredVulnerabilities),
+    };
+  }
+
+  if (pagination) {
+    const { data } = await axios.get<LightwellVulnerabilityCollectionResponse>(
+      `${VULNERABILITIES_PATH}?${objectToUrlParams(
+        buildVulnerabilityQueryParams(customerId, filters, pagination),
+      )}`,
+    );
+
+    return {
+      vulnerabilities: data.data.map(mapLightwellVulnerability),
+      meta: mapCollectionMeta(data.meta),
     };
   }
 
