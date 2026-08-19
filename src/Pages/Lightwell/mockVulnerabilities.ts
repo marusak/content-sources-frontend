@@ -61,6 +61,7 @@ export interface Vulnerability {
   ageDays: number;
   embargo: boolean;
   duplicate: boolean;
+  blocked: boolean;
   duplicateOf?: string;
   ltwlsupt_ticket_id?: string;
   ltwlsupt_ticket_ids?: string[];
@@ -103,6 +104,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 2,
     embargo: true,
     duplicate: false,
+    blocked: false,
     ltwlsupt_ticket_id: 'batch-1',
   },
   {
@@ -127,6 +129,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 7,
     embargo: false,
     duplicate: false,
+    blocked: false,
     ltwlsupt_ticket_id: 'batch-1',
   },
   {
@@ -146,11 +149,12 @@ export const mockVulnerabilities: Vulnerability[] = [
     customerPriority: 'Priority 3',
     stage: 'Validation',
     complexity: 'Standard',
-    submittedDate: daysAgo(25),
+    submittedDate: daysAgo(35),
     lastUpdated: daysAgoTimestamp(2),
-    ageDays: 25,
+    ageDays: 35,
     embargo: false,
     duplicate: false,
+    blocked: true,
     ltwlsupt_ticket_id: 'batch-1',
   },
 
@@ -177,6 +181,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 15,
     embargo: true,
     duplicate: false,
+    blocked: false,
     ltwlsupt_ticket_id: 'batch-2',
   },
   {
@@ -201,6 +206,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 35,
     embargo: false,
     duplicate: false,
+    blocked: false,
     ltwlsupt_ticket_id: 'batch-2',
   },
   {
@@ -225,6 +231,7 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 1,
     embargo: false,
     duplicate: true,
+    blocked: false,
     duplicateOf: 'LWL-2026-4027',
     ltwlsupt_ticket_id: 'batch-2',
   },

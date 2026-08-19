@@ -72,7 +72,7 @@ export function exportToPdf(vulnerabilities: Vulnerability[], title: string): vo
 
   const totalAge = vulnerabilities.reduce((sum, v) => sum + v.ageDays, 0);
   const avgAge = vulnerabilities.length > 0 ? Math.round(totalAge / vulnerabilities.length) : 0;
-  const stuckCount = vulnerabilities.filter((v) => v.ageDays > 30).length;
+  const blockedCount = vulnerabilities.filter((v) => v.blocked).length;
 
   let html = `
     <html><head><title>${title}</title>
@@ -93,7 +93,7 @@ export function exportToPdf(vulnerabilities: Vulnerability[], title: string): vo
     <div class="summary">
       <div class="stat"><div class="stat-value">${vulnerabilities.length}</div><div class="stat-label">Total Vulnerabilities</div></div>
       <div class="stat"><div class="stat-value">${avgAge}d</div><div class="stat-label">Avg Age</div></div>
-      <div class="stat"><div class="stat-value">${stuckCount}</div><div class="stat-label">Blocked (>30d)</div></div>
+      <div class="stat"><div class="stat-value">${blockedCount}</div><div class="stat-label">Blocked</div></div>
     </div>
     <h2>By Stage</h2><table><tr><th>Stage</th><th>Count</th></tr>`;
 

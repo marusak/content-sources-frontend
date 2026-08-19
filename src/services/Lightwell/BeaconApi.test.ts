@@ -24,6 +24,7 @@ const baseVulnerability: LightwellVulnerabilityResponse = {
   age_days: 2,
   embargo: true,
   duplicate: false,
+  blocked: false,
   ltwlsupt_ticket_ids: ['batch-2', 'batch-3'],
 };
 
@@ -38,6 +39,7 @@ describe('mapLightwellVulnerability', () => {
       severity: 'Critical',
       submittedDate: '2026-08-16',
       lastUpdated: '2026-08-17 08:17',
+      blocked: false,
       ltwlsupt_ticket_ids: ['batch-2', 'batch-3'],
       ltwlsupt_ticket_id: 'batch-2',
     });
@@ -50,5 +52,14 @@ describe('mapLightwellVulnerability', () => {
     });
 
     expect(mapped.severity).toBe('Minor');
+  });
+
+  it('maps blocked from the API response', () => {
+    const mapped = mapLightwellVulnerability({
+      ...baseVulnerability,
+      blocked: true,
+    });
+
+    expect(mapped.blocked).toBe(true);
   });
 });

@@ -2,10 +2,39 @@ import axios from 'axios';
 
 import { objectToUrlParams } from 'helpers';
 import { LIGHTWELL_BEACON_USE_MOCK } from 'Pages/Lightwell/constants';
-import { mockVulnerabilities, type Vulnerability } from 'Pages/Lightwell/mockVulnerabilities';
+import {
+  mockVulnerabilities,
+  type Complexity,
+  type Severity,
+  type Stage,
+  type Vulnerability,
+} from 'Pages/Lightwell/mockVulnerabilities';
 
 const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
 const PAGE_SIZE = 200;
+
+export type BeaconVulnerabilityFlag = 'embargo' | 'duplicate' | 'blocked';
+
+export type BeaconVulnerabilityFilters = {
+  severities?: Severity[];
+  stages?: Stage[];
+  complexities?: Complexity[];
+  ltwlsuptTicketIds?: string[];
+  flags?: BeaconVulnerabilityFlag[];
+};
+
+export type BeaconVulnerabilityMeta = {
+  count: number;
+  criticalCount: number;
+  embargoCount: number;
+  blockedCount: number;
+  stageCounts: Record<string, number>;
+};
+
+export type BeaconData = {
+  vulnerabilities: Vulnerability[];
+  meta: BeaconVulnerabilityMeta;
+};
 
 export type LightwellVulnerabilityResponse = {
   uuid: string;
@@ -31,6 +60,7 @@ export type LightwellVulnerabilityResponse = {
   age_days: number;
   embargo: boolean;
   duplicate: boolean;
+  blocked: boolean;
   duplicate_of?: string;
   ltwlsupt_ticket_ids: string[];
 };
@@ -62,18 +92,27 @@ function formatDateTime(value: string): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-function mapSeverity(severity: string): Vulnerability['severity'] {
+function mapSeverity(severity: string): Severity {
   if (severity === 'Low') {
     return 'Minor';
   }
 
-  return severity as Vulnerability['severity'];
+  return severity as Severity;
+}
+
+function mapSeverityToApi(severity: Severity): string {
+  return severity === 'Minor' ? 'Low' : severity;
+}
+
+function isVulnerabilityBlocked(stage: Stage, ageDays: number): boolean {
+  return stage !== 'Lightwell Network' && ageDays > 30;
 }
 
 export function mapLightwellVulnerability(
   vulnerability: LightwellVulnerabilityResponse,
 ): Vulnerability {
   const ticketIds = vulnerability.ltwlsupt_ticket_ids ?? [];
+  const stage = vulnerability.stage as Stage;
 
   return {
     uuid: vulnerability.uuid,
@@ -90,16 +129,123 @@ export function mapLightwellVulnerability(
     exploitTested: vulnerability.exploit_tested,
     reproducerIncluded: vulnerability.reproducer_included,
     customerPriority: vulnerability.customer_priority as Vulnerability['customerPriority'],
-    stage: vulnerability.stage as Vulnerability['stage'],
-    complexity: vulnerability.complexity as Vulnerability['complexity'],
+    stage,
+    complexity: vulnerability.complexity as Complexity,
     submittedDate: formatDate(vulnerability.submitted_date),
     lastUpdated: formatDateTime(vulnerability.last_updated),
     ageDays: vulnerability.age_days,
     embargo: vulnerability.embargo,
     duplicate: vulnerability.duplicate,
+    blocked:
+      typeof vulnerability.blocked === 'boolean'
+        ? vulnerability.blocked
+        : isVulnerabilityBlocked(stage, vulnerability.age_days),
     duplicateOf: vulnerability.duplicate_of,
     ltwlsupt_ticket_ids: ticketIds,
     ltwlsupt_ticket_id: ticketIds[0],
+  };
+}
+
+function mapCollectionMeta(
+  meta: LightwellVulnerabilityCollectionResponse['meta'],
+): BeaconVulnerabilityMeta {
+  return {
+    count: meta.count,
+    criticalCount: meta.critical_count,
+    embargoCount: meta.embargo_count,
+    blockedCount: meta.blocked_count,
+    stageCounts: meta.stage_counts ?? {},
+  };
+}
+
+function buildVulnerabilityQueryParams(
+  customerId: string,
+  filters?: BeaconVulnerabilityFilters,
+  pagination?: { limit: number; offset: number },
+): Record<string, string> {
+  const params: Record<string, string> = {
+    customer_id: customerId,
+    limit: (pagination?.limit ?? PAGE_SIZE).toString(),
+    offset: (pagination?.offset ?? 0).toString(),
+  };
+
+  if (filters?.severities?.length) {
+    params.severity = filters.severities.map(mapSeverityToApi).join(',');
+  }
+  if (filters?.stages?.length) {
+    params.stage = filters.stages.join(',');
+  }
+  if (filters?.complexities?.length) {
+    params.complexity = filters.complexities.join(',');
+  }
+  if (filters?.ltwlsuptTicketIds?.length) {
+    params.ltwlsupt_ticket_id = filters.ltwlsuptTicketIds.join(',');
+  }
+  if (filters?.flags?.length) {
+    params.flag = filters.flags.join(',');
+  }
+
+  return params;
+}
+
+function matchesMockFlags(vulnerability: Vulnerability, flags: BeaconVulnerabilityFlag[]): boolean {
+  return flags.some((flag) => {
+    if (flag === 'embargo') return vulnerability.embargo;
+    if (flag === 'duplicate') return vulnerability.duplicate;
+    return vulnerability.blocked;
+  });
+}
+
+function filterMockVulnerabilities(
+  vulnerabilities: Vulnerability[],
+  filters?: BeaconVulnerabilityFilters,
+): Vulnerability[] {
+  return vulnerabilities.filter((vulnerability) => {
+    if (
+      filters?.severities?.length &&
+      !filters.severities.includes(vulnerability.severity)
+    ) {
+      return false;
+    }
+    if (filters?.stages?.length && !filters.stages.includes(vulnerability.stage)) {
+      return false;
+    }
+    if (
+      filters?.complexities?.length &&
+      !filters.complexities.includes(vulnerability.complexity)
+    ) {
+      return false;
+    }
+    if (filters?.ltwlsuptTicketIds?.length) {
+      const ticketIds = vulnerability.ltwlsupt_ticket_ids?.length
+        ? vulnerability.ltwlsupt_ticket_ids
+        : vulnerability.ltwlsupt_ticket_id
+          ? [vulnerability.ltwlsupt_ticket_id]
+          : [];
+      if (!ticketIds.some((ticketId) => filters.ltwlsuptTicketIds?.includes(ticketId))) {
+        return false;
+      }
+    }
+    if (filters?.flags?.length && !matchesMockFlags(vulnerability, filters.flags)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function computeMockMeta(vulnerabilities: Vulnerability[]): BeaconVulnerabilityMeta {
+  const stageCounts: Record<string, number> = {};
+
+  for (const vulnerability of vulnerabilities) {
+    stageCounts[vulnerability.stage] = (stageCounts[vulnerability.stage] ?? 0) + 1;
+  }
+
+  return {
+    count: vulnerabilities.length,
+    criticalCount: vulnerabilities.filter((v) => v.severity === 'Critical').length,
+    embargoCount: vulnerabilities.filter((v) => v.embargo).length,
+    blockedCount: vulnerabilities.filter((v) => v.blocked).length,
+    stageCounts,
   };
 }
 
@@ -108,30 +254,53 @@ const MOCK_CUSTOMER_BATCHES: Record<string, string> = {
   'CID-214': 'batch-2',
 };
 
-export const getVulnerabilities = async (customerId: string): Promise<Vulnerability[]> => {
+export const getVulnerabilities = async (
+  customerId: string,
+  filters?: BeaconVulnerabilityFilters,
+): Promise<BeaconData> => {
   if (LIGHTWELL_BEACON_USE_MOCK) {
     const batchId = MOCK_CUSTOMER_BATCHES[customerId];
     if (!batchId) {
-      return [];
+      return {
+        vulnerabilities: [],
+        meta: computeMockMeta([]),
+      };
     }
 
-    return mockVulnerabilities.filter((v) => v.ltwlsupt_ticket_id === batchId);
+    const customerVulnerabilities = mockVulnerabilities.filter(
+      (v) => v.ltwlsupt_ticket_id === batchId,
+    );
+    const filteredVulnerabilities = filterMockVulnerabilities(customerVulnerabilities, filters);
+
+    return {
+      vulnerabilities: filteredVulnerabilities,
+      meta: computeMockMeta(filteredVulnerabilities),
+    };
   }
 
   const vulnerabilities: Vulnerability[] = [];
   let offset = 0;
   let total = Number.POSITIVE_INFINITY;
+  let meta: BeaconVulnerabilityMeta = {
+    count: 0,
+    criticalCount: 0,
+    embargoCount: 0,
+    blockedCount: 0,
+    stageCounts: {},
+  };
 
   while (offset < total) {
     const { data } = await axios.get<LightwellVulnerabilityCollectionResponse>(
-      `${VULNERABILITIES_PATH}?${objectToUrlParams({
-        customer_id: customerId,
-        limit: PAGE_SIZE.toString(),
-        offset: offset.toString(),
-      })}`,
+      `${VULNERABILITIES_PATH}?${objectToUrlParams(
+        buildVulnerabilityQueryParams(customerId, filters, {
+          limit: PAGE_SIZE,
+          offset,
+        }),
+      )}`,
     );
 
     vulnerabilities.push(...data.data.map(mapLightwellVulnerability));
+    meta = mapCollectionMeta(data.meta);
     total = data.meta.count;
     offset += data.data.length;
 
@@ -140,5 +309,8 @@ export const getVulnerabilities = async (customerId: string): Promise<Vulnerabil
     }
   }
 
-  return vulnerabilities;
+  return {
+    vulnerabilities,
+    meta,
+  };
 };

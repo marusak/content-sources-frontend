@@ -15,6 +15,22 @@ import { useBeaconData } from './hooks/useBeaconData';
 import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
 import { mockVulnerabilities } from '../mockVulnerabilities';
 
+const mockBeaconData = {
+  vulnerabilities: mockVulnerabilities,
+  meta: {
+    count: mockVulnerabilities.length,
+    criticalCount: mockVulnerabilities.filter((v) => v.severity === 'Critical').length,
+    embargoCount: mockVulnerabilities.filter((v) => v.embargo).length,
+    blockedCount: mockVulnerabilities.filter((v) => v.blocked).length,
+    stageCounts: Object.fromEntries(
+      mockVulnerabilities.reduce<Map<string, number>>((counts, vulnerability) => {
+        counts.set(vulnerability.stage, (counts.get(vulnerability.stage) ?? 0) + 1);
+        return counts;
+      }, new Map()),
+    ),
+  },
+};
+
 const renderBeacon = () =>
   render(
     <ReactQueryTestWrapper>
@@ -32,9 +48,7 @@ beforeEach(() => {
     isLoading: false,
     isError: false,
     error: null,
-    data: {
-      vulnerabilities: mockVulnerabilities,
-    },
+    data: mockBeaconData,
   });
 });
 

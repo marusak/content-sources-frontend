@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -28,13 +28,16 @@ import {
   type Complexity,
   type Severity,
   type Stage,
-  type Vulnerability,
 } from '../mockVulnerabilities';
 import { CustomerIdSelect } from './components/CustomerIdSelect';
 import { ExportMenu } from './components/ExportMenu';
 import { PipelineView } from './components/PipelineView';
 import { VulnerabilityTable } from './components/VulnerabilityTable';
 import { useBeaconData } from './hooks/useBeaconData';
+import {
+  type BeaconVulnerabilityFilters,
+  type BeaconVulnerabilityFlag,
+} from 'services/Lightwell/BeaconApi';
 
 import '../../../../styles/lightwell-beacon.scss';
 
@@ -47,24 +50,96 @@ const COMPLEXITIES: Complexity[] = [
   "Won't Fix",
 ];
 
+function buildBeaconFilters(
+  selectedSeverities: Set<Severity>,
+  selectedStages: Set<Stage>,
+  selectedComplexities: Set<Complexity>,
+  selectedLtwlsuptTickets: Set<string>,
+  showEmbargo: boolean,
+  showDuplicates: boolean,
+  showBlocked: boolean,
+): BeaconVulnerabilityFilters | undefined {
+  const flags: BeaconVulnerabilityFlag[] = [];
+  if (showEmbargo) flags.push('embargo');
+  if (showDuplicates) flags.push('duplicate');
+  if (showBlocked) flags.push('blocked');
+
+  const filters: BeaconVulnerabilityFilters = {
+    severities: selectedSeverities.size ? [...selectedSeverities] : undefined,
+    stages: selectedStages.size ? [...selectedStages] : undefined,
+    complexities: selectedComplexities.size ? [...selectedComplexities] : undefined,
+    ltwlsuptTicketIds: selectedLtwlsuptTickets.size ? [...selectedLtwlsuptTickets] : undefined,
+    flags: flags.length ? flags : undefined,
+  };
+
+  const hasFilters =
+    (filters.severities?.length ?? 0) > 0 ||
+    (filters.stages?.length ?? 0) > 0 ||
+    (filters.complexities?.length ?? 0) > 0 ||
+    (filters.ltwlsuptTicketIds?.length ?? 0) > 0 ||
+    (filters.flags?.length ?? 0) > 0;
+
+  return hasFilters ? filters : undefined;
+}
+
 const Beacon = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
-  const { isLoading, isError, error, data } = useBeaconData(selectedCustomerId);
-
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
   const [selectedStages, setSelectedStages] = useState<Set<Stage>>(new Set());
   const [selectedComplexities, setSelectedComplexities] = useState<Set<Complexity>>(new Set());
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
   const [showEmbargo, setShowEmbargo] = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
+  const [showBlocked, setShowBlocked] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
+
+  const apiFilters = useMemo(
+    () =>
+      buildBeaconFilters(
+        selectedSeverities,
+        selectedStages,
+        selectedComplexities,
+        selectedLtwlsuptTickets,
+        showEmbargo,
+        showDuplicates,
+        showBlocked,
+      ),
+    [
+      selectedSeverities,
+      selectedStages,
+      selectedComplexities,
+      selectedLtwlsuptTickets,
+      showEmbargo,
+      showDuplicates,
+      showBlocked,
+    ],
+  );
+  const hasApiFilters = apiFilters !== undefined;
+
+  const {
+    data: displayData,
+    isLoading: isLoadingDisplay,
+    isError,
+    error,
+  } = useBeaconData(selectedCustomerId, apiFilters);
+  const { data: baselineData, isLoading: isLoadingBaseline } = useBeaconData(
+    selectedCustomerId,
+    undefined,
+    { enabled: Boolean(selectedCustomerId) && hasApiFilters },
+  );
+
+  const isLoading = isLoadingDisplay || (hasApiFilters && isLoadingBaseline);
+  const countData = hasApiFilters ? baselineData : displayData;
 
   if (isError) throw error;
 
-  const vulnerabilities = data?.vulnerabilities ?? [];
+  const filteredVulns = displayData?.vulnerabilities ?? [];
+  const countVulnerabilities = countData?.vulnerabilities ?? [];
+  const displayMeta = displayData?.meta;
+  const countMeta = countData?.meta;
   const ltwlsuptTicketIds = [
     ...new Set(
-      vulnerabilities.flatMap((v) =>
+      countVulnerabilities.flatMap((v) =>
         v.ltwlsupt_ticket_ids?.length
           ? v.ltwlsupt_ticket_ids
           : v.ltwlsupt_ticket_id
@@ -114,35 +189,14 @@ const Beacon = () => {
     });
   };
 
-  const applyFilters = (vulns: Vulnerability[]) =>
-    vulns.filter((v) => {
-      if (selectedSeverities.size > 0 && !selectedSeverities.has(v.severity)) return false;
-      if (selectedStages.size > 0 && !selectedStages.has(v.stage)) return false;
-      if (selectedComplexities.size > 0 && !selectedComplexities.has(v.complexity)) return false;
-      if (
-        selectedLtwlsuptTickets.size > 0 &&
-        !(v.ltwlsupt_ticket_ids?.length
-          ? v.ltwlsupt_ticket_ids
-          : v.ltwlsupt_ticket_id
-            ? [v.ltwlsupt_ticket_id]
-            : []
-        ).some((ticketId) => selectedLtwlsuptTickets.has(ticketId))
-      )
-        return false;
-      if (showEmbargo && !v.embargo) return false;
-      if (showDuplicates && !v.duplicate) return false;
-      return true;
-    });
-
-  const filteredVulns = applyFilters(vulnerabilities);
-
   const activeFilterCount =
     selectedSeverities.size +
     selectedStages.size +
     selectedComplexities.size +
     selectedLtwlsuptTickets.size +
     (showEmbargo ? 1 : 0) +
-    (showDuplicates ? 1 : 0);
+    (showDuplicates ? 1 : 0) +
+    (showBlocked ? 1 : 0);
 
   return (
     <>
@@ -185,7 +239,7 @@ const Beacon = () => {
                       {SEVERITIES.map((sev) => (
                         <FilterSidePanelCategoryItem
                           key={sev}
-                          count={vulnerabilities.filter((v) => v.severity === sev).length}
+                          count={countVulnerabilities.filter((v) => v.severity === sev).length}
                           checked={selectedSeverities.has(sev)}
                           onClick={() => toggleSeverity(sev)}
                         >
@@ -202,7 +256,7 @@ const Beacon = () => {
                       {STAGES.map((stage) => (
                         <FilterSidePanelCategoryItem
                           key={stage}
-                          count={vulnerabilities.filter((v) => v.stage === stage).length}
+                          count={countMeta?.stageCounts[stage] ?? 0}
                           checked={selectedStages.has(stage)}
                           onClick={() => toggleStage(stage)}
                         >
@@ -219,7 +273,7 @@ const Beacon = () => {
                       {COMPLEXITIES.map((c) => (
                         <FilterSidePanelCategoryItem
                           key={c}
-                          count={vulnerabilities.filter((v) => v.complexity === c).length}
+                          count={countVulnerabilities.filter((v) => v.complexity === c).length}
                           checked={selectedComplexities.has(c)}
                           onClick={() => toggleComplexity(c)}
                         >
@@ -238,7 +292,7 @@ const Beacon = () => {
                           <FilterSidePanelCategoryItem
                             key={ticketId}
                             count={
-                              vulnerabilities.filter((v) =>
+                              countVulnerabilities.filter((v) =>
                                 (v.ltwlsupt_ticket_ids?.length
                                   ? v.ltwlsupt_ticket_ids
                                   : v.ltwlsupt_ticket_id
@@ -258,16 +312,25 @@ const Beacon = () => {
 
                     <FilterSidePanelCategory title='Flags'>
                       <FilterSidePanelCategoryItem
+                        count={countMeta?.blockedCount ?? 0}
+                        checked={showBlocked}
+                        onClick={() => setShowBlocked(!showBlocked)}
+                      >
+                        Blocked
+                      </FilterSidePanelCategoryItem>
+                      <FilterSidePanelCategoryItem
+                        count={countMeta?.embargoCount ?? 0}
                         checked={showEmbargo}
                         onClick={() => setShowEmbargo(!showEmbargo)}
                       >
-                        Embargoed only
+                        Embargoed
                       </FilterSidePanelCategoryItem>
                       <FilterSidePanelCategoryItem
+                        count={countVulnerabilities.filter((v) => v.duplicate).length}
                         checked={showDuplicates}
                         onClick={() => setShowDuplicates(!showDuplicates)}
                       >
-                        Duplicates only
+                        Duplicates
                       </FilterSidePanelCategoryItem>
                     </FilterSidePanelCategory>
                   </FilterSidePanel>
@@ -390,14 +453,16 @@ const Beacon = () => {
                             style={{ marginBottom: 'var(--pf-t--global--spacer--md)' }}
                           >
                             <FlexItem style={{ textAlign: 'center' }}>
-                              <span className='lightwell-stat-number'>{filteredVulns.length}</span>
+                              <span className='lightwell-stat-number'>
+                                {displayMeta?.count ?? filteredVulns.length}
+                              </span>
                               <Content component='small' style={{ display: 'block' }}>
                                 Total
                               </Content>
                             </FlexItem>
                             <FlexItem style={{ textAlign: 'center' }}>
                               <span className='lightwell-stat-number lightwell-stat--critical'>
-                                {filteredVulns.filter((v) => v.severity === 'Critical').length}
+                                {displayMeta?.criticalCount ?? 0}
                               </span>
                               <Content component='small' style={{ display: 'block' }}>
                                 Critical
@@ -405,15 +470,15 @@ const Beacon = () => {
                             </FlexItem>
                             <FlexItem style={{ textAlign: 'center' }}>
                               <span className='lightwell-stat-number lightwell-stat--stuck'>
-                                {filteredVulns.filter((v) => v.ageDays > 30).length}
+                                {displayMeta?.blockedCount ?? 0}
                               </span>
                               <Content component='small' style={{ display: 'block' }}>
-                                Blocked (&gt;30d)
+                                Blocked
                               </Content>
                             </FlexItem>
                             <FlexItem style={{ textAlign: 'center' }}>
                               <span className='lightwell-stat-number lightwell-stat--embargo'>
-                                {filteredVulns.filter((v) => v.embargo).length}
+                                {displayMeta?.embargoCount ?? 0}
                               </span>
                               <Content component='small' style={{ display: 'block' }}>
                                 Embargoed
