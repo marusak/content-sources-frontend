@@ -103,9 +103,19 @@ export function mapLightwellVulnerability(
   };
 }
 
+const MOCK_CUSTOMER_BATCHES: Record<string, string> = {
+  'CID-01': 'batch-1',
+  'CID-214': 'batch-2',
+};
+
 export const getVulnerabilities = async (customerId: string): Promise<Vulnerability[]> => {
   if (LIGHTWELL_BEACON_USE_MOCK) {
-    return [...mockVulnerabilities];
+    const batchId = MOCK_CUSTOMER_BATCHES[customerId];
+    if (!batchId) {
+      return [];
+    }
+
+    return mockVulnerabilities.filter((v) => v.ltwlsupt_ticket_id === batchId);
   }
 
   const vulnerabilities: Vulnerability[] = [];

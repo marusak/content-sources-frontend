@@ -3,7 +3,7 @@ import axios from 'axios';
 import { LIGHTWELL_BEACON_USE_MOCK } from 'Pages/Lightwell/constants';
 
 const CUSTOMER_IDS_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/customers/';
-const MOCK_CUSTOMER_IDS = ['CID-01', 'CID-214', 'CID-34'];
+const MOCK_CUSTOMER_IDS = ['CID-01', 'CID-214'];
 
 type LightwellCustomerIdsResponse = {
   data: string[];

@@ -25,7 +25,7 @@ const renderBeacon = () =>
 beforeEach(() => {
   (useCustomerIdsQuery as jest.Mock).mockReturnValue({
     isLoading: false,
-    data: ['CID-01', 'CID-214', 'CID-34'],
+    data: ['CID-01', 'CID-214'],
   });
 
   (useBeaconData as jest.Mock).mockReturnValue({
