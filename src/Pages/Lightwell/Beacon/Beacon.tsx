@@ -64,9 +64,13 @@ const Beacon = () => {
   const vulnerabilities = data?.vulnerabilities ?? [];
   const ltwlsuptTicketIds = [
     ...new Set(
-      vulnerabilities
-        .map((v) => v.ltwlsupt_ticket_id)
-        .filter((id): id is string => Boolean(id)),
+      vulnerabilities.flatMap((v) =>
+        v.ltwlsupt_ticket_ids?.length
+          ? v.ltwlsupt_ticket_ids
+          : v.ltwlsupt_ticket_id
+            ? [v.ltwlsupt_ticket_id]
+            : [],
+      ),
     ),
   ].sort();
 
@@ -117,7 +121,12 @@ const Beacon = () => {
       if (selectedComplexities.size > 0 && !selectedComplexities.has(v.complexity)) return false;
       if (
         selectedLtwlsuptTickets.size > 0 &&
-        (!v.ltwlsupt_ticket_id || !selectedLtwlsuptTickets.has(v.ltwlsupt_ticket_id))
+        !(v.ltwlsupt_ticket_ids?.length
+          ? v.ltwlsupt_ticket_ids
+          : v.ltwlsupt_ticket_id
+            ? [v.ltwlsupt_ticket_id]
+            : []
+        ).some((ticketId) => selectedLtwlsuptTickets.has(ticketId))
       )
         return false;
       if (showEmbargo && !v.embargo) return false;
@@ -229,7 +238,14 @@ const Beacon = () => {
                           <FilterSidePanelCategoryItem
                             key={ticketId}
                             count={
-                              vulnerabilities.filter((v) => v.ltwlsupt_ticket_id === ticketId).length
+                              vulnerabilities.filter((v) =>
+                                (v.ltwlsupt_ticket_ids?.length
+                                  ? v.ltwlsupt_ticket_ids
+                                  : v.ltwlsupt_ticket_id
+                                    ? [v.ltwlsupt_ticket_id]
+                                    : []
+                                ).includes(ticketId),
+                              ).length
                             }
                             checked={selectedLtwlsuptTickets.has(ticketId)}
                             onClick={() => toggleLtwlsuptTicket(ticketId)}

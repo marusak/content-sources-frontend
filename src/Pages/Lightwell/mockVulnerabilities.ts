@@ -63,6 +63,7 @@ export interface Vulnerability {
   duplicate: boolean;
   duplicateOf?: string;
   ltwlsupt_ticket_id?: string;
+  ltwlsupt_ticket_ids?: string[];
 }
 
 function daysAgo(days: number): string {
