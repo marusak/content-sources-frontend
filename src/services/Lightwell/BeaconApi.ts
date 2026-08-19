@@ -12,6 +12,12 @@ import {
 
 const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
 const PAGE_SIZE = 200;
+const MIN_SEARCH_LENGTH = 2;
+
+function normalizeSearch(search?: string): string | undefined {
+  const trimmed = search?.trim() ?? '';
+  return trimmed.length >= MIN_SEARCH_LENGTH ? trimmed : undefined;
+}
 
 export type BeaconVulnerabilityFlag = 'embargo' | 'duplicate' | 'blocked';
 
@@ -21,6 +27,7 @@ export type BeaconVulnerabilityFilters = {
   complexities?: Complexity[];
   ltwlsuptTicketIds?: string[];
   flags?: BeaconVulnerabilityFlag[];
+  search?: string;
 };
 
 export type BeaconPagination = {
@@ -189,6 +196,10 @@ function buildVulnerabilityQueryParams(
   if (filters?.flags?.length) {
     params.flag = filters.flags.join(',');
   }
+  const search = normalizeSearch(filters?.search);
+  if (search) {
+    params.search = search;
+  }
 
   return params;
 }
@@ -233,6 +244,17 @@ function filterMockVulnerabilities(
     }
     if (filters?.flags?.length && !matchesMockFlags(vulnerability, filters.flags)) {
       return false;
+    }
+    const search = normalizeSearch(filters?.search);
+    if (search) {
+      const query = search.toLowerCase();
+      if (
+        !vulnerability.vulnerabilityId.toLowerCase().includes(query) &&
+        !vulnerability.componentName.toLowerCase().includes(query) &&
+        !vulnerability.title.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
     }
     return true;
   });

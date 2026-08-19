@@ -22,6 +22,7 @@ import {
 } from '@patternfly/react-catalog-view-extension';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
+import useDebounce from 'Hooks/useDebounce';
 import LightwellPageHeader from '../components/LightwellPageHeader';
 import {
   STAGES,
@@ -95,6 +96,8 @@ const Beacon = () => {
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, searchQuery === '' ? 0 : 500);
 
   const apiFilters = useMemo(
     () =>
@@ -118,6 +121,20 @@ const Beacon = () => {
     ],
   );
 
+  const queryFilters = useMemo((): BeaconVulnerabilityFilters | undefined => {
+    const search = debouncedSearch.trim();
+    const hasSearch = search.length >= 2;
+
+    if (!apiFilters && !hasSearch) {
+      return undefined;
+    }
+
+    return {
+      ...apiFilters,
+      search: hasSearch ? search : undefined,
+    };
+  }, [apiFilters, debouncedSearch]);
+
   const pagination = useMemo(
     () => ({
       limit: perPage,
@@ -128,14 +145,18 @@ const Beacon = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [selectedCustomerId, apiFilters]);
+  }, [selectedCustomerId, queryFilters]);
+
+  useEffect(() => {
+    setSearchQuery('');
+  }, [selectedCustomerId]);
 
   const {
     data: displayData,
     isLoading: isLoadingDisplay,
     isError,
     error,
-  } = useBeaconData(selectedCustomerId, apiFilters, pagination);
+  } = useBeaconData(selectedCustomerId, queryFilters, pagination);
 
   const isLoading = !displayData && isLoadingDisplay;
 
@@ -494,6 +515,9 @@ const Beacon = () => {
                         perPage={perPage}
                         onSetPage={onSetPage}
                         onPerPageSelect={onPerPageSelect}
+                        searchValue={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        onSearchClear={() => setSearchQuery('')}
                       />
                     </StackItem>
                   </Stack>
