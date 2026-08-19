@@ -117,7 +117,6 @@ const Beacon = () => {
       showBlocked,
     ],
   );
-  const hasApiFilters = apiFilters !== undefined;
 
   const pagination = useMemo(
     () => ({
@@ -137,32 +136,24 @@ const Beacon = () => {
     isError,
     error,
   } = useBeaconData(selectedCustomerId, apiFilters, pagination);
-  const { data: baselineData } = useBeaconData(
-    selectedCustomerId,
-    undefined,
-    undefined,
-    { enabled: Boolean(selectedCustomerId) && hasApiFilters },
-  );
 
   const isLoading = !displayData && isLoadingDisplay;
-  const countData = hasApiFilters ? baselineData : displayData;
 
   if (isError) throw error;
 
   const filteredVulns = displayData?.vulnerabilities ?? [];
-  const countVulnerabilities = countData?.vulnerabilities ?? [];
   const displayMeta = displayData?.meta;
-  const countMeta = countData?.meta;
   const ltwlsuptTicketIds = [
-    ...new Set(
-      countVulnerabilities.flatMap((v) =>
+    ...new Set([
+      ...selectedLtwlsuptTickets,
+      ...filteredVulns.flatMap((v) =>
         v.ltwlsupt_ticket_ids?.length
           ? v.ltwlsupt_ticket_ids
           : v.ltwlsupt_ticket_id
             ? [v.ltwlsupt_ticket_id]
             : [],
       ),
-    ),
+    ]),
   ].sort();
 
   const toggleShowAllCategory = (key: string) => {
@@ -261,7 +252,6 @@ const Beacon = () => {
                       {SEVERITIES.map((sev) => (
                         <FilterSidePanelCategoryItem
                           key={sev}
-                          count={countVulnerabilities.filter((v) => v.severity === sev).length}
                           checked={selectedSeverities.has(sev)}
                           onClick={() => toggleSeverity(sev)}
                         >
@@ -278,7 +268,6 @@ const Beacon = () => {
                       {STAGES.map((stage) => (
                         <FilterSidePanelCategoryItem
                           key={stage}
-                          count={countMeta?.stageCounts[stage] ?? 0}
                           checked={selectedStages.has(stage)}
                           onClick={() => toggleStage(stage)}
                         >
@@ -295,7 +284,6 @@ const Beacon = () => {
                       {COMPLEXITIES.map((c) => (
                         <FilterSidePanelCategoryItem
                           key={c}
-                          count={countVulnerabilities.filter((v) => v.complexity === c).length}
                           checked={selectedComplexities.has(c)}
                           onClick={() => toggleComplexity(c)}
                         >
@@ -313,16 +301,6 @@ const Beacon = () => {
                         {ltwlsuptTicketIds.map((ticketId) => (
                           <FilterSidePanelCategoryItem
                             key={ticketId}
-                            count={
-                              countVulnerabilities.filter((v) =>
-                                (v.ltwlsupt_ticket_ids?.length
-                                  ? v.ltwlsupt_ticket_ids
-                                  : v.ltwlsupt_ticket_id
-                                    ? [v.ltwlsupt_ticket_id]
-                                    : []
-                                ).includes(ticketId),
-                              ).length
-                            }
                             checked={selectedLtwlsuptTickets.has(ticketId)}
                             onClick={() => toggleLtwlsuptTicket(ticketId)}
                           >
@@ -334,21 +312,18 @@ const Beacon = () => {
 
                     <FilterSidePanelCategory title='Flags'>
                       <FilterSidePanelCategoryItem
-                        count={countMeta?.blockedCount ?? 0}
                         checked={showBlocked}
                         onClick={() => setShowBlocked(!showBlocked)}
                       >
                         Blocked
                       </FilterSidePanelCategoryItem>
                       <FilterSidePanelCategoryItem
-                        count={countMeta?.embargoCount ?? 0}
                         checked={showEmbargo}
                         onClick={() => setShowEmbargo(!showEmbargo)}
                       >
                         Embargoed
                       </FilterSidePanelCategoryItem>
                       <FilterSidePanelCategoryItem
-                        count={countVulnerabilities.filter((v) => v.duplicate).length}
                         checked={showDuplicates}
                         onClick={() => setShowDuplicates(!showDuplicates)}
                       >
