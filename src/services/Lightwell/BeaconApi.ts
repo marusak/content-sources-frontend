@@ -111,10 +111,6 @@ function mapSeverityToApi(severity: Severity): string {
   return severity === 'Minor' ? 'Low' : severity;
 }
 
-function isVulnerabilityBlocked(stage: Stage, ageDays: number): boolean {
-  return stage !== 'Lightwell Network' && ageDays > 30;
-}
-
 export function mapLightwellVulnerability(
   vulnerability: LightwellVulnerabilityResponse,
 ): Vulnerability {
@@ -143,10 +139,7 @@ export function mapLightwellVulnerability(
     ageDays: vulnerability.age_days,
     embargo: vulnerability.embargo,
     duplicate: vulnerability.duplicate,
-    blocked:
-      typeof vulnerability.blocked === 'boolean'
-        ? vulnerability.blocked
-        : isVulnerabilityBlocked(stage, vulnerability.age_days),
+    blocked: vulnerability.blocked,
     duplicateOf: vulnerability.duplicate_of,
     ltwlsupt_ticket_ids: ticketIds,
     ltwlsupt_ticket_id: ticketIds[0],

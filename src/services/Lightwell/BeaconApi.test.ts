@@ -54,9 +54,11 @@ describe('mapLightwellVulnerability', () => {
     expect(mapped.severity).toBe('Minor');
   });
 
-  it('maps blocked from the API response', () => {
+  it('maps blocked from the API response without recalculating it', () => {
     const mapped = mapLightwellVulnerability({
       ...baseVulnerability,
+      stage: 'Submitted',
+      age_days: 2,
       blocked: true,
     });
 
