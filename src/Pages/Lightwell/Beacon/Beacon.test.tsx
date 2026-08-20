@@ -1,4 +1,5 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import Beacon from './Beacon';
 import { ReactQueryTestWrapper } from 'testingHelpers';
@@ -93,6 +94,35 @@ it('shows support ticket IDs from the dedicated API instead of vulnerability row
   expect(within(filterPanel as HTMLElement).getByText('api-ticket')).toBeInTheDocument();
   expect(within(filterPanel as HTMLElement).queryByText('batch-1')).not.toBeInTheDocument();
   expect(within(filterPanel as HTMLElement).queryByText('batch-2')).not.toBeInTheDocument();
+});
+
+it('clears the ticket filter when the customer changes and keeps other filters', async () => {
+  const user = userEvent.setup();
+  renderBeacon();
+
+  const filterPanel = await waitFor(() => {
+    const panel = document.querySelector('.lightwell-filter-panel');
+    expect(panel).not.toBeNull();
+    expect(within(panel as HTMLElement).getByText('batch-1')).toBeInTheDocument();
+    return panel as HTMLElement;
+  });
+
+  await user.click(within(filterPanel).getByText('batch-1'));
+  await user.click(within(filterPanel).getByText('Critical'));
+  expect(within(filterPanel).getByRole('checkbox', { name: /batch-1/i })).toBeChecked();
+  expect(within(filterPanel).getByRole('checkbox', { name: /critical/i })).toBeChecked();
+
+  await user.click(screen.getByRole('button', { name: 'CID-01' }));
+  await user.click(await screen.findByRole('menuitem', { name: 'CID-214' }));
+
+  expect(screen.getByRole('button', { name: 'CID-214' })).toBeInTheDocument();
+  expect(within(filterPanel).getByRole('checkbox', { name: /batch-1/i })).not.toBeChecked();
+  expect(within(filterPanel).getByRole('checkbox', { name: /critical/i })).toBeChecked();
+  expect(
+    (useBeaconData as jest.Mock).mock.calls
+      .filter(([customerId]) => customerId === 'CID-214')
+      .every(([, filters]) => !filters?.ltwlsuptTicketIds?.length),
+  ).toBe(true);
 });
 
 it('shows loading skeleton while data is fetching', () => {

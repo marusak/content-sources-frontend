@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -136,10 +136,18 @@ const Beacon = () => {
     setPage(1);
   }, [selectedCustomerId, queryFilters]);
 
-  useEffect(() => {
-    setSearchQuery('');
-    setSelectedLtwlsuptTickets(new Set());
-  }, [selectedCustomerId]);
+  const handleCustomerIdChange = useCallback(
+    (customerId: string) => {
+      if (customerId === selectedCustomerId) {
+        return;
+      }
+
+      setSelectedLtwlsuptTickets(new Set());
+      setSearchQuery('');
+      setSelectedCustomerId(customerId);
+    },
+    [selectedCustomerId],
+  );
 
   const {
     data: displayData,
@@ -231,7 +239,7 @@ const Beacon = () => {
               <FlexItem className='lightwell-filter-panel'>
                 <CustomerIdSelect
                   selectedCustomerId={selectedCustomerId}
-                  onCustomerIdChange={setSelectedCustomerId}
+                  onCustomerIdChange={handleCustomerIdChange}
                 />
                 <span className='lightwell-filter-panel-header'>
                   <Title headingLevel='h4' size='md'>
