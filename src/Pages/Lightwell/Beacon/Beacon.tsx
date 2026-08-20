@@ -149,6 +149,18 @@ const Beacon = () => {
     [selectedCustomerId],
   );
 
+  const resetFilters = useCallback(() => {
+    setSelectedSeverities(new Set());
+    setSelectedStages(new Set());
+    setSelectedComplexities(new Set());
+    setSelectedLtwlsuptTickets(new Set());
+    setShowEmbargo(false);
+    setShowDuplicates(false);
+    setShowBlocked(false);
+    setSearchQuery('');
+    setPage(1);
+  }, []);
+
   const {
     data: displayData,
     isLoading: isLoadingDisplay,
@@ -505,6 +517,7 @@ const Beacon = () => {
                         searchValue={searchQuery}
                         onSearchChange={setSearchQuery}
                         onSearchClear={() => setSearchQuery('')}
+                        onResetFilters={resetFilters}
                       />
                     </StackItem>
                   </Stack>
