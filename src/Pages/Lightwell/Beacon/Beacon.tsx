@@ -35,6 +35,7 @@ import {
   type BeaconVulnerabilityFilters,
   type BeaconVulnerabilityFlag,
 } from 'services/Lightwell/BeaconApi';
+import { useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
 
 import '../../../../styles/lightwell-beacon.scss';
 
@@ -137,6 +138,7 @@ const Beacon = () => {
 
   useEffect(() => {
     setSearchQuery('');
+    setSelectedLtwlsuptTickets(new Set());
   }, [selectedCustomerId]);
 
   const {
@@ -145,6 +147,7 @@ const Beacon = () => {
     isError,
     error,
   } = useBeaconData(selectedCustomerId, queryFilters, pagination);
+  const { data: ltwlsuptTicketIds = [] } = useLtwlsuptTicketIdsQuery(selectedCustomerId);
 
   const isLoading = !displayData && isLoadingDisplay;
 
@@ -152,18 +155,6 @@ const Beacon = () => {
 
   const filteredVulns = displayData?.vulnerabilities ?? [];
   const displayMeta = displayData?.meta;
-  const ltwlsuptTicketIds = [
-    ...new Set([
-      ...selectedLtwlsuptTickets,
-      ...filteredVulns.flatMap((v) =>
-        v.ltwlsupt_ticket_ids?.length
-          ? v.ltwlsupt_ticket_ids
-          : v.ltwlsupt_ticket_id
-            ? [v.ltwlsupt_ticket_id]
-            : [],
-      ),
-    ]),
-  ].sort();
 
   const toggleShowAllCategory = (key: string) => {
     setShowAllCategories((prev) => ({ ...prev, [key]: !prev[key] }));

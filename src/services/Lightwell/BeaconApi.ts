@@ -6,6 +6,8 @@ import { mockVulnerabilities } from 'Pages/Lightwell/mockVulnerabilities';
 import type { Complexity, Severity, Stage, Vulnerability } from 'Pages/Lightwell/Beacon/types';
 
 const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
+const TICKET_IDS_PATH =
+  '/api/content-sources/v1/lightwell/beacon/vulnerabilities/ltwlsupt-ticket-ids/';
 const PAGE_SIZE = 200;
 const MIN_SEARCH_LENGTH = 2;
 
@@ -261,6 +263,43 @@ function computeMockMeta(vulnerabilities: Vulnerability[]): BeaconVulnerabilityM
 const MOCK_CUSTOMER_BATCHES: Record<string, string> = {
   'CID-01': 'batch-1',
   'CID-214': 'batch-2',
+};
+
+type LightwellLtwlsuptTicketIdsResponse = {
+  data: string[];
+};
+
+function mockTicketIdsForCustomer(customerId: string): string[] {
+  const batchId = MOCK_CUSTOMER_BATCHES[customerId];
+  if (!batchId) {
+    return [];
+  }
+
+  return [
+    ...new Set(
+      mockVulnerabilities
+        .filter((vulnerability) => vulnerability.ltwlsupt_ticket_id === batchId)
+        .flatMap((vulnerability) =>
+          vulnerability.ltwlsupt_ticket_ids?.length
+            ? vulnerability.ltwlsupt_ticket_ids
+            : vulnerability.ltwlsupt_ticket_id
+              ? [vulnerability.ltwlsupt_ticket_id]
+              : [],
+        ),
+    ),
+  ].sort();
+}
+
+export const getLtwlsuptTicketIds = async (customerId: string): Promise<string[]> => {
+  if (LIGHTWELL_BEACON_USE_MOCK) {
+    return mockTicketIdsForCustomer(customerId);
+  }
+
+  const { data } = await axios.get<LightwellLtwlsuptTicketIdsResponse>(
+    `${TICKET_IDS_PATH}?${objectToUrlParams({ customer_id: customerId })}`,
+  );
+
+  return data.data ?? [];
 };
 
 export const getVulnerabilities = async (

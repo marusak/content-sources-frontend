@@ -1,4 +1,10 @@
-import { mapLightwellVulnerability, type LightwellVulnerabilityResponse } from './BeaconApi';
+import axios from 'axios';
+
+import {
+  getLtwlsuptTicketIds,
+  mapLightwellVulnerability,
+  type LightwellVulnerabilityResponse,
+} from './BeaconApi';
 
 const baseVulnerability: LightwellVulnerabilityResponse = {
   uuid: '00000000-0000-4000-8000-000000000001',
@@ -63,5 +69,20 @@ describe('mapLightwellVulnerability', () => {
     });
 
     expect(mapped.blocked).toBe(true);
+  });
+});
+
+describe('getLtwlsuptTicketIds', () => {
+  it('returns support ticket IDs from the API response', async () => {
+    const get = jest.spyOn(axios, 'get').mockResolvedValue({
+      data: { data: ['batch-1', 'batch-2'] },
+    });
+
+    await expect(getLtwlsuptTicketIds('CID-01')).resolves.toEqual(['batch-1', 'batch-2']);
+    expect(get).toHaveBeenCalledWith(
+      '/api/content-sources/v1/lightwell/beacon/vulnerabilities/ltwlsupt-ticket-ids/?customer_id=CID-01',
+    );
+
+    get.mockRestore();
   });
 });

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  getLtwlsuptTicketIds,
   getVulnerabilities,
   type BeaconData,
   type BeaconPagination,
@@ -8,8 +9,21 @@ import {
 } from './BeaconApi';
 
 export const BEACON_VULNERABILITIES_KEY = 'BEACON_VULNERABILITIES_KEY';
+export const BEACON_LTWLSUPT_TICKET_IDS_KEY = 'BEACON_LTWLSUPT_TICKET_IDS_KEY';
 
 export type { BeaconData } from './BeaconApi';
+
+export const useLtwlsuptTicketIdsQuery = (customerId?: string, options?: { enabled?: boolean }) =>
+  useQuery({
+    queryKey: [BEACON_LTWLSUPT_TICKET_IDS_KEY, customerId],
+    queryFn: () => getLtwlsuptTicketIds(customerId!),
+    staleTime: 20_000,
+    enabled: options?.enabled ?? Boolean(customerId),
+    meta: {
+      title: 'Error loading support ticket IDs',
+      id: 'get-beacon-ltwlsupt-ticket-ids-error',
+    },
+  });
 
 export const useBeaconVulnerabilitiesQuery = (
   customerId?: string,

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 
 import Beacon from './Beacon';
 import { ReactQueryTestWrapper } from 'testingHelpers';
@@ -11,8 +11,13 @@ jest.mock('services/Lightwell/CustomerQueries', () => ({
   useCustomerIdsQuery: jest.fn(),
 }));
 
+jest.mock('services/Lightwell/BeaconQueries', () => ({
+  useLtwlsuptTicketIdsQuery: jest.fn(),
+}));
+
 import { useBeaconData } from './hooks/useBeaconData';
 import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
+import { useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
 import { mockVulnerabilities } from '../mockVulnerabilities';
 
 const mockBeaconData = {
@@ -50,6 +55,11 @@ beforeEach(() => {
     error: null,
     data: mockBeaconData,
   });
+
+  (useLtwlsuptTicketIdsQuery as jest.Mock).mockReturnValue({
+    isLoading: false,
+    data: ['batch-1', 'batch-2'],
+  });
 });
 
 it('renders the beacon page with status summary and vulnerability table', async () => {
@@ -64,6 +74,25 @@ it('renders the beacon page with status summary and vulnerability table', async 
   expect(document.querySelector('.lightwell-filter-panel')).toBeInTheDocument();
   expect(screen.getByText('Customer ID')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'CID-01' })).toBeInTheDocument();
+});
+
+it('shows support ticket IDs from the dedicated API instead of vulnerability rows', async () => {
+  (useLtwlsuptTicketIdsQuery as jest.Mock).mockReturnValue({
+    isLoading: false,
+    data: ['api-ticket'],
+  });
+
+  renderBeacon();
+
+  await waitFor(() => {
+    expect(screen.getByText('api-ticket')).toBeInTheDocument();
+  });
+
+  const filterPanel = document.querySelector('.lightwell-filter-panel');
+  expect(filterPanel).not.toBeNull();
+  expect(within(filterPanel as HTMLElement).getByText('api-ticket')).toBeInTheDocument();
+  expect(within(filterPanel as HTMLElement).queryByText('batch-1')).not.toBeInTheDocument();
+  expect(within(filterPanel as HTMLElement).queryByText('batch-2')).not.toBeInTheDocument();
 });
 
 it('shows loading skeleton while data is fetching', () => {
