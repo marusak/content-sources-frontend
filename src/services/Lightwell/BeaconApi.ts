@@ -135,6 +135,7 @@ export function mapLightwellVulnerability(
     reproducerIncluded: vulnerability.reproducer_included,
     customerPriority: vulnerability.customer_priority as Vulnerability['customerPriority'],
     stage,
+    language: vulnerability.language ?? '',
     complexity: vulnerability.complexity as Complexity,
     submittedDate: formatDate(vulnerability.submitted_date),
     lastUpdated: formatDateTime(vulnerability.last_updated),

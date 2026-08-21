@@ -45,6 +45,7 @@ describe('mapLightwellVulnerability', () => {
       vulnerabilityId: 'LWL-2026-4401',
       componentName: 'log4j-core',
       severity: 'Critical',
+      language: 'java',
       submittedDate: '2026-08-16',
       lastUpdated: '2026-08-17 08:17',
       blocked: false,

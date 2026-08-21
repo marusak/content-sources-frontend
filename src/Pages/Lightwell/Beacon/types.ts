@@ -30,6 +30,7 @@ export interface Vulnerability {
   reproducerIncluded: boolean;
   customerPriority?: CustomerPriority;
   stage: Stage;
+  language: string;
   complexity: Complexity;
   submittedDate: string;
   lastUpdated: string;
