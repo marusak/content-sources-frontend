@@ -1,45 +1,54 @@
 import type { Vulnerability } from '../types';
 
+function csvCell(value: string): string {
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+function csvValue(value: unknown): string {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  if (typeof value === 'object') {
+    return csvCell(JSON.stringify(value));
+  }
+  return csvCell(String(value));
+}
+
+function csvKeys(vulnerabilities: Vulnerability[]): string[] {
+  const keys: string[] = [];
+  const seen = new Set<string>();
+
+  for (const vulnerability of vulnerabilities) {
+    for (const key of Object.keys(vulnerability)) {
+      if (!seen.has(key)) {
+        seen.add(key);
+        keys.push(key);
+      }
+    }
+  }
+
+  return keys;
+}
+
+export function buildVulnerabilityCsv(vulnerabilities: Vulnerability[]): string {
+  const keys = csvKeys(vulnerabilities);
+  if (keys.length === 0) {
+    return '';
+  }
+
+  const rows = vulnerabilities.map((vulnerability) => {
+    const record = vulnerability as unknown as Record<string, unknown>;
+    return keys.map((key) => csvValue(record[key])).join(',');
+  });
+
+  return [keys.map(csvCell).join(','), ...rows].join('\n');
+}
+
 export function exportToCsv(vulnerabilities: Vulnerability[], filename: string): void {
-  const headers = [
-    'Vulnerability ID',
-    'Component',
-    'Version',
-    'Title',
-    'CWE',
-    'Severity',
-    'CVSS',
-    'CVSS Vector',
-    'Stage',
-    'Complexity',
-    'Age (days)',
-    'Exploit Tested',
-    'Reproducer Included',
-    'Customer Priority',
-    'Embargo',
-    'Duplicate',
-  ];
-
-  const rows = vulnerabilities.map((v) => [
-    v.vulnerabilityId,
-    v.componentName,
-    v.componentVersion,
-    `"${v.title.replace(/"/g, '""')}"`,
-    v.cwe,
-    v.severity,
-    v.cvss.toString(),
-    v.cvssVector || '',
-    v.stage,
-    v.complexity,
-    v.ageDays.toString(),
-    v.exploitTested ? 'Yes' : 'No',
-    v.reproducerIncluded ? 'Yes' : 'No',
-    v.customerPriority || '',
-    v.embargo ? 'Yes' : 'No',
-    v.duplicate ? `Yes (${v.duplicateOf || ''})` : 'No',
-  ]);
-
-  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const csv = buildVulnerabilityCsv(vulnerabilities);
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
