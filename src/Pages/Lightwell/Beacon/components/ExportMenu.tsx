@@ -12,10 +12,12 @@ import { getVulnerabilities, type BeaconVulnerabilityFilters } from 'services/Li
 import type { Vulnerability } from '../types';
 
 import { exportToCsv, exportToJson, exportToPdf } from '../utils/exportUtils';
+import type { VulnerabilityTableColumn } from '../utils/vulnerabilityTableColumns';
 
 type ExportMenuProps = {
   customerId?: string;
   filters?: BeaconVulnerabilityFilters;
+  visibleColumns: Pick<VulnerabilityTableColumn, 'key' | 'title'>[];
 };
 
 type ExportFormat = 'csv' | 'json' | 'pdf';
@@ -47,7 +49,7 @@ export async function fetchAllFilteredVulnerabilities(
   return vulnerabilities;
 }
 
-export function ExportMenu({ customerId, filters }: ExportMenuProps) {
+export function ExportMenu({ customerId, filters, visibleColumns }: ExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const errorNotifier = useErrorNotification();
@@ -66,7 +68,7 @@ export function ExportMenu({ customerId, filters }: ExportMenuProps) {
       } else if (format === 'json') {
         exportToJson(vulnerabilities, `lightwell-vulnerabilities.json`);
       } else {
-        exportToPdf(vulnerabilities, 'Lightwell Vulnerability Report');
+        exportToPdf(vulnerabilities, 'Lightwell Vulnerability Report', visibleColumns);
       }
     } catch (err) {
       errorNotifier(

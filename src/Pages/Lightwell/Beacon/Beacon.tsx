@@ -36,6 +36,10 @@ import {
   type BeaconVulnerabilityFlag,
 } from 'services/Lightwell/BeaconApi';
 import { useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
+import {
+  createDefaultVulnerabilityColumns,
+  getVisibleVulnerabilityColumns,
+} from './utils/vulnerabilityTableColumns';
 
 import '../../../../styles/lightwell-beacon.scss';
 
@@ -86,6 +90,7 @@ const Beacon = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [searchQuery, setSearchQuery] = useState('');
+  const [columns, setColumns] = useState(createDefaultVulnerabilityColumns);
   const debouncedSearch = useDebounce(searchQuery, searchQuery === '' ? 0 : 500);
 
   const apiFilters = useMemo(
@@ -237,7 +242,13 @@ const Beacon = () => {
         title='Beacon'
         ouiaId='lightwell-beacon-header'
         description='Understand the status of your Lightwell submissions'
-        actions={<ExportMenu customerId={selectedCustomerId} filters={queryFilters} />}
+        actions={
+          <ExportMenu
+            customerId={selectedCustomerId}
+            filters={queryFilters}
+            visibleColumns={getVisibleVulnerabilityColumns(columns)}
+          />
+        }
       />
 
       <PageSection hasBodyWrapper={false} data-ouia-component-id='lightwell-beacon-page'>
@@ -518,6 +529,8 @@ const Beacon = () => {
                         onSearchChange={setSearchQuery}
                         onSearchClear={() => setSearchQuery('')}
                         onResetFilters={resetFilters}
+                        columns={columns}
+                        onColumnsChange={setColumns}
                       />
                     </StackItem>
                   </Stack>
