@@ -237,7 +237,7 @@ const Beacon = () => {
         title='Beacon'
         ouiaId='lightwell-beacon-header'
         description='Understand the status of your Lightwell submissions'
-        actions={<ExportMenu vulnerabilities={filteredVulns} />}
+        actions={<ExportMenu customerId={selectedCustomerId} filters={queryFilters} />}
       />
 
       <PageSection hasBodyWrapper={false} data-ouia-component-id='lightwell-beacon-page'>

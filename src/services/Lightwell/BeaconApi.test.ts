@@ -2,7 +2,9 @@ import axios from 'axios';
 
 import {
   getLtwlsuptTicketIds,
+  getVulnerabilities,
   mapLightwellVulnerability,
+  type LightwellVulnerabilityCollectionResponse,
   type LightwellVulnerabilityResponse,
 } from './BeaconApi';
 
@@ -82,6 +84,65 @@ describe('getLtwlsuptTicketIds', () => {
     expect(get).toHaveBeenCalledWith(
       '/api/content-sources/v1/lightwell/beacon/vulnerabilities/ltwlsupt-ticket-ids/?customer_id=CID-01',
     );
+
+    get.mockRestore();
+  });
+});
+
+describe('getVulnerabilities', () => {
+  const collection = (
+    data: LightwellVulnerabilityResponse[],
+    count: number,
+    offset: number,
+  ): LightwellVulnerabilityCollectionResponse => ({
+    data,
+    meta: {
+      count,
+      limit: 200,
+      offset,
+      critical_count: 0,
+      embargo_count: 0,
+      blocked_count: 0,
+      stage_counts: {},
+    },
+  });
+
+  it('fetches every filtered page when pagination is omitted', async () => {
+    const first = { ...baseVulnerability, uuid: 'vuln-1', vulnerability_id: 'LWL-1' };
+    const second = { ...baseVulnerability, uuid: 'vuln-2', vulnerability_id: 'LWL-2' };
+    const get = jest
+      .spyOn(axios, 'get')
+      .mockResolvedValueOnce({ data: collection([first], 2, 0) })
+      .mockResolvedValueOnce({ data: collection([second], 2, 1) });
+
+    const result = await getVulnerabilities('CID-01', { severities: ['Critical'] });
+
+    expect(get).toHaveBeenNthCalledWith(
+      1,
+      '/api/content-sources/v1/lightwell/beacon/vulnerabilities/?customer_id=CID-01&limit=200&offset=0&severity=Critical',
+    );
+    expect(get).toHaveBeenNthCalledWith(
+      2,
+      '/api/content-sources/v1/lightwell/beacon/vulnerabilities/?customer_id=CID-01&limit=200&offset=1&severity=Critical',
+    );
+    expect(result.vulnerabilities.map((v) => v.vulnerabilityId)).toEqual(['LWL-1', 'LWL-2']);
+    expect(result.meta.count).toBe(2);
+
+    get.mockRestore();
+  });
+
+  it('fetches a single page when pagination is provided', async () => {
+    const get = jest.spyOn(axios, 'get').mockResolvedValue({
+      data: collection([baseVulnerability], 40, 20),
+    });
+
+    const result = await getVulnerabilities('CID-01', undefined, { limit: 20, offset: 20 });
+
+    expect(get).toHaveBeenCalledTimes(1);
+    expect(get).toHaveBeenCalledWith(
+      '/api/content-sources/v1/lightwell/beacon/vulnerabilities/?customer_id=CID-01&limit=20&offset=20',
+    );
+    expect(result.vulnerabilities).toHaveLength(1);
 
     get.mockRestore();
   });
