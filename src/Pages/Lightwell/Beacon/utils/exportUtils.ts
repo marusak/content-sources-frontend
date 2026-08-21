@@ -79,7 +79,7 @@ export function exportToPdf(vulnerabilities: Vulnerability[], title: string): vo
     <style>
       body { font-family: 'Red Hat Text', sans-serif; padding: 40px; color: #151515; }
       h1 { color: #EE0000; }
-      h2 { border-bottom: 1px solid #D2D2D2; padding-bottom: 8px; margin-top: 24px; }
+      h2 { margin-top: 24px; }
       table { border-collapse: collapse; width: 100%; margin-top: 12px; }
       th, td { border: 1px solid #D2D2D2; padding: 8px 12px; text-align: left; font-size: 12px; }
       th { background: #F0F0F0; }
