@@ -299,6 +299,15 @@ export const defaultContentItem_Upload: ContentItem = {
   last_snapshot_task: defaultSnapshotTask,
   last_introspection_status: 'Pending',
   origin: ContentOrigin.UPLOAD,
+  partner: false,
+};
+
+export const defaultContentItem_UploadPartnered: ContentItem = {
+  ...defaultContentItem_Upload,
+  uuid: '41c2db68-47eb-46c3-8dcb-c2dfac350f1b',
+  name: 'SteveThePartneredUploadRepo',
+  status: 'Valid',
+  partner: true,
 };
 
 export const defaultUpdateTemplateTaskCompleted: AdminTask = {

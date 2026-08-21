@@ -3,6 +3,7 @@ import { ContentOrigin } from 'services/Content/ContentApi';
 import {
   ADMIN_TASKS_ROUTE,
   PACKAGES_ROUTE,
+  PARTNER_REPO_ROUTE,
   REPOSITORIES_ROUTE,
   SYSTEMS_ROUTE,
   TEMPLATES_ROUTE,
@@ -19,7 +20,8 @@ type NavigationKey =
   | 'root'
   | 'adminTasks'
   | 'repositorySnapshots'
-  | 'systems';
+  | 'systems'
+  | 'partnerRepo';
 
 export type DestinationKey = FilterKey | NavigationKey;
 
@@ -61,4 +63,6 @@ export const navigationPaths: NavigationPaths = {
   templates: ({ rootPath }) => `${rootPath}/${TEMPLATES_ROUTE}`,
   systems: ({ rootPath, templateUUID }) =>
     `${rootPath}/${TEMPLATES_ROUTE}/${templateUUID}/${SYSTEMS_ROUTE}`,
+  partnerRepo: ({ rootPath, repoUUID }) =>
+    `${rootPath}/${REPOSITORIES_ROUTE}/${repoUUID}/${PARTNER_REPO_ROUTE}`,
 };

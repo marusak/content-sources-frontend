@@ -73,8 +73,6 @@ const TagsFilter: FunctionComponent<TagsFilterProps> = ({ selectedTags, setSelec
     };
   });
 
-  console.log('selectedRows', selectedRows);
-
   return (
     <>
       <MenuContainer

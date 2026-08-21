@@ -26,6 +26,14 @@ jest.mock('services/Content/ContentQueries', () => ({
   useTriggerSnapshot: () => ({ isLoading: false }),
 }));
 
+jest.mock('services/AdminPartnerRepos/AdminPartnerReposQueries', () => ({
+  useToggleAsPartnerMutate: () => ({
+    mutate: jest.fn(),
+    isPending: false,
+    variables: undefined,
+  }),
+}));
+
 jest.mock('middleware/AppContext', () => ({
   useAppContext: jest.fn(),
 }));

@@ -6,7 +6,13 @@ import Hide from 'components/Hide/Hide';
 
 export type ActionRowData = Pick<
   ContentItem,
-  'uuid' | 'origin' | 'status' | 'snapshot' | 'last_snapshot_uuid' | 'last_snapshot_task'
+  | 'uuid'
+  | 'origin'
+  | 'status'
+  | 'snapshot'
+  | 'last_snapshot_uuid'
+  | 'last_snapshot_task'
+  | 'partner'
 >;
 
 interface Props {

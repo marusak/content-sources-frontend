@@ -10,6 +10,7 @@ export interface Features {
   admintasks?: Feature;
   kessel?: Feature;
   extendedreleaserepos?: Feature;
+  adminpartnerrepositories?: Feature;
   lightwellnotifications?: Feature;
   lightwellbeaconandlens?: Feature;
   lightwellbeacon?: Feature;

@@ -58,6 +58,8 @@ jest.mock('react-router-dom', () => ({
 jest.mock('../../ContentListTable', () => ({
   useContentListOutletContext: () => ({
     clearCheckedRepositories: () => undefined,
+    markAsPartner: jest.fn(),
+    isMarkingPartner: false,
   }),
 }));
 

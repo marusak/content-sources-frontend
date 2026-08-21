@@ -13,6 +13,7 @@ import {
   DELETE_ROUTE,
   EDIT_ROUTE,
   PACKAGES_ROUTE,
+  PARTNER_REPO_ROUTE,
   REDHAT_REPO_GEN_ROUTE,
   REPOSITORIES_ROUTE,
   SNAPSHOTS_ROUTE,
@@ -43,6 +44,7 @@ import DeleteSnapshotsModal from 'Pages/Repositories/ContentListTable/components
 import AdminFeaturesTable from 'Pages/Repositories/AdminFeaturesTable/AdminFeaturesTable';
 import AssignTemplateModal from '../Pages/Templates/TemplateDetails/components/AssignTemplateModal/AssignTemplateModal';
 import PackagesDeleteModal from 'Pages/Repositories/ContentListTable/components/PackagesDeleteModal/PackagesDeleteModal';
+import MarkAsPartnerModal from 'Pages/Repositories/ContentListTable/components/AdminPartnerRepo/MarkAsPartnerModal';
 
 export default function RepositoriesRoutes() {
   const key = useMemo(() => Math.random(), []);
@@ -75,6 +77,16 @@ export default function RepositoriesRoutes() {
                   element={<UploadContent />}
                 />
                 <Route key={DELETE_ROUTE} path={DELETE_ROUTE} element={<DeleteContentModal />} />
+                {features?.adminpartnerrepositories?.enabled &&
+                features.adminpartnerrepositories?.accessible ? (
+                  <Route
+                    key={`:repoUUID/${PARTNER_REPO_ROUTE}`}
+                    path={`:repoUUID/${PARTNER_REPO_ROUTE}`}
+                    element={<MarkAsPartnerModal />}
+                  />
+                ) : (
+                  ''
+                )}
               </>
             ) : (
               ''

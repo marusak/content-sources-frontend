@@ -49,7 +49,7 @@ import {
   BulkSelectValue,
 } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import flex from '@patternfly/react-styles/css/utilities/Flex/flex';
-import { useQueryClient } from '@tanstack/react-query';
+import { UseMutateFunction, useQueryClient } from '@tanstack/react-query';
 import StatusIcon from './components/StatusIcon';
 import RepositoryCell from './components/RepositoryCell';
 import RepositoryActionCell, { type ActionRowData } from './components/RepositoryActionCell';
@@ -68,6 +68,10 @@ import {
   showPendingTooltip,
   versionNameToApiValue,
 } from '../helpers';
+import {
+  ToggleAsPartner,
+  useToggleAsPartnerMutate,
+} from 'services/AdminPartnerRepos/AdminPartnerReposQueries';
 
 export const perPageKey = 'contentListPerPage';
 
@@ -90,6 +94,21 @@ const ContentListTable = () => {
     isError: repositoryParamsIsError,
     error: repositoryParamsError,
   } = useDistributionDetails();
+
+  const {
+    mutate: markAsPartner,
+    isPending: isMarkingPartner,
+    variables: markAsPartnerParams,
+  } = useToggleAsPartnerMutate();
+
+  const isRepoBeingMarkedAsPartner = useCallback(
+    (uuid: string) => {
+      if (isMarkingPartner) {
+        return markAsPartnerParams.uuid === uuid;
+      } else return false;
+    },
+    [isMarkingPartner, markAsPartnerParams],
+  );
 
   // Column configuration combining display names and sort attributes
   // Selection is handled by DataView selection system, not individual columns
@@ -380,6 +399,7 @@ const ContentListTable = () => {
     introspectRepoForUuid,
     triggerIntrospectionAndSnapshot,
     clearSelectedRepositories,
+    isMarkingPartner,
   });
 
   // Format rows for DataView using DataViewTr objects
@@ -410,6 +430,7 @@ const ContentListTable = () => {
           const actionRowData: ActionRowData = {
             uuid,
             origin,
+            partner,
             status,
             snapshot,
             last_snapshot_uuid,
@@ -427,6 +448,7 @@ const ContentListTable = () => {
                   <RepositoryCell
                     rowData={{ name, url, last_snapshot, origin, partner }}
                     snapshotsAccessible={snapshotsAccessible}
+                    isRepoBeingMarkedAsPartner={isRepoBeingMarkedAsPartner(uuid)}
                   />
                 ),
               },
@@ -485,6 +507,7 @@ const ContentListTable = () => {
       showPendingTooltip,
       introspectRepoForUuid,
       isRedHatRepository,
+      isRepoBeingMarkedAsPartner,
     ],
   );
 
@@ -777,6 +800,8 @@ const ContentListTable = () => {
         <Outlet
           context={{
             clearCheckedRepositories: clearSelectedRepositories,
+            markAsPartner,
+            isMarkingPartner,
             deletionContext: {
               page: page,
               perPage: perPage,
@@ -795,6 +820,8 @@ const ContentListTable = () => {
 export const useContentListOutletContext = () =>
   useOutletContext<{
     clearCheckedRepositories: () => void;
+    markAsPartner: UseMutateFunction<void, Error, ToggleAsPartner, unknown>;
+    isMarkingPartner: boolean;
     deletionContext: {
       page: number;
       perPage: number;

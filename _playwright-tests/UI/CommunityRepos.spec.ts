@@ -39,6 +39,7 @@ test.describe('Community EPEL repositories', () => {
       ).toBeVisible(); // No snapshot in CI due to time constraints
       await expect(page.getByRole('menuitem', { name: 'Edit' })).toBeHidden();
       await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeHidden();
+      await expect(page.getByRole('menuitem', { name: 'Mark as partner repository' })).toBeHidden();
       await expect(page.getByRole('menuitem')).toHaveCount(1);
     });
   });
