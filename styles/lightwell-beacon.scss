@@ -130,6 +130,16 @@
   max-width: 100%;
 }
 
+/* Sticky columns stay transparent so striped rows show through. PatternFly's
+   opaque sticky background is restored only while the table is scrolled horizontally. */
+.lightwell-vuln-table .pf-v6-c-table {
+  --pf-v6-c-table__sticky-cell--BackgroundColor: transparent;
+}
+
+.lightwell-vuln-table--scrolled-x .pf-v6-c-table {
+  --pf-v6-c-table__sticky-cell--BackgroundColor: var(--pf-t--global--background--color--sticky--default);
+}
+
 .lightwell-vuln-table .pf-v6-c-table {
   width: max-content;
   min-width: 100%;
