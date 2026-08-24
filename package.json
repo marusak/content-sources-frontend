@@ -61,6 +61,7 @@
     "dayjs": "^1.11.21",
     "dockerode": "^5.0.1",
     "dotenv": "^17.4.2",
+    "fec": "^0.0.87",
     "formik": "^2.4.6",
     "github-actions-ctrf": "^0.0.58",
     "lodash": "^4.18.1",
