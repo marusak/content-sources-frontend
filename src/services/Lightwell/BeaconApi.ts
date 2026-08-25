@@ -5,7 +5,7 @@ import { LIGHTWELL_BEACON_USE_MOCK } from 'Pages/Lightwell/constants';
 import { mockVulnerabilities } from 'Pages/Lightwell/mockVulnerabilities';
 import type { Complexity, Severity, Stage, Vulnerability } from 'Pages/Lightwell/Beacon/types';
 
-const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
+export const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
 const TICKET_IDS_PATH =
   '/api/content-sources/v1/lightwell/beacon/vulnerabilities/ltwlsupt-ticket-ids/';
 const PAGE_SIZE = 200;
@@ -149,7 +149,7 @@ export function mapLightwellVulnerability(
   };
 }
 
-function mapCollectionMeta(
+export function mapCollectionMeta(
   meta: LightwellVulnerabilityCollectionResponse['meta'],
 ): BeaconVulnerabilityMeta {
   return {
@@ -161,7 +161,7 @@ function mapCollectionMeta(
   };
 }
 
-function buildVulnerabilityQueryParams(
+export function buildVulnerabilityQueryParams(
   customerId: string,
   filters?: BeaconVulnerabilityFilters,
   pagination?: { limit: number; offset: number },
