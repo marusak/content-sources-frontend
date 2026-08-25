@@ -141,5 +141,10 @@ module.exports = {
         host: `http://127.0.0.1:${process.env.BACKEND_PORT}`,
       },
     }),
+    ...(process.env.PDF_GENERATOR_PORT && {
+      '/api/crc-pdf-generator': {
+        host: `http://127.0.0.1:${process.env.PDF_GENERATOR_PORT}`,
+      },
+    }),
   },
 };
