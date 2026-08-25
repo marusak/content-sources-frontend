@@ -1,23 +1,30 @@
 import { useState } from 'react';
 import {
+  AlertVariant,
   Dropdown,
   DropdownItem,
   DropdownList,
   MenuToggle,
+  Spinner,
   type MenuToggleElement,
 } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import type { PDFRequestPayload } from '@redhat-cloud-services/types';
 
 import useErrorNotification from 'Hooks/useErrorNotification';
+import useNotification from 'Hooks/useNotification';
 import { getVulnerabilities, type BeaconVulnerabilityFilters } from 'services/Lightwell/BeaconApi';
 import type { Vulnerability } from '../types';
 
-import { exportToCsv, exportToJson, exportToPdf } from '../utils/exportUtils';
+import { buildBeaconPdfPayload } from '../pdf/beaconPdf';
+import { exportToCsv, exportToJson } from '../utils/exportUtils';
 import type { VulnerabilityTableColumn } from '../utils/vulnerabilityTableColumns';
 
 type ExportMenuProps = {
   customerId?: string;
   filters?: BeaconVulnerabilityFilters;
   visibleColumns: Pick<VulnerabilityTableColumn, 'key' | 'title'>[];
+  itemCount?: number;
 };
 
 type ExportFormat = 'csv' | 'json' | 'pdf';
@@ -49,26 +56,69 @@ export async function fetchAllFilteredVulnerabilities(
   return vulnerabilities;
 }
 
-export function ExportMenu({ customerId, filters, visibleColumns }: ExportMenuProps) {
+async function resolvePdfItemCount(
+  customerId: string,
+  filters: BeaconVulnerabilityFilters | undefined,
+  itemCount: number,
+): Promise<number> {
+  if (itemCount > 0) {
+    return itemCount;
+  }
+
+  const { meta } = await getVulnerabilities(customerId, filters, { limit: 1, offset: 0 });
+  return meta.count;
+}
+
+export function ExportMenu({
+  customerId,
+  filters,
+  visibleColumns,
+  itemCount = 0,
+}: ExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const errorNotifier = useErrorNotification();
+  const { notify } = useNotification();
+  const { requestPdf } = useChrome();
 
   const handleExport = async (format: ExportFormat) => {
     if (!customerId || isExporting) {
       return;
     }
 
+    setIsOpen(false);
     setIsExporting(true);
     try {
+      if (format === 'pdf') {
+        notify({
+          variant: AlertVariant.info,
+          title: 'Generating PDF',
+          description: 'Your PDF is being generated. The download will start when it is ready.',
+        });
+        const count = await resolvePdfItemCount(customerId, filters, itemCount);
+        await requestPdf({
+          filename: `lightwell-beacon-${customerId}.pdf`,
+          payload: buildBeaconPdfPayload({
+            customerId,
+            filters,
+            visibleColumns,
+            itemCount: count,
+          }) as unknown as PDFRequestPayload,
+        });
+        notify({
+          variant: AlertVariant.success,
+          title: 'PDF ready',
+          description: 'Your download should start shortly.',
+        });
+        return;
+      }
+
       const vulnerabilities = await fetchAllFilteredVulnerabilities(customerId, filters);
 
       if (format === 'csv') {
         exportToCsv(vulnerabilities, `lightwell-vulnerabilities.csv`);
-      } else if (format === 'json') {
-        exportToJson(vulnerabilities, `lightwell-vulnerabilities.json`);
       } else {
-        exportToPdf(vulnerabilities, 'Lightwell Vulnerability Report', visibleColumns);
+        exportToJson(vulnerabilities, `lightwell-vulnerabilities.json`);
       }
     } catch (err) {
       errorNotifier(
@@ -79,7 +129,6 @@ export function ExportMenu({ customerId, filters, visibleColumns }: ExportMenuPr
       );
     } finally {
       setIsExporting(false);
-      setIsOpen(false);
     }
   };
 
@@ -100,6 +149,8 @@ export function ExportMenu({ customerId, filters, visibleColumns }: ExportMenuPr
           isDisabled={!customerId || isExporting}
           variant='secondary'
           ouiaId='lightwell-beacon-export-toggle'
+          aria-busy={isExporting}
+          icon={isExporting ? <Spinner size='sm' aria-hidden='true' /> : undefined}
         >
           {isExporting ? 'Exporting' : 'Export'}
         </MenuToggle>
