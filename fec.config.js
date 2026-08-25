@@ -108,6 +108,7 @@ module.exports = {
     exposes: {
       './RootApp': path.resolve(__dirname, './src/AppEntry.tsx'),
       './LightwellApp': path.resolve(__dirname, './src/LightwellAppEntry.tsx'),
+      './BeaconPdfEntry': path.resolve(__dirname, './src/moduleEntries/BeaconPdfEntry.tsx'),
     },
     exclude: ['react-router-dom'],
     shared: [
