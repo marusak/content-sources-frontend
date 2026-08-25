@@ -51,6 +51,17 @@ const javaRemediatedContentItem: ContentItem = {
   version_count: 28,
 };
 
+const javaPredisclosureContentItem: ContentItem = {
+  ...defaultLightwellContentItem,
+  name: 'lightwell/java/predisclosure',
+  published_distribution_url: 'https://example.com/lightwell/java/predisclosure',
+  uuid: '3875c35b-a67a-4ac2-a989-21139433c179',
+  security_level: 'predisclosure',
+  package_count: 8,
+  build_count: 18,
+  version_count: 18,
+};
+
 const renderRepositoriesTable = () =>
   render(
     <ReactQueryTestWrapper>
@@ -334,4 +345,45 @@ it('unsubscribes from repository notifications when toggle is turned off', async
 
   await user.click(toggle);
   expect(mockSetRepoSubscribed).toHaveBeenCalledWith('python-remediated', []);
+});
+
+it('renders java predisclosure repository', async () => {
+  (useContentListQuery as jest.Mock).mockImplementation(() => ({
+    isLoading: false,
+    data: {
+      data: [javaPredisclosureContentItem],
+      meta: { count: 1, limit: 20, offset: 0 },
+    },
+  }));
+
+  renderRepositoriesTable();
+
+  expect(await screen.findByText('Java Predisclosure')).toBeInTheDocument();
+  expect(screen.getByText('Predisclosure')).toBeInTheDocument();
+});
+
+it('does not show notification toggle for predisclosure repositories', async () => {
+  (useLightwellNotificationPrefs as jest.Mock).mockReturnValue({
+    prefs: { enabled: true, minimumSeverity: 'critical' },
+    isLoading: false,
+    isError: false,
+    shouldExposeNotifications: true,
+  });
+  (useContentListQuery as jest.Mock).mockImplementation(() => ({
+    isLoading: false,
+    data: {
+      data: [javaPredisclosureContentItem],
+      meta: { count: 1, limit: 20, offset: 0 },
+    },
+  }));
+
+  renderRepositoriesTable();
+
+  await screen.findByText('Java Predisclosure');
+
+  expect(
+    screen.queryByRole('switch', {
+      name: `Toggle notifications for ${javaPredisclosureContentItem.name}`,
+    }),
+  ).not.toBeInTheDocument();
 });

@@ -381,7 +381,8 @@ const PackageDetails = () => {
               </FlexItem>
             </Flex>
           </StackItem>
-          {repository.security_level === 'remediated' && (
+          {(repository.security_level === 'remediated' ||
+            repository.security_level === 'predisclosure') && (
             <StackItem className={spacing.ptMd}>
               <RemediatedDataWarning />
             </StackItem>

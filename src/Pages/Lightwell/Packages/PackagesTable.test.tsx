@@ -64,6 +64,21 @@ const javaRemediatedContentItem: ContentItem = {
   security_level: 'remediated',
 };
 
+const javaPredisclosureContentItem: ContentItem = {
+  ...defaultLightwellContentItem,
+  name: 'lightwell/java/predisclosure',
+  published_distribution_url: 'https://example.com/lightwell/java/predisclosure',
+  uuid: '3875c35b-a67a-4ac2-a989-21139433c179',
+  security_level: 'predisclosure',
+};
+
+const predisclosurePackageItem: RepositoryPackageItem = {
+  ...defaultLightwellRepositoryPackageItem,
+  latest_releases: [
+    { version: '3.14.0', release: 'rhlw-0005', created_at: '2026-07-01T00:00:00Z' },
+  ],
+};
+
 const mockPackagesQuery = (
   overrides: Partial<ReturnType<typeof useLightwellRepositoryPackagesQuery>> = {},
 ) => ({
@@ -391,4 +406,47 @@ it('renders connect action and repository description', async () => {
       'Maven artifacts rebuilt from source by Red Hat. Verified end-to-end with no modifications.',
     ),
   ).toBeInTheDocument();
+});
+
+it('renders predisclosure packages with Latest release column', async () => {
+  mockUseParams.mockReturnValue({
+    repoName: getRepositoryPathSlug('maven', 'predisclosure'),
+  });
+  mockRepository(javaPredisclosureContentItem);
+  (useLightwellRepositoryPackagesQuery as jest.Mock).mockImplementation(() =>
+    mockPackagesQuery({
+      data: {
+        ...defaultLightwellRepositoryPackageResponse,
+        results: [predisclosurePackageItem],
+        total: 1,
+      },
+    }),
+  );
+
+  renderPackagesTable();
+
+  expect(await screen.findByRole('heading', { name: 'Java Predisclosure' })).toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: 'Latest release' })).toBeInTheDocument();
+});
+
+it('displays sensitive data warning for predisclosure repositories', async () => {
+  mockUseParams.mockReturnValue({
+    repoName: getRepositoryPathSlug('maven', 'predisclosure'),
+  });
+  mockRepository(javaPredisclosureContentItem);
+  (useLightwellRepositoryPackagesQuery as jest.Mock).mockImplementation(() =>
+    mockPackagesQuery({
+      data: {
+        ...defaultLightwellRepositoryPackageResponse,
+        results: [predisclosurePackageItem],
+        total: 1,
+      },
+    }),
+  );
+
+  renderPackagesTable();
+
+  await screen.findByRole('heading', { name: 'Java Predisclosure' });
+
+  expect(screen.getByText(/sensitive/i)).toBeInTheDocument();
 });

@@ -56,6 +56,11 @@ describe('getRepositoryDescription', () => {
     expect(getRepositoryDescription('maven')).toBeUndefined();
     expect(getRepositoryDescription(undefined, 'validated')).toBeUndefined();
   });
+
+  it('returns a description for predisclosure security level', () => {
+    expect(getRepositoryDescription('maven', 'predisclosure')).toBeDefined();
+    expect(getRepositoryDescription('maven', 'predisclosure')).toBeTruthy();
+  });
 });
 
 describe('formatRepositoryName', () => {
@@ -72,6 +77,10 @@ describe('formatRepositoryName', () => {
   it('returns dash when no formatted name or fallback is available', () => {
     expect(formatRepositoryName()).toBe('—');
   });
+
+  it('formats predisclosure repository name correctly', () => {
+    expect(formatRepositoryName('maven', 'predisclosure')).toBe('Java Predisclosure');
+  });
 });
 
 describe('getRepositoryPathSlug', () => {
@@ -84,6 +93,10 @@ describe('getRepositoryPathSlug', () => {
     expect(getRepositoryPathSlug()).toBe('');
     expect(getRepositoryPathSlug('maven')).toBe('');
     expect(getRepositoryPathSlug(undefined, 'validated')).toBe('');
+  });
+
+  it('creates a slug for predisclosure security level', () => {
+    expect(getRepositoryPathSlug('maven', 'predisclosure')).toBe('java-predisclosure');
   });
 });
 
@@ -98,6 +111,12 @@ describe('getRepositoryNameFromPathSlug', () => {
     expect(getRepositoryNameFromPathSlug('java')).toBe('');
     expect(getRepositoryNameFromPathSlug('-validated')).toBe('');
     expect(getRepositoryNameFromPathSlug('java-')).toBe('');
+  });
+
+  it('converts predisclosure slug into repository name', () => {
+    expect(getRepositoryNameFromPathSlug('java-predisclosure')).toBe(
+      'lightwell/java/predisclosure',
+    );
   });
 });
 

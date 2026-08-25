@@ -331,6 +331,8 @@ const RepositoriesTable = () => {
                                 </Label>
                               ) : security_level === 'remediated' ? (
                                 <Label color='purple'>{capitalize(security_level)}</Label>
+                              ) : security_level === 'predisclosure' ? (
+                                <Label color='orange'>{capitalize(security_level)}</Label>
                               ) : (
                                 '—'
                               )}

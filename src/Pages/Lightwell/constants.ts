@@ -38,12 +38,16 @@ export const REPOSITORY_DESCRIPTIONS: Record<string, Record<string, string>> = {
       'Maven artifacts rebuilt from source by Red Hat. Verified end-to-end with no modifications.',
     remediated:
       'Maven artifacts with Red Hat backported fixes for known vulnerabilities in pinned versions.',
+    predisclosure:
+      'Maven artifacts with Red Hat backported fixes for vulnerabilities not yet publicly disclosed, in pinned versions.',
   },
   python: {
     validated:
       'Python wheels rebuilt from source by Red Hat. Verified end-to-end with no modifications.',
     remediated:
       'Python wheels with Red Hat backported fixes for known vulnerabilities in pinned versions.',
+    predisclosure:
+      'Python wheels with Red Hat backported fixes for vulnerabilities not yet publicly disclosed, in pinned versions.',
   },
 };
 

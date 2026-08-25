@@ -292,13 +292,17 @@ const PackagesTable = () => {
     repository.name,
   );
   const isRemediated = repository.security_level === 'remediated';
+  const isPredisclosure = repository.security_level === 'predisclosure';
+  const showReleaseColumn = isRemediated || isPredisclosure;
   const isMaven = repository.content_type === 'maven';
   const isPython = repository.content_type === 'python';
 
   const columnHeaders: { title: string; width?: BaseCellProps['width'] }[] = [
     { title: 'Package', width: 25 },
     { title: 'Version', width: 15 },
-    ...(isRemediated ? [{ title: 'Latest release', width: 20 as BaseCellProps['width'] }] : []),
+    ...(showReleaseColumn
+      ? [{ title: 'Latest release', width: 20 as BaseCellProps['width'] }]
+      : []),
     { title: 'Last updated', width: 15 },
   ];
 
@@ -360,7 +364,7 @@ const PackagesTable = () => {
               {getRepositoryDescription(repository.content_type, repository.security_level)}
             </Content>
           </StackItem>
-          {isRemediated && (
+          {(isRemediated || isPredisclosure) && (
             <StackItem className={spacing.ptSm}>
               <RemediatedDataWarning />
             </StackItem>
@@ -470,7 +474,7 @@ const PackagesTable = () => {
                                 }
                               />
                             </Td>
-                            {isRemediated ? (
+                            {showReleaseColumn ? (
                               <Td dataLabel={columnHeaders[2].title}>
                                 <StackedItemsCell
                                   items={latest_releases}
@@ -484,7 +488,7 @@ const PackagesTable = () => {
                                 />
                               </Td>
                             ) : null}
-                            <Td dataLabel={columnHeaders[isRemediated ? 3 : 2].title}>
+                            <Td dataLabel={columnHeaders[showReleaseColumn ? 3 : 2].title}>
                               {last_updated ? (
                                 <Timestamp
                                   date={new Date(last_updated)}

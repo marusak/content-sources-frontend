@@ -51,6 +51,18 @@ const mockRepositories = [
     build_count: 22,
     version_count: 22,
   },
+  {
+    uuid: '55555555-5555-4555-8555-555555555555',
+    name: 'lightwell/java/predisclosure',
+    published_distribution_url:
+      'https://packages.stage.redhat.com/api/pulp-content/lightwell/java/predisclosure/',
+    description: getRepositoryDescription('maven', 'predisclosure')!,
+    security_level: 'predisclosure',
+    content_type: 'maven',
+    package_count: 8,
+    build_count: 18,
+    version_count: 18,
+  },
 ] as ContentItem[];
 
 export const getMockLightwellRepository = (uuid: string): ContentItem | undefined => {
