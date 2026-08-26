@@ -1,5 +1,15 @@
+import { useMemo } from 'react';
 import LightwellPageHeader from '../components/LightwellPageHeader';
-import { PageSection, Stack, StackItem, Button, Title, Truncate } from '@patternfly/react-core';
+import {
+  PageSection,
+  Stack,
+  StackItem,
+  Button,
+  Title,
+  Truncate,
+  Card,
+  CardBody,
+} from '@patternfly/react-core';
 import ManifestUploadCard from './components/ManifestUploadCard';
 import CoverageSummaryCard from './components/CoverageSummaryCard';
 import EcosystemBreakdownCard from './components/EcosystemBreakdownCard';
@@ -7,9 +17,15 @@ import EcosystemBreakdownCard from './components/EcosystemBreakdownCard';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import { useCoverageAnalysis } from './hooks/useCoverageAnalysis';
 import { PlusIcon } from '@patternfly/react-icons';
+import PackageCoverageTable from './components/PackageCoverageTable';
 
 const CoverageAnalyzer = () => {
   const { filename, report, uploadProps, startOver } = useCoverageAnalysis();
+
+  const ecosystems = useMemo(
+    () => report?.ecosystem_coverage_summary.map((summary) => summary.ecosystem) ?? [],
+    [report],
+  );
 
   const matchAnalysisTitle =
     filename && report ? (
@@ -67,6 +83,13 @@ const CoverageAnalyzer = () => {
               </StackItem>
               <StackItem>
                 <EcosystemBreakdownCard report={report} />
+              </StackItem>
+              <StackItem>
+                <Card isGlass>
+                  <CardBody>
+                    <PackageCoverageTable uuid={report.uuid} ecosystems={ecosystems} />
+                  </CardBody>
+                </Card>
               </StackItem>
             </Stack>
           ) : (

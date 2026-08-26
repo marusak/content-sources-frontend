@@ -17,7 +17,7 @@ import {
   NO_MATCH_COLOR,
 } from '../constants';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
-import { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
+import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import { useContainerWidth } from '../../hooks/useContainerWidth';
 import { useMemo } from 'react';
 

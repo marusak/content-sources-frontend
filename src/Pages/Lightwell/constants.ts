@@ -25,6 +25,7 @@ export const LIGHTWELL_BEACON_USE_MOCK = false;
 
 export const lightwellReposPerPageKey = 'lightwellRepositoriesPerPage';
 export const lightwellPkgsPerPageKey = 'lightwellPackagesPerPage';
+export const lightwellCoveragePkgsPerPageKey = 'lightwellCoveragePackagesPerPage';
 
 export const CONTENT_TYPE_PARAMETERS: Record<string, { ecosystem: string; label: string }> = {
   maven: { ecosystem: 'Java', label: 'Maven' },

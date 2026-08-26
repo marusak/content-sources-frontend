@@ -2,8 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import CoverageAnalyzer from './CoverageAnalyzer';
 import { useCoverageAnalysis } from './hooks/useCoverageAnalysis';
-import { ReactQueryTestWrapper } from 'testingHelpers';
-import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
+import { defaultCoverageReportItem, ReactQueryTestWrapper } from 'testingHelpers';
 
 jest.mock('./hooks/useCoverageAnalysis');
 
@@ -29,22 +28,6 @@ const defaultUploadProps = {
   onRetry: jest.fn(),
 };
 
-const completedReport: CompletedCoverageReport = {
-  uuid: 'test-uuid',
-  created_at: '2026-08-18T12:00:00Z',
-  status: 'completed',
-  exact_matches: 60,
-  partial_matches: 15,
-  unmatched: 25,
-  total: 100,
-  completed_at: '2026-08-18T12:01:00Z',
-  ecosystem_coverage_summary: [
-    { ecosystem: 'Java (Maven)', exact_matches: 30, partial_matches: 10, unmatched: 10, total: 50 },
-    { ecosystem: 'Python (PyPI)', exact_matches: 20, partial_matches: 5, unmatched: 10, total: 35 },
-    { ecosystem: 'npm', exact_matches: 10, partial_matches: 0, unmatched: 5, total: 15 },
-  ],
-};
-
 const renderCoverageAnalyzer = () =>
   render(
     <ReactQueryTestWrapper>
@@ -56,7 +39,7 @@ describe('CoverageAnalyzer', () => {
   beforeEach(() => {
     (useCoverageAnalysis as jest.Mock).mockReturnValue({
       filename: 'test-sbom.json',
-      report: completedReport,
+      report: defaultCoverageReportItem,
       uploadProps: defaultUploadProps,
       startOver: jest.fn(),
     });
@@ -130,5 +113,43 @@ describe('CoverageAnalyzer', () => {
     renderCoverageAnalyzer();
     expect(screen.getByText('Could not upload your file')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reupload file' })).toBeInTheDocument();
+  });
+
+  it('shows upload instructions and supported formats when no report exists', () => {
+    (useCoverageAnalysis as jest.Mock).mockReturnValue({
+      filename: undefined,
+      report: undefined,
+      uploadProps: defaultUploadProps,
+      startOver: jest.fn(),
+    });
+
+    renderCoverageAnalyzer();
+    expect(screen.getByText('Lightwell Lens')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Upload your SBOM or package manifest to assess your stack against the Lightwell Network catalog.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Supports: CycloneDX, SPDX, pom.xml, requirements.txt'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows analyzing state with updated copy when upload is in progress', () => {
+    (useCoverageAnalysis as jest.Mock).mockReturnValue({
+      filename: undefined,
+      report: undefined,
+      uploadProps: {
+        ...defaultUploadProps,
+        isLoading: true,
+      },
+      startOver: jest.fn(),
+    });
+
+    renderCoverageAnalyzer();
+    expect(screen.getByText('Analyzing your manifest...')).toBeInTheDocument();
+    expect(
+      screen.getByText('Matching packages against the Lightwell Network catalog.'),
+    ).toBeInTheDocument();
   });
 });

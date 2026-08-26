@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { objectToUrlParams } from 'helpers';
+import type { Links, Meta } from './types';
 
 export type EcosystemCoverageSummary = {
   ecosystem: string;
@@ -6,6 +8,26 @@ export type EcosystemCoverageSummary = {
   partial_matches: number;
   unmatched: number;
   total: number;
+};
+
+export type CoverageReportPackage = {
+  name: string;
+  version: string;
+  ecosystem: string;
+  covered: boolean;
+  match_status: 'exact' | 'partial' | 'none';
+};
+
+export type CoverageReportPackagesListResponse = {
+  data: CoverageReportPackage[];
+  links: Links;
+  meta: Meta;
+};
+
+export type CoverageReportPackageFilters = {
+  search?: string;
+  match_status?: string[];
+  ecosystem?: string[];
 };
 
 type CoverageReportBase = {
@@ -51,6 +73,26 @@ export const createCoverageReport = async (file: File): Promise<CoverageReportRe
 export const getCoverageReport = async (uuid: string): Promise<CoverageReportResponse> => {
   const { data } = await axios.get<CoverageReportResponse>(
     `/api/content-sources/v1/coverage_reports/${encodeURIComponent(uuid)}`,
+  );
+  return data;
+};
+
+export const getCoverageReportPackages = async (
+  uuid: string,
+  page: number,
+  limit: number,
+  filters: CoverageReportPackageFilters = {},
+): Promise<CoverageReportPackagesListResponse> => {
+  const { data } = await axios.get<CoverageReportPackagesListResponse>(
+    `/api/content-sources/v1/coverage_reports/${encodeURIComponent(uuid)}/packages?${objectToUrlParams(
+      {
+        offset: ((page - 1) * limit).toString(),
+        limit: limit.toString(),
+        search: filters.search,
+        match_status: filters.match_status?.join(','),
+        ecosystem: filters.ecosystem?.join(','),
+      },
+    )}`,
   );
   return data;
 };

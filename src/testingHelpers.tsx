@@ -22,6 +22,10 @@ import { TemplateItem } from 'services/Templates/TemplateApi';
 import type { IDSystemItem, SystemItem } from 'services/Systems/SystemsApi';
 import { RoadmapLifecycleResponse } from 'services/Roadmap/RoadmapApi';
 import { EUS, E4S } from './Pages/Templates/TemplatesTable/constants';
+import type {
+  CompletedCoverageReport,
+  CoverageReportPackage,
+} from 'services/Lightwell/CoverageReportsApi';
 
 const queryClient = new QueryClient({
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -825,3 +829,25 @@ export const testRoadmapLifecycleResponse: RoadmapLifecycleResponse = {
     },
   ],
 };
+
+export const defaultCoverageReportItem: CompletedCoverageReport = {
+  uuid: 'test-uuid',
+  created_at: '2026-08-18T12:00:00Z',
+  status: 'completed',
+  exact_matches: 60,
+  partial_matches: 15,
+  unmatched: 25,
+  total: 100,
+  completed_at: '2026-08-18T12:01:00Z',
+  ecosystem_coverage_summary: [
+    { ecosystem: 'Java', exact_matches: 30, partial_matches: 10, unmatched: 10, total: 50 },
+    { ecosystem: 'Python', exact_matches: 20, partial_matches: 5, unmatched: 10, total: 35 },
+    { ecosystem: 'npm', exact_matches: 10, partial_matches: 0, unmatched: 5, total: 15 },
+  ],
+};
+
+export const defaultCoverageReportPackagesItem: CoverageReportPackage[] = [
+  { name: 'spring-web', version: '6.1.5', ecosystem: 'Java', covered: true, match_status: 'exact' },
+  { name: 'flask', version: '3.0.3', ecosystem: 'Python', covered: true, match_status: 'partial' },
+  { name: 'lodash', version: '4.17.21', ecosystem: 'npm', covered: false, match_status: 'none' },
+];

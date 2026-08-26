@@ -12,7 +12,7 @@ import {
   FUZZY_MATCH_COLOR,
   NO_MATCH_COLOR,
 } from '../constants';
-import { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
+import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import { useContainerWidth } from '../../hooks/useContainerWidth';
 import MatchSummaryStats, { type MatchSummaryItem } from './MatchSummaryStats';
 

@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 import { objectToUrlParams } from 'helpers';
+import type { Complexity, Severity, Stage, Vulnerability } from 'Pages/Lightwell/Beacon/types';
 import { LIGHTWELL_BEACON_USE_MOCK } from 'Pages/Lightwell/constants';
 import { mockVulnerabilities } from 'Pages/Lightwell/mockVulnerabilities';
-import type { Complexity, Severity, Stage, Vulnerability } from 'Pages/Lightwell/Beacon/types';
+import type { Meta } from './types';
 
 const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
 const TICKET_IDS_PATH =
@@ -27,10 +28,7 @@ export type BeaconVulnerabilityFilters = {
   search?: string;
 };
 
-export type BeaconPagination = {
-  limit: number;
-  offset: number;
-};
+export type BeaconPagination = Pick<Meta, 'limit' | 'offset'>;
 
 export type BeaconVulnerabilityMeta = {
   count: number;
@@ -76,10 +74,7 @@ export type LightwellVulnerabilityResponse = {
 
 export type LightwellVulnerabilityCollectionResponse = {
   data: LightwellVulnerabilityResponse[];
-  meta: {
-    count: number;
-    limit: number;
-    offset: number;
+  meta: Meta & {
     critical_count: number;
     embargo_count: number;
     blocked_count: number;
