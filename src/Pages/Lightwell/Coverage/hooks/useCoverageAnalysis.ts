@@ -6,7 +6,7 @@ import {
 import { validateManifestFile } from '../utils/validateManifestFile';
 import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import { LIGHTWELL_LENS_USE_MOCK } from 'Pages/Lightwell/constants';
-import { MOCK_ANALYSIS } from '../../mockAnalysis';
+import { MOCK_ANALYSIS } from '../../mockCoverageAnalysis';
 
 export type ProcessStep = 'select' | 'uploading' | 'analyzing' | 'complete' | 'error';
 export type FileUploadStatus = 'success' | 'error' | 'default';

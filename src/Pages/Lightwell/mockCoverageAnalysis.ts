@@ -1,7 +1,7 @@
 import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import type { FileUploadStatus } from './Coverage/hooks/useCoverageAnalysis';
 
-const MOCK_REPORT: CompletedCoverageReport = {
+export const MOCK_REPORT: CompletedCoverageReport = {
   uuid: 'mock-report',
   status: 'completed',
   created_at: '2026-08-18T00:00:00Z',
@@ -11,12 +11,12 @@ const MOCK_REPORT: CompletedCoverageReport = {
   partial_matches: 340,
   unmatched: 280,
   ecosystem_coverage_summary: [
-    { ecosystem: 'maven', total: 650, exact_matches: 450, partial_matches: 110, unmatched: 90 },
+    { ecosystem: 'Java', total: 650, exact_matches: 450, partial_matches: 110, unmatched: 90 },
     { ecosystem: 'npm', total: 550, exact_matches: 380, partial_matches: 90, unmatched: 80 },
-    { ecosystem: 'pypi', total: 400, exact_matches: 270, partial_matches: 70, unmatched: 60 },
-    { ecosystem: 'crates', total: 200, exact_matches: 140, partial_matches: 40, unmatched: 20 },
-    { ecosystem: 'go', total: 150, exact_matches: 100, partial_matches: 20, unmatched: 30 },
-    { ecosystem: 'nuget', total: 50, exact_matches: 40, partial_matches: 10, unmatched: 0 },
+    { ecosystem: 'Python', total: 400, exact_matches: 270, partial_matches: 70, unmatched: 60 },
+    { ecosystem: 'Rust', total: 200, exact_matches: 140, partial_matches: 40, unmatched: 20 },
+    { ecosystem: 'Go', total: 150, exact_matches: 100, partial_matches: 20, unmatched: 30 },
+    { ecosystem: 'NuGet', total: 50, exact_matches: 40, partial_matches: 10, unmatched: 0 },
   ],
 };
 
