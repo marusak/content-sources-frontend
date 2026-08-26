@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import CoverageAnalyzer from './CoverageAnalyzer';
 import { useCoverageAnalysis } from './hooks/useCoverageAnalysis';
 import { defaultCoverageReportItem, ReactQueryTestWrapper } from 'testingHelpers';
+import type { ManifestUploadCardProps } from './components/ManifestUploadCard';
+import { apiError, taskError } from './utils/errors';
 
 jest.mock('./hooks/useCoverageAnalysis');
 
@@ -17,12 +19,13 @@ jest.mock('@patternfly/react-charts/victory', () => ({
   ChartTooltip: () => null,
 }));
 
-const defaultUploadProps = {
+const defaultUploadProps: ManifestUploadCardProps = {
   file: undefined,
   fileError: undefined,
   processError: undefined,
-  validated: 'default' as const,
-  isLoading: false,
+  validated: 'default',
+  step: 'select',
+  reportUUID: '',
   onDropAccepted: jest.fn(),
   onClearClick: jest.fn(),
   onRetry: jest.fn(),
@@ -99,19 +102,85 @@ describe('CoverageAnalyzer', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows error state with "Reupload file" button on process error', () => {
+  it('shows uploading step in progress while the file is uploading', () => {
     (useCoverageAnalysis as jest.Mock).mockReturnValue({
-      filename: undefined,
+      filename: 'manifest.json',
       report: undefined,
       uploadProps: {
         ...defaultUploadProps,
-        processError: 'Could not upload your file',
+        step: 'uploading',
       },
       startOver: jest.fn(),
     });
 
     renderCoverageAnalyzer();
-    expect(screen.getByText('Could not upload your file')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Analyzing your manifest...' })).toBeInTheDocument();
+    expect(screen.getByText('Uploading manifest')).toBeInTheDocument();
+    expect(screen.getByText('Preparing analysis report')).toBeInTheDocument();
+    expect(screen.getByLabelText('In progress')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Complete')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Analyzing')).not.toBeInTheDocument();
+  });
+
+  it('shows preparing report in progress after upload succeeds', () => {
+    (useCoverageAnalysis as jest.Mock).mockReturnValue({
+      filename: 'manifest.json',
+      report: undefined,
+      uploadProps: {
+        ...defaultUploadProps,
+        step: 'analyzing',
+        reportUUID: 'test-uuid',
+      },
+      startOver: jest.fn(),
+    });
+
+    renderCoverageAnalyzer();
+    expect(screen.getByLabelText('Complete')).toBeInTheDocument();
+    expect(screen.getByLabelText('In progress')).toBeInTheDocument();
+  });
+
+  it('shows the upload failure on the progress card', () => {
+    const error = apiError('upload');
+    (useCoverageAnalysis as jest.Mock).mockReturnValue({
+      filename: undefined,
+      report: undefined,
+      uploadProps: {
+        ...defaultUploadProps,
+        step: 'error',
+        processError: error,
+      },
+      startOver: jest.fn(),
+    });
+
+    renderCoverageAnalyzer();
+    expect(screen.getByRole('heading', { name: 'Analysis failed' })).toBeInTheDocument();
+    expect(screen.getByText('Uploading manifest')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Failed')).toHaveLength(2);
+    expect(screen.getByText(error.title)).toBeInTheDocument();
+    expect(screen.getByText(error.description)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reupload file' })).toBeInTheDocument();
+    expect(screen.queryByText('Please try again')).not.toBeInTheDocument();
+  });
+
+  it('shows the task error on the progress card after upload succeeds', () => {
+    const error = taskError('Failed to parse manifest: unexpected EOF');
+    (useCoverageAnalysis as jest.Mock).mockReturnValue({
+      filename: 'manifest.json',
+      report: undefined,
+      uploadProps: {
+        ...defaultUploadProps,
+        step: 'error',
+        reportUUID: 'test-uuid',
+        processError: error,
+      },
+      startOver: jest.fn(),
+    });
+
+    renderCoverageAnalyzer();
+    expect(screen.getByLabelText('Complete')).toBeInTheDocument();
+    expect(screen.getByLabelText('Failed')).toBeInTheDocument();
+    expect(screen.getByText(error.title)).toBeInTheDocument();
+    expect(screen.getByText(error.description)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reupload file' })).toBeInTheDocument();
   });
 
@@ -132,24 +201,6 @@ describe('CoverageAnalyzer', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText('Supported formats: CSV, CycloneDX, SPDX, pom.xml, requirements.txt'),
-    ).toBeInTheDocument();
-  });
-
-  it('shows analyzing state with updated copy when upload is in progress', () => {
-    (useCoverageAnalysis as jest.Mock).mockReturnValue({
-      filename: undefined,
-      report: undefined,
-      uploadProps: {
-        ...defaultUploadProps,
-        isLoading: true,
-      },
-      startOver: jest.fn(),
-    });
-
-    renderCoverageAnalyzer();
-    expect(screen.getByText('Analyzing your manifest...')).toBeInTheDocument();
-    expect(
-      screen.getByText('Matching packages against the Lightwell Network catalog.'),
     ).toBeInTheDocument();
   });
 });

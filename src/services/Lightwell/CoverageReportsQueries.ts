@@ -17,7 +17,7 @@ export const useCoverageReportQuery = (uuid: string, polling = false) =>
     queryKey: [COVERAGE_REPORT_KEY, uuid],
     queryFn: () => getCoverageReport(uuid),
     enabled: !!uuid,
-    retry: false, // Surface errors immediately, the user can restart via "Analyze another file"
+    retry: false, // Surface errors immediately on the progress card
     refetchInterval: polling ? COVERAGE_REPORT_POLLING_TIME : undefined,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: polling,

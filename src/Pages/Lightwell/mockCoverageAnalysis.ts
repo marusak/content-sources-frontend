@@ -1,5 +1,5 @@
 import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
-import type { FileUploadStatus } from './Coverage/hooks/useCoverageAnalysis';
+import type { ManifestUploadCardProps } from './Coverage/components/ManifestUploadCard';
 
 export const MOCK_REPORT: CompletedCoverageReport = {
   uuid: 'mock-report',
@@ -20,18 +20,21 @@ export const MOCK_REPORT: CompletedCoverageReport = {
   ],
 };
 
+const mockUploadProps: ManifestUploadCardProps = {
+  file: undefined,
+  fileError: undefined,
+  processError: undefined,
+  validated: 'default',
+  step: 'complete',
+  reportUUID: 'mock-report',
+  onDropAccepted: () => undefined,
+  onClearClick: () => undefined,
+  onRetry: () => undefined,
+};
+
 export const MOCK_ANALYSIS = {
   filename: 'Vuln-Report_2026-08-18.csv',
   report: MOCK_REPORT,
-  uploadProps: {
-    file: undefined,
-    fileError: undefined,
-    processError: undefined,
-    validated: 'default' as FileUploadStatus,
-    isLoading: false,
-    onDropAccepted: () => undefined,
-    onClearClick: () => undefined,
-    onRetry: () => undefined,
-  },
+  uploadProps: mockUploadProps,
   startOver: () => undefined,
 };
