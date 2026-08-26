@@ -112,7 +112,7 @@ const ManifestUploadCard = ({
           </FlexItem>
           <FlexItem>
             <Content component='small'>
-              Supports: CycloneDX, SPDX, CSV, pom.xml, requirements.txt
+              Supports: CycloneDX, SPDX, pom.xml, requirements.txt
             </Content>
           </FlexItem>
         </Flex>
