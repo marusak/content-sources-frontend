@@ -520,7 +520,7 @@ const ContentListTable = () => {
 
   const ouiaId = 'repositories-table';
 
-  const activeState = useTableActiveState(isLoading, count);
+  const activeState = useTableActiveState({ isLoading, count });
 
   const shouldEnableSelection =
     !(!rbac?.repoWrite || isReadOnlyOrigin) &&

@@ -71,7 +71,7 @@ const PackagesTableWithToolbars = ({
   const isFetchingOrLoading = isFetching || isLoading;
   const isLoadingOrZeroCount = isFetchingOrLoading || !count;
 
-  const activeState = useTableActiveState(isLoading, count, isFetching);
+  const activeState = useTableActiveState({ isLoading, count, isFetching });
 
   // delete single rpm through kebab
   const handleSingleRowDelete = useCallback(
