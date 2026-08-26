@@ -6,6 +6,9 @@ import {
   CardHeader,
   CardTitle,
   Content,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
   Flex,
   FlexItem,
   PageSection,
@@ -20,6 +23,7 @@ import {
   FilterSidePanelCategory,
   FilterSidePanelCategoryItem,
 } from '@patternfly/react-catalog-view-extension';
+import CubesIcon from '@patternfly/react-icons/dist/esm/icons/cubes-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
 import useDebounce from 'Hooks/useDebounce';
@@ -40,6 +44,7 @@ import {
   createDefaultVulnerabilityColumns,
   getVisibleVulnerabilityColumns,
 } from './utils/vulnerabilityTableColumns';
+import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
 
 import '../../../../styles/lightwell-beacon.scss';
 
@@ -173,7 +178,10 @@ const Beacon = () => {
     error,
   } = useBeaconData(selectedCustomerId, queryFilters, pagination);
   const { data: ltwlsuptTicketIds = [] } = useLtwlsuptTicketIdsQuery(selectedCustomerId);
+  const { data: customerIds, isLoading: isLoadingCustomers } = useCustomerIdsQuery();
 
+  const hasCustomers = (customerIds?.length ?? 0) > 0;
+  const showCustomerEmptyState = !isLoadingCustomers && !hasCustomers;
   const isLoading = !displayData && isLoadingDisplay;
 
   if (isError) throw error;
@@ -364,7 +372,19 @@ const Beacon = () => {
                 </FilterSidePanel>
               </FlexItem>
               <FlexItem flex={{ default: 'flex_1' }} className='lightwell-beacon-table-area'>
-                {isLoading || !selectedCustomerId ? (
+                {showCustomerEmptyState ? (
+                  <EmptyState
+                    headingLevel='h2'
+                    icon={CubesIcon}
+                    titleText='No customers available'
+                    variant={EmptyStateVariant.lg}
+                  >
+                    <EmptyStateBody>
+                      You do not have access to any customer IDs. Contact your administrator if you
+                      believe this is an error.
+                    </EmptyStateBody>
+                  </EmptyState>
+                ) : isLoadingCustomers || isLoading || !selectedCustomerId ? (
                   <Stack hasGutter>
                     <StackItem>
                       <Skeleton height='120px' />

@@ -9,6 +9,7 @@ type LightwellCustomerIdsResponse = {
   data: string[];
 };
 
+/** Customer IDs mapped to the currently logged-in user (STAML). */
 export const getCustomerIds = async (): Promise<string[]> => {
   if (LIGHTWELL_BEACON_USE_MOCK) {
     return [...MOCK_CUSTOMER_IDS];

@@ -139,3 +139,19 @@ it('shows loading skeleton while data is fetching', () => {
   expect(screen.getByText('Customer ID')).toBeInTheDocument();
   expect(screen.getByText('Filters')).toBeInTheDocument();
 });
+
+it('shows an empty state when the user has no visible customers', async () => {
+  (useCustomerIdsQuery as jest.Mock).mockReturnValue({
+    isLoading: false,
+    data: [],
+  });
+
+  renderBeacon();
+
+  await waitFor(() => {
+    expect(screen.getByText('No customers available')).toBeInTheDocument();
+  });
+
+  expect(screen.getByText(/You do not have access to any customer IDs/i)).toBeInTheDocument();
+  expect(screen.queryByText('Status Summary')).not.toBeInTheDocument();
+});
