@@ -40,12 +40,11 @@ export default function LightwellApp() {
             <Route path=':repoName' element={<PackagesTable />} />
           </Route>
           <Route index element={<RepositoriesTable />} />
-          {features?.lightwellbeaconandlens?.enabled &&
-          features?.lightwellbeaconandlens?.accessible ? (
-            <>
-              <Route path='beacon' element={<Beacon />} />
-              <Route path='lens' element={<CoverageAnalyzer />} />
-            </>
+          {features?.lightwellbeacon?.enabled && features?.lightwellbeacon?.accessible ? (
+            <Route path='beacon' element={<Beacon />} />
+          ) : null}
+          {features?.lightwelllens?.enabled && features?.lightwelllens?.accessible ? (
+            <Route path='lens' element={<CoverageAnalyzer />} />
           ) : null}
           <Route path=':repoName/:group/:packageName' element={<PackageDetails />} />
           <Route path=':repoName/:packageName' element={<PackageDetails />} />

@@ -12,6 +12,8 @@ export interface Features {
   extendedreleaserepos?: Feature;
   lightwellnotifications?: Feature;
   lightwellbeaconandlens?: Feature;
+  lightwellbeacon?: Feature;
+  lightwelllens?: Feature;
   /** PLACEHOLDER: Hardcoded to false until backend feature flag is implemented */
   partnerrepos?: Feature;
 }
