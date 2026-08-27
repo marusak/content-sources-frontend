@@ -65,18 +65,18 @@ const ManifestUploadCard = ({
               alignItems={{ default: 'alignItemsCenter' }}
             >
               <FlexItem>
-                <Spinner size='lg' aria-label='Analyzing' />
+                <Spinner size='lg' aria-label='Analyzing your manifest' />
               </FlexItem>
               <FlexItem>
                 <Title headingLevel='h3' size='md'>
-                  Analyzing your inventory...
+                  Analyzing your manifest...
                 </Title>
               </FlexItem>
             </Flex>
           </FlexItem>
           <FlexItem>
             <Content component='p'>
-              Matching packages against the Lightwell Validated catalog.
+              Matching packages against the Lightwell Network catalog.
             </Content>
           </FlexItem>
         </Flex>

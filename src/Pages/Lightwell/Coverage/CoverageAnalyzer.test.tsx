@@ -10,6 +10,7 @@ jest.mock('./hooks/useCoverageAnalysis');
 // Charts are not under test here, no-op mocks keep the focus on text and button assertions
 jest.mock('@patternfly/react-charts/victory', () => ({
   ChartDonut: () => null,
+  ChartLabel: () => null,
   Chart: () => null,
   ChartAxis: () => null,
   ChartBar: () => null,
@@ -66,28 +67,31 @@ describe('CoverageAnalyzer', () => {
     expect(screen.getByRole('button', { name: 'New analysis' })).toBeInTheDocument();
   });
 
-  it('displays the coverage report title and filename', () => {
+  it('displays the match analysis title and manifest filename', () => {
     renderCoverageAnalyzer();
     expect(
-      screen.getByRole('heading', { name: 'Coverage report for test-sbom.json' }),
+      screen.getByRole('heading', { name: 'Match analysis for manifest test-sbom.json' }),
     ).toBeInTheDocument();
   });
 
   it('displays coverage summary with in-network percentage and match counts', () => {
     renderCoverageAnalyzer();
     expect(
-      screen.getByRole('heading', { level: 3, name: /covers 75% of this manifest/ }),
+      screen.getByRole('heading', {
+        level: 3,
+        name: /75% of packages match the Lightwell Network catalog/,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText('60')).toBeInTheDocument();
     expect(screen.getByText('15')).toBeInTheDocument();
     expect(screen.getByText('25')).toBeInTheDocument();
-    expect(screen.getByText('Exact matches')).toBeInTheDocument();
-    expect(screen.getByText('Partial matches')).toBeInTheDocument();
+    expect(screen.getByText('Exact match')).toBeInTheDocument();
+    expect(screen.getByText('Partial match')).toBeInTheDocument();
   });
 
   it('displays ecosystem breakdown with package counts', () => {
     renderCoverageAnalyzer();
-    expect(screen.getByText('Coverage by Ecosystem')).toBeInTheDocument();
+    expect(screen.getByText('By Ecosystem')).toBeInTheDocument();
     const paragraphs = screen.getAllByRole('paragraph');
     expect(paragraphs.some((p) => p.textContent?.includes('75 of 100 packages'))).toBe(true);
   });

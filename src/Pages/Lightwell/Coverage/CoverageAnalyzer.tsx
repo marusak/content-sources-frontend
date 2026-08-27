@@ -1,13 +1,5 @@
 import LightwellPageHeader from '../components/LightwellPageHeader';
-import {
-  PageSection,
-  Stack,
-  StackItem,
-  Button,
-  Divider,
-  HelperText,
-  HelperTextItem,
-} from '@patternfly/react-core';
+import { PageSection, Stack, StackItem, Button, Title, Truncate } from '@patternfly/react-core';
 import ManifestUploadCard from './components/ManifestUploadCard';
 import CoverageSummaryCard from './components/CoverageSummaryCard';
 import EcosystemBreakdownCard from './components/EcosystemBreakdownCard';
@@ -19,14 +11,34 @@ import { PlusIcon } from '@patternfly/react-icons';
 const CoverageAnalyzer = () => {
   const { filename, report, uploadProps, startOver } = useCoverageAnalysis();
 
+  const matchAnalysisTitle =
+    filename && report ? (
+      <Title headingLevel='h1'>
+        Match analysis for manifest{' '}
+        <strong>
+          <span
+            style={{
+              display: 'inline-block',
+              maxWidth: '24rem',
+              verticalAlign: 'bottom',
+            }}
+          >
+            <Truncate content={filename} position='middle' />
+          </span>
+        </strong>
+      </Title>
+    ) : (
+      'Lightwell Lens'
+    );
+
   return (
     <>
       <LightwellPageHeader
-        title={filename && report ? `Coverage report for ${filename}` : 'Lightwell Lens'}
+        title={matchAnalysisTitle}
         ouiaId='lightwell-coverage-header'
         {...(!report && {
           description:
-            'Upload your SBOM or package manifest to see how much of your stack is covered by the Validated catalog in Lightwell Network.',
+            'Upload your SBOM or package manifest to assess your stack against the Lightwell Network catalog.',
         })}
         {...(report && {
           actions: (
@@ -49,24 +61,14 @@ const CoverageAnalyzer = () => {
       >
         <Stack hasGutter style={{ maxWidth: 1200 }}>
           {report ? (
-            <>
+            <Stack hasGutter style={{ gap: '3rem' }}>
               <StackItem>
                 <CoverageSummaryCard report={report} />
               </StackItem>
               <StackItem>
                 <EcosystemBreakdownCard report={report} />
               </StackItem>
-              <StackItem>
-                <Divider />
-                <HelperText className={spacing.pMd}>
-                  <HelperTextItem variant='default'>
-                    {report.unmatched} out-of-network packages logged as demand signals for the
-                    Catalog Build Queue. This does not constitute a commitment to build these
-                    packages.
-                  </HelperTextItem>
-                </HelperText>
-              </StackItem>
-            </>
+            </Stack>
           ) : (
             <StackItem>
               <ManifestUploadCard {...uploadProps} />

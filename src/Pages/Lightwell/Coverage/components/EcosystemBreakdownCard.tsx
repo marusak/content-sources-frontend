@@ -7,61 +7,76 @@ import {
   ChartTooltip,
 } from '@patternfly/react-charts/victory';
 
-import { EXACT_MATCH_COLOR, FUZZY_MATCH_COLOR, UNCOVERED_COLOR } from '../constants';
+import {
+  ECOSYSTEM_BREAKDOWN_CHART_MIN_WIDTH,
+  ECOSYSTEM_CHART_DOMAIN_PADDING,
+  ECOSYSTEM_CHART_PADDING,
+  ECOSYSTEM_LEGEND_DATA,
+  EXACT_MATCH_COLOR,
+  FUZZY_MATCH_COLOR,
+  NO_MATCH_COLOR,
+} from '../constants';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import { useContainerWidth } from '../../hooks/useContainerWidth';
+import { useMemo } from 'react';
 
 type EcosystemBreakdownCardProps = {
   report: CompletedCoverageReport;
 };
 
+const getEcosystemData = (report: CompletedCoverageReport) => ({
+  exactPackages: report.ecosystem_coverage_summary.map((eco) => ({
+    x: eco.ecosystem,
+    y: eco.exact_matches,
+  })),
+  fuzzyPackages: report.ecosystem_coverage_summary.map((eco) => ({
+    x: eco.ecosystem,
+    y: eco.partial_matches,
+  })),
+  unmatchedPackages: report.ecosystem_coverage_summary.map((eco) => ({
+    x: eco.ecosystem,
+    y: eco.unmatched,
+  })),
+});
+
 const EcosystemBreakdownCard = ({ report }: EcosystemBreakdownCardProps) => {
-  const { containerRef, width: chartWidth } = useContainerWidth(500);
+  const { containerRef, width: chartWidth } = useContainerWidth(
+    ECOSYSTEM_BREAKDOWN_CHART_MIN_WIDTH,
+  );
 
   const ecosystemCount = report.ecosystem_coverage_summary.length;
   const inNetwork = report.exact_matches + report.partial_matches;
-  const exactPackages = report.ecosystem_coverage_summary.map((eco) => ({
-    x: eco.ecosystem,
-    y: eco.exact_matches,
-  }));
-  const fuzzyPackages = report.ecosystem_coverage_summary.map((eco) => ({
-    x: eco.ecosystem,
-    y: eco.partial_matches,
-  }));
-  const unmatchedPackages = report.ecosystem_coverage_summary.map((eco) => ({
-    x: eco.ecosystem,
-    y: eco.unmatched,
-  }));
+
+  const { exactPackages, fuzzyPackages, unmatchedPackages } = useMemo(
+    () => getEcosystemData(report),
+    [report],
+  );
 
   return (
     <>
-      <Title headingLevel='h3' size='2xl' className={spacing.pbSm}>
-        Coverage by Ecosystem
+      <Title headingLevel='h3' size='xl' className={spacing.pbSm}>
+        By Ecosystem
       </Title>
       <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
         <FlexItem>
           <Content component='p'>
-            <strong>{inNetwork}</strong> of <strong>{report.total}</strong> packages in your
-            inventory are available in the Lightwell Validated catalog.
+            <strong>{inNetwork}</strong> of <strong>{report.total}</strong> packages in supported
+            ecosystems match the Lightwell Network catalog.
           </Content>
         </FlexItem>
         <FlexItem>
           <div ref={containerRef} style={{ width: '100%' }}>
             <Chart
-              ariaDesc='Horizontal stacked bar chart showing exact matches, partial matches, and out of network packages per ecosystem'
+              ariaDesc='Horizontal stacked bar chart showing package matches per ecosystem'
               horizontal
-              domainPadding={{ x: [15, 15] }}
+              domainPadding={ECOSYSTEM_CHART_DOMAIN_PADDING}
               height={75 + ecosystemCount * 55}
               width={chartWidth}
-              padding={{ bottom: 65, left: 100, right: 175, top: 10 }}
+              padding={ECOSYSTEM_CHART_PADDING}
               legendPosition='right'
               legendOrientation='vertical'
-              legendData={[
-                { name: 'Exact matches', symbol: { fill: EXACT_MATCH_COLOR } },
-                { name: 'Partial matches', symbol: { fill: FUZZY_MATCH_COLOR } },
-                { name: 'Out of network', symbol: { fill: UNCOVERED_COLOR } },
-              ]}
+              legendData={ECOSYSTEM_LEGEND_DATA}
             >
               <ChartAxis style={{ tickLabels: { fontSize: 14 } }} />
               <ChartAxis
@@ -89,9 +104,9 @@ const EcosystemBreakdownCard = ({ report }: EcosystemBreakdownCardProps) => {
                 />
                 <ChartBar
                   data={unmatchedPackages}
-                  style={{ data: { fill: UNCOVERED_COLOR } }}
+                  style={{ data: { fill: NO_MATCH_COLOR } }}
                   labelComponent={<ChartTooltip constrainToVisibleArea />}
-                  labels={({ datum }) => `${datum.x} out of network: ${datum.y}`}
+                  labels={({ datum }) => `${datum.x} no match: ${datum.y}`}
                 />
               </ChartStack>
             </Chart>

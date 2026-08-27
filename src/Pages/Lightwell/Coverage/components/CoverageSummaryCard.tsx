@@ -1,46 +1,76 @@
-import { Card, CardBody, Content, Flex, FlexItem, Title, Tooltip } from '@patternfly/react-core';
+import { Content, Flex, FlexItem, Title } from '@patternfly/react-core';
 import text from '@patternfly/react-styles/css/utilities/Text/text';
-import alignment from '@patternfly/react-styles/css/utilities/Alignment/alignment';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
-import { ChartDonut } from '@patternfly/react-charts/victory';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { EXACT_MATCH_COLOR, FUZZY_MATCH_COLOR, UNCOVERED_COLOR } from '../constants';
+import { ChartDonut, ChartLabel } from '@patternfly/react-charts/victory';
+import { useMemo } from 'react';
+import {
+  COVERAGE_DONUT_HEIGHT,
+  COVERAGE_DONUT_PADDING,
+  COVERAGE_DONUT_TITLE_LINE_HEIGHT,
+  COVERAGE_DONUT_WIDTH,
+  EXACT_MATCH_COLOR,
+  FUZZY_MATCH_COLOR,
+  NO_MATCH_COLOR,
+} from '../constants';
 import { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import { useContainerWidth } from '../../hooks/useContainerWidth';
+import MatchSummaryStats, { type MatchSummaryItem } from './MatchSummaryStats';
 
 type CoverageSummaryCardProps = {
   report: CompletedCoverageReport;
 };
 
-const DONUT_WIDTH = 320;
-const DONUT_HEIGHT = 280;
+const getMatchSummaryItems = (report: CompletedCoverageReport): MatchSummaryItem[] => [
+  {
+    count: report.exact_matches,
+    label: 'Exact match',
+    tooltip: 'Package name and version found in the Lightwell Network catalog.',
+  },
+  {
+    count: report.partial_matches,
+    label: 'Partial match',
+    tooltip: 'Package name found in the catalog, but not the specific version you are running.',
+  },
+  {
+    count: report.unmatched,
+    label: 'No match',
+    tooltip:
+      'Package not found in the Lightwell Network catalog. Unmatched packages are logged as demand signals, but do not guarantee a build.',
+  },
+];
+
+const getDonutData = (report: CompletedCoverageReport) => [
+  { x: 'Exact match', y: report.exact_matches },
+  { x: 'Partial match', y: report.partial_matches },
+  { x: 'No match', y: report.unmatched },
+];
 
 const CoverageSummaryCard = ({ report }: CoverageSummaryCardProps) => {
-  const { containerRef, width: chartWidth } = useContainerWidth(DONUT_WIDTH);
-  const chartHeight = Math.round((chartWidth * DONUT_HEIGHT) / DONUT_WIDTH);
+  const { containerRef, width: chartWidth } = useContainerWidth(COVERAGE_DONUT_WIDTH);
+  const chartHeight = Math.round((chartWidth * COVERAGE_DONUT_HEIGHT) / COVERAGE_DONUT_WIDTH);
 
   const inNetwork = report.exact_matches + report.partial_matches;
   const percentage = report.total > 0 ? Math.round((inNetwork / report.total) * 100) : 0;
 
+  const matchSummaryItems = useMemo(() => getMatchSummaryItems(report), [report]);
+  const donutData = useMemo(() => getDonutData(report), [report]);
+
   return (
     <Flex gap={{ default: 'gapXl' }} alignItems={{ default: 'alignItemsCenter' }}>
-      <FlexItem style={{ width: '100%', maxWidth: DONUT_WIDTH }}>
+      <FlexItem style={{ width: '100%', maxWidth: COVERAGE_DONUT_WIDTH }}>
         <div ref={containerRef} style={{ width: '100%' }}>
           <ChartDonut
-            ariaDesc='Coverage summary donut chart'
+            ariaDesc='Match summary donut chart'
             constrainToVisibleArea
-            data={[
-              { x: 'Exact matches', y: report.exact_matches },
-              { x: 'Partial matches', y: report.partial_matches },
-              { x: 'Out of network', y: report.unmatched },
-            ]}
-            colorScale={[EXACT_MATCH_COLOR, FUZZY_MATCH_COLOR, UNCOVERED_COLOR]}
+            data={donutData}
+            colorScale={[EXACT_MATCH_COLOR, FUZZY_MATCH_COLOR, NO_MATCH_COLOR]}
             labels={({ datum }) => `${datum.x}: ${datum.y}`}
             title={`${percentage}%`}
-            subTitle='in network'
+            subTitle='packages matched'
+            titleComponent={<ChartLabel lineHeight={COVERAGE_DONUT_TITLE_LINE_HEIGHT} />}
             width={chartWidth}
             height={chartHeight}
-            padding={{ bottom: 10, left: 10, right: 10, top: 10 }}
+            padding={COVERAGE_DONUT_PADDING}
           />
         </div>
       </FlexItem>
@@ -48,56 +78,14 @@ const CoverageSummaryCard = ({ report }: CoverageSummaryCardProps) => {
         <Flex direction={{ default: 'column' }} gap={{ default: 'gapLg' }}>
           <FlexItem>
             <Title headingLevel='h3' size='2xl'>
-              Lightwell Network covers <strong>{percentage}%</strong> of this manifest
+              <strong>{percentage}%</strong> of packages match the Lightwell Network catalog
             </Title>
+            <Content component='p' className={`${text.textColorSubtle} ${spacing.mtSm}`}>
+              Applies to packages within supported ecosystems (see below).
+            </Content>
           </FlexItem>
           <FlexItem>
-            <Card>
-              <CardBody>
-                <Flex
-                  gap={{ default: 'gapLg' }}
-                  justifyContent={{ default: 'justifyContentSpaceAround' }}
-                >
-                  {[
-                    {
-                      count: report.exact_matches,
-                      label: 'Exact matches',
-                      tooltip: 'Package name and version found in the Lightwell Network catalog.',
-                    },
-                    {
-                      count: report.partial_matches,
-                      label: 'Partial matches',
-                      tooltip:
-                        'Package name found in the catalog, but not the specific version you are running.',
-                    },
-                    {
-                      count: report.unmatched,
-                      label: 'Out of network',
-                      tooltip: 'Package not found in the Lightwell Network catalog.',
-                    },
-                  ].map(({ count, label, tooltip }) => (
-                    <FlexItem key={label} style={{ textAlign: 'center' }}>
-                      <Title headingLevel='h4' size='4xl'>
-                        {count}
-                      </Title>
-                      <Content component='p' className={text.fontSizeLg}>
-                        {label}{' '}
-                        <Tooltip content={tooltip}>
-                          <OutlinedQuestionCircleIcon className={text.textColorSubtle} />
-                        </Tooltip>
-                      </Content>
-                    </FlexItem>
-                  ))}
-                </Flex>
-                <Content
-                  component='small'
-                  className={`${text.textColorSubtle} ${alignment.textAlignCenter} ${spacing.mtMd}`}
-                  style={{ display: 'block' }}
-                >
-                  Out of network packages logged as demand signals for the Catalog Build Queue
-                </Content>
-              </CardBody>
-            </Card>
+            <MatchSummaryStats items={matchSummaryItems} />
           </FlexItem>
         </Flex>
       </FlexItem>
