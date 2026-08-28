@@ -9,6 +9,8 @@ import {
   Truncate,
   Card,
   CardBody,
+  Flex,
+  FlexItem,
 } from '@patternfly/react-core';
 import ManifestUploadCard from './components/ManifestUploadCard';
 import CoverageSummaryCard from './components/CoverageSummaryCard';
@@ -18,6 +20,7 @@ import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import { useCoverageAnalysis } from './hooks/useCoverageAnalysis';
 import { PlusIcon } from '@patternfly/react-icons';
 import PackageCoverageTable from './components/PackageCoverageTable';
+import RemediatedDataWarning from '../RemediatedDataWarning';
 
 const CoverageAnalyzer = () => {
   const { filename, report, uploadProps, startOver } = useCoverageAnalysis();
@@ -87,7 +90,14 @@ const CoverageAnalyzer = () => {
               <StackItem>
                 <Card isGlass>
                   <CardBody>
-                    <PackageCoverageTable uuid={report.uuid} ecosystems={ecosystems} />
+                    <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                      <FlexItem>
+                        <RemediatedDataWarning />
+                      </FlexItem>
+                      <FlexItem>
+                        <PackageCoverageTable uuid={report.uuid} ecosystems={ecosystems} />
+                      </FlexItem>
+                    </Flex>
                   </CardBody>
                 </Card>
               </StackItem>
