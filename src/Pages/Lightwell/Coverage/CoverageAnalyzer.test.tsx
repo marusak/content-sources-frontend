@@ -131,7 +131,7 @@ describe('CoverageAnalyzer', () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Supports: CycloneDX, SPDX, pom.xml, requirements.txt'),
+      screen.getByText('Supported formats: CSV, CycloneDX, SPDX, pom.xml, requirements.txt'),
     ).toBeInTheDocument();
   });
 

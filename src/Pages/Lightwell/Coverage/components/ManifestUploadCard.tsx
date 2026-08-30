@@ -16,6 +16,7 @@ import { ErrorState } from '@patternfly/react-component-groups';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import type { MouseEventHandler } from 'react';
 import type { FileUploadStatus } from '../hooks/useCoverageAnalysis';
+import ManifestFormatPopover from './ManifestFormatPopover';
 
 export type ManifestUploadCardProps = {
   isLoading: boolean;
@@ -85,9 +86,16 @@ const ManifestUploadCard = ({
       <CardBody className={spacing.pXl}>
         <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
-            <Title headingLevel='h3' size='md'>
-              Select your manifest file
-            </Title>
+            <Flex gap={{ default: 'gapNone' }} alignItems={{ default: 'alignItemsCenter' }}>
+              <FlexItem>
+                <Title headingLevel='h3' size='md'>
+                  Select your manifest file
+                </Title>
+              </FlexItem>
+              <FlexItem>
+                <ManifestFormatPopover />
+              </FlexItem>
+            </Flex>
           </FlexItem>
           <FlexItem>
             <FileUpload
@@ -112,7 +120,7 @@ const ManifestUploadCard = ({
           </FlexItem>
           <FlexItem>
             <Content component='small'>
-              Supports: CycloneDX, SPDX, pom.xml, requirements.txt
+              Supported formats: CSV, CycloneDX, SPDX, pom.xml, requirements.txt
             </Content>
           </FlexItem>
         </Flex>
