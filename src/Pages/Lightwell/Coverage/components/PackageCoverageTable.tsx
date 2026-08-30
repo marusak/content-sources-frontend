@@ -22,7 +22,7 @@ import { useCoverageReportPackagesQuery } from 'services/Lightwell/CoverageRepor
 import { matchFilterOptions, usePackageCoverageTable } from '../hooks/usePackageCoverageTable';
 import type { CoverageReportPackage } from 'services/Lightwell/CoverageReportsApi';
 
-const COLUMNS = ['Package', 'Ecosystem', 'Match'];
+const COLUMNS = ['Package', 'Version', 'Ecosystem', 'Match'];
 
 const MATCH_STATUS_LABEL: Record<
   CoverageReportPackage['match_status'],
@@ -97,6 +97,7 @@ const PackageCoverageTable = ({ uuid, ecosystems }: PackageCoverageTableProps) =
       id: `${pkg.ecosystem}-${pkg.name}-${pkg.version}`,
       row: [
         { cell: pkg.name },
+        { cell: pkg.version || '—' },
         { cell: pkg.ecosystem },
         {
           cell: (

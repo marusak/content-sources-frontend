@@ -30,12 +30,16 @@ describe('PackageCoverageTable', () => {
     }));
   });
 
-  it('renders package rows with name, ecosystem, and match status labels', () => {
+  it('renders package rows with name, version, ecosystem, and match status labels', () => {
     renderTable();
 
     expect(screen.getByText('spring-web')).toBeInTheDocument();
     expect(screen.getByText('flask')).toBeInTheDocument();
     expect(screen.getByText('lodash')).toBeInTheDocument();
+
+    expect(screen.getByText('6.1.5')).toBeInTheDocument();
+    expect(screen.getByText('3.0.3')).toBeInTheDocument();
+    expect(screen.getByText('4.17.21')).toBeInTheDocument();
 
     expect(screen.getByText('Java')).toBeInTheDocument();
     expect(screen.getByText('Python')).toBeInTheDocument();
@@ -50,10 +54,11 @@ describe('PackageCoverageTable', () => {
     renderTable();
 
     const headers = screen.getAllByRole('columnheader');
-    expect(headers).toHaveLength(3);
+    expect(headers).toHaveLength(4);
     expect(headers[0]).toHaveTextContent('Package');
-    expect(headers[1]).toHaveTextContent('Ecosystem');
-    expect(headers[2]).toHaveTextContent('Match');
+    expect(headers[1]).toHaveTextContent('Version');
+    expect(headers[2]).toHaveTextContent('Ecosystem');
+    expect(headers[3]).toHaveTextContent('Match');
   });
 
   it('shows empty state when no packages are returned', () => {
