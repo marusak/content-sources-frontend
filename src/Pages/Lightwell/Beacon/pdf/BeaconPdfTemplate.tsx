@@ -109,10 +109,6 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
           font-weight: 700;
           line-height: 1.2;
         }
-        .beacon-pdf .beacon-pdf-stage-sub {
-          font-size: 9px;
-          color: #6a6e73;
-        }
         .beacon-pdf .beacon-pdf-pipeline-arrow {
           color: #6a6e73;
           font-size: 10px;
@@ -178,7 +174,6 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
                 <div className='beacon-pdf-stage-card'>
                   <div className='beacon-pdf-stage-label'>{stage}</div>
                   <div className='beacon-pdf-stage-count'>{stageCounts[stage] ?? 0}</div>
-                  <div className='beacon-pdf-stage-sub'>vulnerabilities</div>
                 </div>
                 {idx < STAGES.length - 1 ? (
                   <span className='beacon-pdf-pipeline-arrow' aria-hidden='true'>

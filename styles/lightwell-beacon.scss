@@ -28,19 +28,10 @@
   flex-direction: column;
 }
 
-.lightwell-stage-card-body {
-  padding: var(--pf-t--global--spacer--sm) !important;
-}
-
 .lightwell-stage-card-label {
   font-weight: var(--pf-t--global--font--weight--body--bold);
   display: block;
   margin-bottom: var(--pf-t--global--spacer--xs);
-}
-
-.lightwell-stage-card-count {
-  margin: var(--pf-t--global--spacer--xs) 0;
-  text-align: center;
 }
 
 .lightwell-stage-card-number {
