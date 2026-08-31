@@ -6,6 +6,9 @@ import {
   CardHeader,
   CardTitle,
   Content,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateVariant,
   Flex,
   FlexItem,
   PageSection,
@@ -21,6 +24,7 @@ import {
   FilterSidePanelCategoryItem,
 } from '@patternfly/react-catalog-view-extension';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
+import UserIcon from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
 import useDebounce from 'Hooks/useDebounce';
 import LightwellPageHeader from '../components/LightwellPageHeader';
@@ -36,6 +40,7 @@ import {
   type BeaconVulnerabilityFlag,
 } from 'services/Lightwell/BeaconApi';
 import { useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
+import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
 import {
   createDefaultVulnerabilityColumns,
   getVisibleVulnerabilityColumns,
@@ -149,6 +154,7 @@ const Beacon = () => {
     error,
   } = useBeaconData(selectedCustomerId, queryFilters, pagination);
   const { data: ltwlsuptTicketIds = [] } = useLtwlsuptTicketIdsQuery(selectedCustomerId);
+  const { isLoading: isLoadingCustomers } = useCustomerIdsQuery();
 
   const isLoading = !displayData && isLoadingDisplay;
 
@@ -301,16 +307,7 @@ const Beacon = () => {
                 </FilterSidePanel>
               </FlexItem>
               <FlexItem flex={{ default: 'flex_1' }} className='lightwell-beacon-table-area'>
-                {isLoading || !selectedCustomerId ? (
-                  <Stack hasGutter>
-                    <StackItem>
-                      <Skeleton height='120px' />
-                    </StackItem>
-                    <StackItem>
-                      <Skeleton height='400px' />
-                    </StackItem>
-                  </Stack>
-                ) : (
+                {selectedCustomerId && !isLoading ? (
                   <Stack hasGutter>
                     <StackItem>
                       <Card isGlass>
@@ -409,6 +406,26 @@ const Beacon = () => {
                         columns={columns}
                         onColumnsChange={setColumns}
                       />
+                    </StackItem>
+                  </Stack>
+                ) : !selectedCustomerId && !isLoadingCustomers ? (
+                  <EmptyState
+                    headingLevel='h2'
+                    icon={UserIcon}
+                    titleText='Select customer'
+                    variant={EmptyStateVariant.sm}
+                  >
+                    <EmptyStateBody>
+                      Select a customer ID first to view the status of their Lightwell submissions.
+                    </EmptyStateBody>
+                  </EmptyState>
+                ) : (
+                  <Stack hasGutter>
+                    <StackItem>
+                      <Skeleton height='120px' />
+                    </StackItem>
+                    <StackItem>
+                      <Skeleton height='400px' />
                     </StackItem>
                   </Stack>
                 )}

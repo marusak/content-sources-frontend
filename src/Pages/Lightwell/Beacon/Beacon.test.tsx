@@ -48,6 +48,13 @@ const renderBeacon = () =>
     </ReactQueryTestWrapper>,
   );
 
+const selectCustomer = async (customerId: string) => {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: 'Select customer ID' }));
+  await user.click(await screen.findByRole('menuitem', { name: customerId }));
+  return user;
+};
+
 beforeEach(() => {
   (useCustomerIdsQuery as jest.Mock).mockReturnValue({
     isLoading: false,
@@ -67,12 +74,40 @@ beforeEach(() => {
   });
 });
 
-it('renders the beacon page with status summary and vulnerability table', async () => {
+it('shows an empty state until a customer is selected', async () => {
   renderBeacon();
 
   await waitFor(() => {
-    expect(screen.getByText('Beacon')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Select a customer ID first to view the status of their Lightwell submissions.',
+      ),
+    ).toBeInTheDocument();
   });
+
+  expect(screen.queryByText('Status Summary')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Select customer ID' })).toBeInTheDocument();
+});
+
+it('preselects the customer when only one is available', async () => {
+  (useCustomerIdsQuery as jest.Mock).mockReturnValue({
+    isLoading: false,
+    data: ['CID-01'],
+  });
+
+  renderBeacon();
+
+  await waitFor(() => {
+    expect(screen.getByText('Status Summary')).toBeInTheDocument();
+  });
+
+  expect(screen.getByRole('button', { name: 'CID-01' })).toBeInTheDocument();
+  expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
+});
+
+it('renders the beacon page with status summary and vulnerability table', async () => {
+  renderBeacon();
+  await selectCustomer('CID-01');
 
   expect(screen.getByText('Status Summary')).toBeInTheDocument();
   expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
@@ -88,10 +123,7 @@ it('shows support ticket IDs from the dedicated API instead of vulnerability row
   });
 
   renderBeacon();
-
-  await waitFor(() => {
-    expect(screen.getByText('api-ticket')).toBeInTheDocument();
-  });
+  await selectCustomer('CID-01');
 
   const filterPanel = document.querySelector('.lightwell-filter-panel');
   expect(filterPanel).not.toBeNull();
@@ -101,8 +133,8 @@ it('shows support ticket IDs from the dedicated API instead of vulnerability row
 });
 
 it('clears the ticket filter when the customer changes and keeps other filters', async () => {
-  const user = userEvent.setup();
   renderBeacon();
+  const user = await selectCustomer('CID-01');
 
   const filterPanel = await waitFor(() => {
     const panel = document.querySelector('.lightwell-filter-panel');
@@ -129,7 +161,11 @@ it('clears the ticket filter when the customer changes and keeps other filters',
   ).toBe(true);
 });
 
-it('shows loading skeleton while data is fetching', () => {
+it('shows loading skeleton while data is fetching', async () => {
+  (useCustomerIdsQuery as jest.Mock).mockReturnValue({
+    isLoading: false,
+    data: ['CID-01'],
+  });
   (useBeaconData as jest.Mock).mockReturnValue({
     isLoading: true,
     isError: false,
@@ -138,6 +174,10 @@ it('shows loading skeleton while data is fetching', () => {
   });
 
   renderBeacon();
+
+  await waitFor(() => {
+    expect(document.querySelector('.pf-v6-c-skeleton')).toBeInTheDocument();
+  });
 
   expect(screen.getByText('Beacon')).toBeInTheDocument();
   expect(screen.getByText('Customer ID')).toBeInTheDocument();

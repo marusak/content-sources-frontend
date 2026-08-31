@@ -23,7 +23,7 @@ export function CustomerIdSelect({
   const { data: customerIds, isLoading } = useCustomerIdsQuery();
 
   useEffect(() => {
-    if (!selectedCustomerId && customerIds?.length) {
+    if (!selectedCustomerId && customerIds?.length === 1) {
       onCustomerIdChange(customerIds[0]);
     }
   }, [selectedCustomerId, customerIds, onCustomerIdChange]);
