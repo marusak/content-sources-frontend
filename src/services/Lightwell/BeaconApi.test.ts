@@ -29,7 +29,6 @@ const baseVulnerability: LightwellVulnerabilityResponse = {
   submitted_date: '2026-08-16T00:00:00Z',
   last_updated: '2026-08-17T08:17:00Z',
   age_days: 2,
-  embargo: true,
   duplicate: false,
   ltwlsupt_ticket_ids: ['batch-2', 'batch-3'],
 };
@@ -88,7 +87,6 @@ describe('getVulnerabilities', () => {
       limit: 200,
       offset,
       critical_count: 0,
-      embargo_count: 0,
       stage_counts: {},
     },
   });

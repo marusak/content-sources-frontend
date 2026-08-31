@@ -49,11 +49,9 @@ function buildBeaconFilters(
   selectedSeverities: Set<Severity>,
   selectedStages: Set<Stage>,
   selectedLtwlsuptTickets: Set<string>,
-  showEmbargo: boolean,
   showDuplicates: boolean,
 ): BeaconVulnerabilityFilters | undefined {
   const flags: BeaconVulnerabilityFlag[] = [];
-  if (showEmbargo) flags.push('embargo');
   if (showDuplicates) flags.push('duplicate');
 
   const filters: BeaconVulnerabilityFilters = {
@@ -77,7 +75,6 @@ const Beacon = () => {
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
   const [selectedStages, setSelectedStages] = useState<Set<Stage>>(new Set());
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
-  const [showEmbargo, setShowEmbargo] = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
@@ -92,16 +89,9 @@ const Beacon = () => {
         selectedSeverities,
         selectedStages,
         selectedLtwlsuptTickets,
-        showEmbargo,
         showDuplicates,
       ),
-    [
-      selectedSeverities,
-      selectedStages,
-      selectedLtwlsuptTickets,
-      showEmbargo,
-      showDuplicates,
-    ],
+    [selectedSeverities, selectedStages, selectedLtwlsuptTickets, showDuplicates],
   );
 
   const queryFilters = useMemo((): BeaconVulnerabilityFilters | undefined => {
@@ -147,7 +137,6 @@ const Beacon = () => {
     setSelectedSeverities(new Set());
     setSelectedStages(new Set());
     setSelectedLtwlsuptTickets(new Set());
-    setShowEmbargo(false);
     setShowDuplicates(false);
     setSearchQuery('');
     setPage(1);
@@ -203,7 +192,6 @@ const Beacon = () => {
     selectedSeverities.size +
     selectedStages.size +
     selectedLtwlsuptTickets.size +
-    (showEmbargo ? 1 : 0) +
     (showDuplicates ? 1 : 0);
 
   const onSetPage = (_event: unknown, newPage: number) => setPage(newPage);
@@ -304,12 +292,6 @@ const Beacon = () => {
 
                   <FilterSidePanelCategory title='Flags'>
                     <FilterSidePanelCategoryItem
-                      checked={showEmbargo}
-                      onClick={() => setShowEmbargo(!showEmbargo)}
-                    >
-                      Embargoed
-                    </FilterSidePanelCategoryItem>
-                    <FilterSidePanelCategoryItem
                       checked={showDuplicates}
                       onClick={() => setShowDuplicates(!showDuplicates)}
                     >
@@ -405,14 +387,6 @@ const Beacon = () => {
                               </span>
                               <Content component='small' style={{ display: 'block' }}>
                                 Critical
-                              </Content>
-                            </FlexItem>
-                            <FlexItem style={{ textAlign: 'center' }}>
-                              <span className='lightwell-stat-number lightwell-stat--embargo'>
-                                {displayMeta?.embargoCount ?? 0}
-                              </span>
-                              <Content component='small' style={{ display: 'block' }}>
-                                Embargoed
                               </Content>
                             </FlexItem>
                           </Flex>

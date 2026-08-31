@@ -31,7 +31,6 @@ const collection = {
       submitted_date: '2026-08-16T00:00:00Z',
       last_updated: '2026-08-17T08:17:00Z',
       age_days: 2,
-      embargo: true,
       duplicate: false,
       ltwlsupt_ticket_ids: ['batch-1'],
     },
@@ -41,7 +40,6 @@ const collection = {
     limit: 50,
     offset: 0,
     critical_count: 1,
-    embargo_count: 1,
     stage_counts: { Submitted: 1 },
   },
 };
@@ -71,7 +69,6 @@ describe('fetchData', () => {
     expect(result.meta).toEqual({
       count: 1,
       criticalCount: 1,
-      embargoCount: 1,
       stageCounts: { Submitted: 1 },
     });
   });

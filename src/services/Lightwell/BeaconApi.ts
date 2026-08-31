@@ -17,7 +17,7 @@ function normalizeSearch(search?: string): string | undefined {
   return trimmed.length >= MIN_SEARCH_LENGTH ? trimmed : undefined;
 }
 
-export type BeaconVulnerabilityFlag = 'embargo' | 'duplicate';
+export type BeaconVulnerabilityFlag = 'duplicate';
 
 export type BeaconVulnerabilityFilters = {
   severities?: Severity[];
@@ -32,7 +32,6 @@ export type BeaconPagination = Pick<Meta, 'limit' | 'offset'>;
 export type BeaconVulnerabilityMeta = {
   count: number;
   criticalCount: number;
-  embargoCount: number;
   stageCounts: Record<string, number>;
 };
 
@@ -62,7 +61,6 @@ export type LightwellVulnerabilityResponse = {
   submitted_date: string;
   last_updated: string;
   age_days: number;
-  embargo: boolean;
   duplicate: boolean;
   duplicate_of?: string;
   ltwlsupt_ticket_ids: string[];
@@ -72,7 +70,6 @@ export type LightwellVulnerabilityCollectionResponse = {
   data: LightwellVulnerabilityResponse[];
   meta: Meta & {
     critical_count: number;
-    embargo_count: number;
     stage_counts: Record<string, number>;
   };
 };
@@ -129,7 +126,6 @@ export function mapLightwellVulnerability(
     submittedDate: formatDate(vulnerability.submitted_date),
     lastUpdated: formatDateTime(vulnerability.last_updated),
     ageDays: vulnerability.age_days,
-    embargo: vulnerability.embargo,
     duplicate: vulnerability.duplicate,
     duplicateOf: vulnerability.duplicate_of,
     ltwlsupt_ticket_ids: ticketIds,
@@ -143,7 +139,6 @@ export function mapCollectionMeta(
   return {
     count: meta.count,
     criticalCount: meta.critical_count,
-    embargoCount: meta.embargo_count,
     stageCounts: meta.stage_counts ?? {},
   };
 }
@@ -180,10 +175,7 @@ export function buildVulnerabilityQueryParams(
 }
 
 function matchesMockFlags(vulnerability: Vulnerability, flags: BeaconVulnerabilityFlag[]): boolean {
-  return flags.some((flag) => {
-    if (flag === 'embargo') return vulnerability.embargo;
-    return vulnerability.duplicate;
-  });
+  return flags.includes('duplicate') && vulnerability.duplicate;
 }
 
 function filterMockVulnerabilities(
@@ -235,7 +227,6 @@ function computeMockMeta(vulnerabilities: Vulnerability[]): BeaconVulnerabilityM
   return {
     count: vulnerabilities.length,
     criticalCount: vulnerabilities.filter((v) => v.severity === 'Critical').length,
-    embargoCount: vulnerabilities.filter((v) => v.embargo).length,
     stageCounts,
   };
 }
@@ -329,7 +320,6 @@ export const getVulnerabilities = async (
   let meta: BeaconVulnerabilityMeta = {
     count: 0,
     criticalCount: 0,
-    embargoCount: 0,
     stageCounts: {},
   };
 
