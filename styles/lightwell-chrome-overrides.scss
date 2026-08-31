@@ -3,8 +3,8 @@
 // causing an unwanted scrollbar. Fix it in the bottom-left corner instead.
 .truste_caIcon_display {
     position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
+    bottom: 16px !important;
+    left: 16px !important;
     z-index: 1000 !important;
     overflow: visible !important;
 }
