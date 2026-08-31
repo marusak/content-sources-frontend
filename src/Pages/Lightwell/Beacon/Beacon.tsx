@@ -344,7 +344,7 @@ const Beacon = () => {
                                       </p>
                                       <br />
                                       <p>
-                                        SLA applies to up to 50 findings per member per week. All
+                                        SLA applies to up to 25 findings per member per week. All
                                         other findings are worked continuously on a best-effort
                                         basis.
                                       </p>
