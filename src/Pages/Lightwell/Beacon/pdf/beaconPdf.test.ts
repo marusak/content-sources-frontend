@@ -34,7 +34,6 @@ const collection = {
       age_days: 2,
       embargo: true,
       duplicate: false,
-      blocked: false,
       ltwlsupt_ticket_ids: ['batch-1'],
     },
   ],
@@ -44,7 +43,6 @@ const collection = {
     offset: 0,
     critical_count: 1,
     embargo_count: 1,
-    blocked_count: 0,
     stage_counts: { Submitted: 1 },
   },
 };
@@ -75,7 +73,6 @@ describe('fetchData', () => {
       count: 1,
       criticalCount: 1,
       embargoCount: 1,
-      blockedCount: 0,
       stageCounts: { Submitted: 1 },
     });
   });

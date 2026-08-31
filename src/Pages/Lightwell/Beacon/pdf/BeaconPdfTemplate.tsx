@@ -55,7 +55,6 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
         .beacon-pdf .beacon-pdf-stat { text-align: center; }
         .beacon-pdf .beacon-pdf-stat-value { font-size: 24px; font-weight: 700; }
         .beacon-pdf .beacon-pdf-stat-value--critical { color: #c9190b; }
-        .beacon-pdf .beacon-pdf-stat-value--blocked { color: #f0ab00; }
         .beacon-pdf .beacon-pdf-stat-value--embargo { color: #6753ac; }
         .beacon-pdf .beacon-pdf-stat-label { font-size: 11px; color: #6a6e73; }
         .beacon-pdf table,
@@ -167,11 +166,6 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
               </div>
               <div className='beacon-pdf-stat-label'>Critical</div>
             </div>
-            <div className='beacon-pdf-stat'>
-              <div className='beacon-pdf-stat-value beacon-pdf-stat-value--blocked'>
-                {meta?.blockedCount ?? 0}
-              </div>
-              <div className='beacon-pdf-stat-label'>Blocked</div>
             </div>
             <div className='beacon-pdf-stat'>
               <div className='beacon-pdf-stat-value beacon-pdf-stat-value--embargo'>

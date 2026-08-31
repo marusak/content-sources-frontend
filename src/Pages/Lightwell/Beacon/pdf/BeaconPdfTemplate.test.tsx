@@ -7,7 +7,6 @@ const meta = {
   count: mockVulnerabilities.length,
   criticalCount: 1,
   embargoCount: 1,
-  blockedCount: 0,
   stageCounts: { Submitted: 1, Classified: 1 },
 };
 
@@ -38,7 +37,6 @@ describe('BeaconPdfTemplate', () => {
     expect(screen.getByText('By Stage')).toBeInTheDocument();
     expect(screen.getByText('Total')).toBeInTheDocument();
     expect(screen.getByText('Critical')).toBeInTheDocument();
-    expect(screen.getByText('Blocked')).toBeInTheDocument();
     expect(screen.getByText('Embargoed')).toBeInTheDocument();
     const pipeline = screen.getByLabelText('Vulnerability counts by stage');
     expect(pipeline).toHaveClass('beacon-pdf-pipeline');

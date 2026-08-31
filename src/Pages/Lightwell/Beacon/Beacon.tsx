@@ -52,12 +52,10 @@ function buildBeaconFilters(
   selectedLtwlsuptTickets: Set<string>,
   showEmbargo: boolean,
   showDuplicates: boolean,
-  showBlocked: boolean,
 ): BeaconVulnerabilityFilters | undefined {
   const flags: BeaconVulnerabilityFlag[] = [];
   if (showEmbargo) flags.push('embargo');
   if (showDuplicates) flags.push('duplicate');
-  if (showBlocked) flags.push('blocked');
 
   const filters: BeaconVulnerabilityFilters = {
     severities: selectedSeverities.size ? [...selectedSeverities] : undefined,
@@ -85,7 +83,6 @@ const Beacon = () => {
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
   const [showEmbargo, setShowEmbargo] = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
-  const [showBlocked, setShowBlocked] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
@@ -102,7 +99,6 @@ const Beacon = () => {
         selectedLtwlsuptTickets,
         showEmbargo,
         showDuplicates,
-        showBlocked,
       ),
     [
       selectedSeverities,
@@ -111,7 +107,6 @@ const Beacon = () => {
       selectedLtwlsuptTickets,
       showEmbargo,
       showDuplicates,
-      showBlocked,
     ],
   );
 
@@ -161,7 +156,6 @@ const Beacon = () => {
     setSelectedLtwlsuptTickets(new Set());
     setShowEmbargo(false);
     setShowDuplicates(false);
-    setShowBlocked(false);
     setSearchQuery('');
     setPage(1);
   }, []);
@@ -227,8 +221,7 @@ const Beacon = () => {
     selectedComplexities.size +
     selectedLtwlsuptTickets.size +
     (showEmbargo ? 1 : 0) +
-    (showDuplicates ? 1 : 0) +
-    (showBlocked ? 1 : 0);
+    (showDuplicates ? 1 : 0);
 
   const onSetPage = (_event: unknown, newPage: number) => setPage(newPage);
   const onPerPageSelect = (_event: unknown, newPerPage: number, newPage: number) => {
@@ -344,12 +337,6 @@ const Beacon = () => {
 
                   <FilterSidePanelCategory title='Flags'>
                     <FilterSidePanelCategoryItem
-                      checked={showBlocked}
-                      onClick={() => setShowBlocked(!showBlocked)}
-                    >
-                      Blocked
-                    </FilterSidePanelCategoryItem>
-                    <FilterSidePanelCategoryItem
                       checked={showEmbargo}
                       onClick={() => setShowEmbargo(!showEmbargo)}
                     >
@@ -456,9 +443,6 @@ const Beacon = () => {
                                         other findings are worked continuously on a best-effort
                                         basis.
                                       </p>
-                                      <p>
-                                        Items exceeding 30 days are flagged as &quot;blocked.&quot;
-                                      </p>
                                     </Content>
                                   }
                                 >
@@ -495,14 +479,6 @@ const Beacon = () => {
                               </span>
                               <Content component='small' style={{ display: 'block' }}>
                                 Critical
-                              </Content>
-                            </FlexItem>
-                            <FlexItem style={{ textAlign: 'center' }}>
-                              <span className='lightwell-stat-number lightwell-stat--stuck'>
-                                {displayMeta?.blockedCount ?? 0}
-                              </span>
-                              <Content component='small' style={{ display: 'block' }}>
-                                Blocked
                               </Content>
                             </FlexItem>
                             <FlexItem style={{ textAlign: 'center' }}>

@@ -17,7 +17,7 @@ function normalizeSearch(search?: string): string | undefined {
   return trimmed.length >= MIN_SEARCH_LENGTH ? trimmed : undefined;
 }
 
-export type BeaconVulnerabilityFlag = 'embargo' | 'duplicate' | 'blocked';
+export type BeaconVulnerabilityFlag = 'embargo' | 'duplicate';
 
 export type BeaconVulnerabilityFilters = {
   severities?: Severity[];
@@ -34,7 +34,6 @@ export type BeaconVulnerabilityMeta = {
   count: number;
   criticalCount: number;
   embargoCount: number;
-  blockedCount: number;
   stageCounts: Record<string, number>;
 };
 
@@ -67,7 +66,6 @@ export type LightwellVulnerabilityResponse = {
   age_days: number;
   embargo: boolean;
   duplicate: boolean;
-  blocked: boolean;
   duplicate_of?: string;
   ltwlsupt_ticket_ids: string[];
 };
@@ -77,7 +75,6 @@ export type LightwellVulnerabilityCollectionResponse = {
   meta: Meta & {
     critical_count: number;
     embargo_count: number;
-    blocked_count: number;
     stage_counts: Record<string, number>;
   };
 };
@@ -137,7 +134,6 @@ export function mapLightwellVulnerability(
     ageDays: vulnerability.age_days,
     embargo: vulnerability.embargo,
     duplicate: vulnerability.duplicate,
-    blocked: vulnerability.blocked,
     duplicateOf: vulnerability.duplicate_of,
     ltwlsupt_ticket_ids: ticketIds,
     ltwlsupt_ticket_id: ticketIds[0],
@@ -151,7 +147,6 @@ export function mapCollectionMeta(
     count: meta.count,
     criticalCount: meta.critical_count,
     embargoCount: meta.embargo_count,
-    blockedCount: meta.blocked_count,
     stageCounts: meta.stage_counts ?? {},
   };
 }
@@ -193,8 +188,7 @@ export function buildVulnerabilityQueryParams(
 function matchesMockFlags(vulnerability: Vulnerability, flags: BeaconVulnerabilityFlag[]): boolean {
   return flags.some((flag) => {
     if (flag === 'embargo') return vulnerability.embargo;
-    if (flag === 'duplicate') return vulnerability.duplicate;
-    return vulnerability.blocked;
+    return vulnerability.duplicate;
   });
 }
 
@@ -251,7 +245,6 @@ function computeMockMeta(vulnerabilities: Vulnerability[]): BeaconVulnerabilityM
     count: vulnerabilities.length,
     criticalCount: vulnerabilities.filter((v) => v.severity === 'Critical').length,
     embargoCount: vulnerabilities.filter((v) => v.embargo).length,
-    blockedCount: vulnerabilities.filter((v) => v.blocked).length,
     stageCounts,
   };
 }
@@ -346,7 +339,6 @@ export const getVulnerabilities = async (
     count: 0,
     criticalCount: 0,
     embargoCount: 0,
-    blockedCount: 0,
     stageCounts: {},
   };
 
