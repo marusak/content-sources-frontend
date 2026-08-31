@@ -24,8 +24,8 @@ import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
 import useDebounce from 'Hooks/useDebounce';
 import LightwellPageHeader from '../components/LightwellPageHeader';
-import { COMPLEXITIES, SEVERITIES, STAGES } from './constants';
-import type { Complexity, Severity, Stage } from './types';
+import { SEVERITIES, STAGES } from './constants';
+import type { Severity, Stage } from './types';
 import { CustomerIdSelect } from './components/CustomerIdSelect';
 import { ExportMenu } from './components/ExportMenu';
 import { PipelineView } from './components/PipelineView';
@@ -48,7 +48,6 @@ const DEFAULT_PER_PAGE = 20;
 function buildBeaconFilters(
   selectedSeverities: Set<Severity>,
   selectedStages: Set<Stage>,
-  selectedComplexities: Set<Complexity>,
   selectedLtwlsuptTickets: Set<string>,
   showEmbargo: boolean,
   showDuplicates: boolean,
@@ -60,7 +59,6 @@ function buildBeaconFilters(
   const filters: BeaconVulnerabilityFilters = {
     severities: selectedSeverities.size ? [...selectedSeverities] : undefined,
     stages: selectedStages.size ? [...selectedStages] : undefined,
-    complexities: selectedComplexities.size ? [...selectedComplexities] : undefined,
     ltwlsuptTicketIds: selectedLtwlsuptTickets.size ? [...selectedLtwlsuptTickets] : undefined,
     flags: flags.length ? flags : undefined,
   };
@@ -68,7 +66,6 @@ function buildBeaconFilters(
   const hasFilters =
     (filters.severities?.length ?? 0) > 0 ||
     (filters.stages?.length ?? 0) > 0 ||
-    (filters.complexities?.length ?? 0) > 0 ||
     (filters.ltwlsuptTicketIds?.length ?? 0) > 0 ||
     (filters.flags?.length ?? 0) > 0;
 
@@ -79,7 +76,6 @@ const Beacon = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
   const [selectedStages, setSelectedStages] = useState<Set<Stage>>(new Set());
-  const [selectedComplexities, setSelectedComplexities] = useState<Set<Complexity>>(new Set());
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
   const [showEmbargo, setShowEmbargo] = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
@@ -95,7 +91,6 @@ const Beacon = () => {
       buildBeaconFilters(
         selectedSeverities,
         selectedStages,
-        selectedComplexities,
         selectedLtwlsuptTickets,
         showEmbargo,
         showDuplicates,
@@ -103,7 +98,6 @@ const Beacon = () => {
     [
       selectedSeverities,
       selectedStages,
-      selectedComplexities,
       selectedLtwlsuptTickets,
       showEmbargo,
       showDuplicates,
@@ -152,7 +146,6 @@ const Beacon = () => {
   const resetFilters = useCallback(() => {
     setSelectedSeverities(new Set());
     setSelectedStages(new Set());
-    setSelectedComplexities(new Set());
     setSelectedLtwlsuptTickets(new Set());
     setShowEmbargo(false);
     setShowDuplicates(false);
@@ -197,15 +190,6 @@ const Beacon = () => {
     });
   };
 
-  const toggleComplexity = (c: Complexity) => {
-    setSelectedComplexities((prev) => {
-      const next = new Set(prev);
-      if (next.has(c)) next.delete(c);
-      else next.add(c);
-      return next;
-    });
-  };
-
   const toggleLtwlsuptTicket = (ticketId: string) => {
     setSelectedLtwlsuptTickets((prev) => {
       const next = new Set(prev);
@@ -218,7 +202,6 @@ const Beacon = () => {
   const activeFilterCount =
     selectedSeverities.size +
     selectedStages.size +
-    selectedComplexities.size +
     selectedLtwlsuptTickets.size +
     (showEmbargo ? 1 : 0) +
     (showDuplicates ? 1 : 0);
@@ -301,22 +284,6 @@ const Beacon = () => {
                     ))}
                   </FilterSidePanelCategory>
 
-                  <FilterSidePanelCategory
-                    title='Complexity'
-                    showAll={!!showAllCategories.complexity}
-                    onShowAllToggle={() => toggleShowAllCategory('complexity')}
-                  >
-                    {COMPLEXITIES.map((c) => (
-                      <FilterSidePanelCategoryItem
-                        key={c}
-                        checked={selectedComplexities.has(c)}
-                        onClick={() => toggleComplexity(c)}
-                      >
-                        {c}
-                      </FilterSidePanelCategoryItem>
-                    ))}
-                  </FilterSidePanelCategory>
-
                   {ltwlsuptTicketIds.length > 0 && (
                     <FilterSidePanelCategory
                       title='LTWLSUPT_TICKET'
@@ -386,8 +353,7 @@ const Beacon = () => {
                                         at any time.
                                       </p>
                                       <p>
-                                        <strong>Triage within 48 hours.</strong> We assess fix
-                                        complexity and assign a lane.
+                                        <strong>Triage within 48 hours.</strong>
                                       </p>
                                       <p>
                                         <strong>Priority is yours.</strong> Your severity sets the
@@ -397,46 +363,6 @@ const Beacon = () => {
                                         A fix is complete when a patched artifact is published in
                                         the repository (or when it gets to the Lightwell Network).
                                       </p>
-                                      <br />
-                                      <table>
-                                        <thead>
-                                          <tr>
-                                            <th>Lane</th>
-                                            <th>SLA</th>
-                                            <th>SLO</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          <tr>
-                                            <td>Standard</td>
-                                            <td>3 Days</td>
-                                            <td>80% within 1 day</td>
-                                          </tr>
-                                          <tr>
-                                            <td>Complex</td>
-                                            <td>8 Days</td>
-                                            <td>80% within 4 days</td>
-                                          </tr>
-                                          <tr>
-                                            <td>Extensive</td>
-                                            <td>16 Days</td>
-                                            <td>80% within 10 days</td>
-                                          </tr>
-                                          <tr>
-                                            <td>Ecosystem Unavailable</td>
-                                            <td>No SLA</td>
-                                            <td>Not a currently supported Lightwell Library</td>
-                                          </tr>
-                                          <tr>
-                                            <td>Won&apos;t Fix</td>
-                                            <td>No SLA</td>
-                                            <td>
-                                              Technically infeasible, no source available, or a
-                                              licensing conflict
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
                                       <br />
                                       <p>
                                         SLA applies to up to 50 findings per member per week. All
@@ -448,7 +374,7 @@ const Beacon = () => {
                                 >
                                   <Button
                                     variant='plain'
-                                    aria-label='Complexity SLA help'
+                                    aria-label='SLA help'
                                     className='lightwell-help-btn'
                                   >
                                     <HelpIcon />

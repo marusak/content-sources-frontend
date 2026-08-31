@@ -1,8 +1,5 @@
 export type Severity = 'Critical' | 'Important' | 'Moderate' | 'Minor';
 
-export type Complexity =
-  'Standard' | 'Complex' | 'Extensive' | 'Ecosystem Unavailable' | "Won't Fix";
-
 export type Stage =
   | 'Submitted'
   | 'Classified'
@@ -31,7 +28,6 @@ export interface Vulnerability {
   customerPriority?: CustomerPriority;
   stage: Stage;
   language: string;
-  complexity: Complexity;
   submittedDate: string;
   lastUpdated: string;
   ageDays: number;
