@@ -27,9 +27,9 @@ export const lightwellReposPerPageKey = 'lightwellRepositoriesPerPage';
 export const lightwellPkgsPerPageKey = 'lightwellPackagesPerPage';
 export const lightwellCoveragePkgsPerPageKey = 'lightwellCoveragePackagesPerPage';
 
-export const CONTENT_TYPE_PARAMETERS: Record<string, { ecosystem: string; label: string }> = {
-  maven: { ecosystem: 'Java', label: 'Maven' },
-  python: { ecosystem: 'Python', label: 'PyPI' },
+export const CONTENT_TYPE_PARAMETERS: Record<string, { ecosystem: string }> = {
+  maven: { ecosystem: 'Java' },
+  python: { ecosystem: 'Python' },
 };
 
 export const REPOSITORY_DESCRIPTIONS: Record<string, Record<string, string>> = {

@@ -113,7 +113,7 @@ it('renders with a single repository', async () => {
       'Maven artifacts rebuilt from source by Red Hat. Verified end-to-end with no modifications.',
     ),
   ).toBeInTheDocument();
-  expect(await screen.findByText('Java (Maven)')).toBeInTheDocument();
+  expect(await screen.findByText('Java')).toBeInTheDocument();
   expect(await screen.findByText('1')).toBeInTheDocument();
   expect(await screen.findByText('3')).toBeInTheDocument();
 });
@@ -188,7 +188,7 @@ it('renders python validated repository with python ecosystem label', async () =
       'Python wheels rebuilt from source by Red Hat. Verified end-to-end with no modifications.',
     ),
   ).toBeInTheDocument();
-  expect(screen.getByText('Python (PyPI)')).toBeInTheDocument();
+  expect(screen.getByText('Python')).toBeInTheDocument();
 });
 
 it('renders connect action for each repository', async () => {

@@ -2,7 +2,6 @@ import {
   compareReleasesDesc,
   compareVersionsDesc,
   formatDistributionUrl,
-  formatEcosystemDisplay,
   formatRepositoryName,
   getEcosystemFromContentType,
   getRepositoryDescription,
@@ -26,17 +25,6 @@ describe('getEcosystemFromContentType', () => {
   it('returns undefined for missing or unknown content type', () => {
     expect(getEcosystemFromContentType()).toBeUndefined();
     expect(getEcosystemFromContentType('unknown')).toBeUndefined();
-  });
-});
-
-describe('formatEcosystemDisplay', () => {
-  it('formats ecosystem and content type label', () => {
-    expect(formatEcosystemDisplay('maven')).toBe('Java (Maven)');
-    expect(formatEcosystemDisplay('python')).toBe('Python (PyPI)');
-  });
-
-  it('returns undefined for unknown content type', () => {
-    expect(formatEcosystemDisplay('unknown')).toBeUndefined();
   });
 });
 

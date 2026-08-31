@@ -47,7 +47,7 @@ import {
   getMockLightwellRepositoryList,
 } from '../mockRepositories';
 import {
-  formatEcosystemDisplay,
+  getEcosystemFromContentType,
   getRepositoryDescription,
   formatRepositoryName,
   getRepositoryPathSlug,
@@ -322,7 +322,7 @@ const RepositoriesTable = () => {
                               </Flex>
                             </Td>
                             <Td dataLabel={columnHeaders[1].title}>
-                              {formatEcosystemDisplay(content_type)}
+                              {getEcosystemFromContentType(content_type)}
                             </Td>
                             <Td dataLabel={columnHeaders[2].title}>
                               {security_level === 'validated' ? (

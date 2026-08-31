@@ -11,12 +11,6 @@ const getContentTypeParameters = (contentType?: string) => {
 export const getEcosystemFromContentType = (contentType?: string): string | undefined =>
   getContentTypeParameters(contentType)?.ecosystem;
 
-export const formatEcosystemDisplay = (contentType?: string): string | undefined => {
-  const config = getContentTypeParameters(contentType);
-  if (!config) return undefined;
-  return `${config.ecosystem} (${config.label})`;
-};
-
 export const getRepositoryDescription = (
   contentType?: string,
   securityLevel?: string,
