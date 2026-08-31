@@ -2,19 +2,19 @@ import {
   Card,
   CardBody,
   Content,
-  FileUpload,
-  FileUploadHelperText,
   Flex,
   FlexItem,
   HelperText,
   HelperTextItem,
+  MultipleFileUpload,
+  MultipleFileUploadMain,
   Title,
 } from '@patternfly/react-core';
+import { UploadIcon } from '@patternfly/react-icons';
 import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
-import type { MouseEventHandler } from 'react';
 import ManifestFormatPopover from './ManifestFormatPopover';
 
-import type { ProcessStep, FileUploadStatus } from '../hooks/useCoverageAnalysis';
+import type { ProcessStep } from '../hooks/useCoverageAnalysis';
 import type { ProcessError } from '../utils/errors';
 import AnalysisProgress from './AnalysisProgress';
 
@@ -24,9 +24,7 @@ export type ManifestUploadCardProps = {
   file?: File;
   fileError?: string;
   processError?: ProcessError;
-  validated: FileUploadStatus;
   onDropAccepted: (files: File[]) => void;
-  onClearClick: MouseEventHandler<HTMLButtonElement>;
   onRetry: () => void;
 };
 
@@ -36,9 +34,7 @@ const ManifestUploadCard = ({
   file,
   fileError,
   processError,
-  validated,
   onDropAccepted,
-  onClearClick,
   onRetry,
 }: ManifestUploadCardProps) => {
   const showProgress = step === 'uploading' || step === 'analyzing' || !!processError;
@@ -70,30 +66,29 @@ const ManifestUploadCard = ({
               </Flex>
             </FlexItem>
             <FlexItem>
-              <FileUpload
-                browseButtonText='Choose file'
-                id='coverage-file-upload'
-                filenamePlaceholder='Drag and drop a file or choose one'
-                hideDefaultPreview
-                value={file}
-                filename={file?.name}
-                validated={validated}
-                dropzoneProps={{ onDropAccepted }}
-                onClearClick={onClearClick}
-              >
-                {fileError ? (
-                  <FileUploadHelperText>
-                    <HelperText>
-                      <HelperTextItem variant='error'>{fileError}</HelperTextItem>
-                    </HelperText>
-                  </FileUploadHelperText>
-                ) : null}
-              </FileUpload>
-            </FlexItem>
-            <FlexItem>
-              <Content component='small'>
-                Supported formats: CSV, CycloneDX, SPDX, pom.xml, requirements.txt
-              </Content>
+              <MultipleFileUpload dropzoneProps={{ multiple: false, maxFiles: 1, onDropAccepted }}>
+                <MultipleFileUploadMain
+                  titleIcon={<UploadIcon />}
+                  titleText='Drag and drop a file here'
+                  titleTextSeparator='or'
+                  browseButtonText='Choose file'
+                  infoText={
+                    <Content>
+                      Supported formats: CSV, CycloneDX, SPDX, POM, requirements.txt
+                      <br />
+                      File size limit: Up to 10MB for POM files. Up to 15MB for all other supported
+                      formats.
+                    </Content>
+                  }
+                />
+              </MultipleFileUpload>
+              {fileError ? (
+                <HelperText>
+                  <HelperTextItem variant='error'>
+                    {file?.name ? `${file.name}: ${fileError}` : fileError}
+                  </HelperTextItem>
+                </HelperText>
+              ) : null}
             </FlexItem>
           </Flex>
         </CardBody>

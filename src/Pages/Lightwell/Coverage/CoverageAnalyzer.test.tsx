@@ -23,11 +23,9 @@ const defaultUploadProps: ManifestUploadCardProps = {
   file: undefined,
   fileError: undefined,
   processError: undefined,
-  validated: 'default',
   step: 'select',
   reportUUID: '',
   onDropAccepted: jest.fn(),
-  onClearClick: jest.fn(),
   onRetry: jest.fn(),
 };
 
@@ -90,16 +88,17 @@ describe('CoverageAnalyzer', () => {
         ...defaultUploadProps,
         file: new File([''], 'report.pdf'),
         fileError: 'Could not detect format. Please check your file.',
-        validated: 'error' as const,
       },
       startOver: jest.fn(),
     });
 
     renderCoverageAnalyzer();
-    expect(screen.getByDisplayValue('report.pdf')).toBeInTheDocument();
+    expect(screen.getByText(/report.pdf/)).toBeInTheDocument();
     expect(
-      screen.getByText('Could not detect format. Please check your file.'),
+      screen.getByText(/Could not detect format. Please check your file./),
     ).toBeInTheDocument();
+    expect(screen.getByText('Drag and drop a file here')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Confirm' })).not.toBeInTheDocument();
   });
 
   it('shows uploading step in progress while the file is uploading', () => {
@@ -159,7 +158,6 @@ describe('CoverageAnalyzer', () => {
     expect(screen.getByText(error.title)).toBeInTheDocument();
     expect(screen.getByText(error.description)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reupload file' })).toBeInTheDocument();
-    expect(screen.queryByText('Please try again')).not.toBeInTheDocument();
   });
 
   it('shows the task error on the progress card after upload succeeds', () => {
@@ -177,6 +175,7 @@ describe('CoverageAnalyzer', () => {
     });
 
     renderCoverageAnalyzer();
+    expect(screen.getByRole('heading', { name: 'Analysis failed' })).toBeInTheDocument();
     expect(screen.getByLabelText('Complete')).toBeInTheDocument();
     expect(screen.getByLabelText('Failed')).toBeInTheDocument();
     expect(screen.getByText(error.title)).toBeInTheDocument();
@@ -200,7 +199,12 @@ describe('CoverageAnalyzer', () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Supported formats: CSV, CycloneDX, SPDX, pom.xml, requirements.txt'),
+      screen.getByText(/Supported formats: CSV, CycloneDX, SPDX, POM, requirements.txt/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /File size limit: Up to 10MB for POM files. Up to 15MB for all other supported formats./,
+      ),
     ).toBeInTheDocument();
   });
 });

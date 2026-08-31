@@ -11,7 +11,6 @@ import type { ManifestUploadCardProps } from '../components/ManifestUploadCard';
 import { apiError, taskError, timeoutError, type ProcessError } from '../utils/errors';
 
 export type ProcessStep = 'select' | 'uploading' | 'analyzing' | 'complete' | 'error';
-export type FileUploadStatus = 'success' | 'error' | 'default';
 
 const POLLING_RETRY_LIMIT = 40;
 
@@ -86,12 +85,6 @@ export const useCoverageAnalysis = () => {
     });
   };
 
-  const handleClearFile = () => {
-    setStep('select');
-    setFile(undefined);
-    setFileError(undefined);
-  };
-
   const startOver = () => {
     setStep('select');
     setFile(undefined);
@@ -101,12 +94,6 @@ export const useCoverageAnalysis = () => {
     setPollCount(0);
   };
 
-  const validated: FileUploadStatus = fileError
-    ? 'error'
-    : file && step !== 'select' && step !== 'error'
-      ? 'success'
-      : 'default';
-
   const completedReport: CompletedCoverageReport | undefined =
     report?.status === 'completed' ? report : undefined;
 
@@ -114,11 +101,9 @@ export const useCoverageAnalysis = () => {
     file,
     fileError,
     processError,
-    validated,
     step,
     reportUUID,
     onDropAccepted: handleFileAccepted,
-    onClearClick: handleClearFile,
     onRetry: startOver,
   };
 

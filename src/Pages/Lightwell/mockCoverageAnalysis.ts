@@ -24,11 +24,9 @@ const mockUploadProps: ManifestUploadCardProps = {
   file: undefined,
   fileError: undefined,
   processError: undefined,
-  validated: 'default',
   step: 'complete',
   reportUUID: 'mock-report',
   onDropAccepted: () => undefined,
-  onClearClick: () => undefined,
   onRetry: () => undefined,
 };
 
