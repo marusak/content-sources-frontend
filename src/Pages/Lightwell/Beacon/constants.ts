@@ -14,8 +14,8 @@ export const STAGE_DESCRIPTIONS: Record<Stage, string> = {
   'Fix in Progress': 'A fix is currently under development.',
   Validation: 'The fix is being validated within the Red Hat pipeline.',
   'Lightwell Network': 'The fix is available in the Lightwell Repository.',
-  Upstreaming: 'The fix is being shared with the upstream community following embargo guidelines.',
-  Published: 'No longer embargoed; available in upstream repos.',
+  Upstreaming: 'The fix is being shared with the upstream community.',
+  Published: 'The fix is available in upstream repos.',
 };
 
 export const SEVERITIES: Severity[] = ['Critical', 'Important', 'Moderate', 'Minor'];
