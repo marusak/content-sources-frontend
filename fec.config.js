@@ -28,11 +28,7 @@ class IstanbulCoveragePlugin {
           return true;
         }
 
-        const useEntries = Array.isArray(rule.use)
-          ? rule.use
-          : rule.use
-            ? [rule.use]
-            : [];
+        const useEntries = Array.isArray(rule.use) ? rule.use : rule.use ? [rule.use] : [];
 
         return useEntries.some((entry) => {
           if (!entry) {
@@ -108,7 +104,6 @@ module.exports = {
     exposes: {
       './RootApp': path.resolve(__dirname, './src/AppEntry.tsx'),
       './LightwellApp': path.resolve(__dirname, './src/LightwellAppEntry.tsx'),
-      './BeaconPdfEntry': path.resolve(__dirname, './src/moduleEntries/BeaconPdfEntry.tsx'),
     },
     exclude: ['react-router-dom'],
     shared: [
@@ -139,11 +134,6 @@ module.exports = {
     ...(process.env.BACKEND_PORT && {
       '/api/content-sources/': {
         host: `http://127.0.0.1:${process.env.BACKEND_PORT}`,
-      },
-    }),
-    ...(process.env.PDF_GENERATOR_PORT && {
-      '/api/crc-pdf-generator': {
-        host: `http://127.0.0.1:${process.env.PDF_GENERATOR_PORT}`,
       },
     }),
   },

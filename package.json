@@ -65,6 +65,7 @@
     "formik": "^2.4.6",
     "github-actions-ctrf": "^0.0.58",
     "lodash": "^4.18.1",
+    "pdf-lib": "^1.17.1",
     "playwright-ctrf-json-reporter": "^0.0.29",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -247,7 +247,6 @@ const Beacon = () => {
             customerId={selectedCustomerId}
             filters={queryFilters}
             visibleColumns={getVisibleVulnerabilityColumns(columns)}
-            itemCount={displayMeta?.count ?? 0}
           />
         }
       />

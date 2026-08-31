@@ -4,12 +4,6 @@ import userEvent from '@testing-library/user-event';
 import Beacon from './Beacon';
 import { ReactQueryTestWrapper } from 'testingHelpers';
 
-jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => ({
-  useChrome: () => ({
-    requestPdf: jest.fn(),
-  }),
-}));
-
 jest.mock('./hooks/useBeaconData', () => ({
   useBeaconData: jest.fn(),
 }));
