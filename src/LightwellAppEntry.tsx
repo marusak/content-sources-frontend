@@ -1,9 +1,15 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AlertVariant } from '@patternfly/react-core';
+import {
+  createStore as createNotificationStore,
+  NotificationsProvider,
+} from '@redhat-cloud-services/frontend-components-notifications';
+import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import * as Redux from 'redux';
 import { AccessCheck } from '@project-kessel/react-kessel-access-check';
 
+import { composeErrorDescription } from 'Hooks/useErrorNotification';
 import LightwellApp from './LightwellApp';
 import { ContextProvider } from './middleware/AppContext';
 import { createStore, restoreStore } from './store';
@@ -11,6 +17,8 @@ import { createStore, restoreStore } from './store';
 interface LightwellAppEntryProps {
   logger?: Redux.Middleware;
 }
+
+const notificationsStore = createNotificationStore();
 
 export default function LightwellAppEntry({ logger }: LightwellAppEntryProps) {
   const store = React.useMemo(() => {
@@ -35,18 +43,36 @@ export default function LightwellAppEntry({ logger }: LightwellAppEntryProps) {
             refetchOnWindowFocus: false,
           },
         },
+        queryCache: new QueryCache({
+          onError: (_, query) => {
+            if (query.meta?.title) {
+              const { title, description } = composeErrorDescription(
+                query.meta.title as string,
+                'An error occurred',
+                query.state.error,
+              );
+              notificationsStore.addNotification({
+                title,
+                description,
+                variant: AlertVariant.danger,
+              });
+            }
+          },
+        }),
       }),
   );
 
   return (
     <ReduxProvider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <AccessCheck.Provider baseUrl={kesselBaseUrl} apiPath='/api/kessel/v1beta2'>
-          <ContextProvider>
-            <LightwellApp />
-          </ContextProvider>
-        </AccessCheck.Provider>
-      </QueryClientProvider>
+      <NotificationsProvider store={notificationsStore}>
+        <QueryClientProvider client={queryClient}>
+          <AccessCheck.Provider baseUrl={kesselBaseUrl} apiPath='/api/kessel/v1beta2'>
+            <ContextProvider>
+              <LightwellApp />
+            </ContextProvider>
+          </AccessCheck.Provider>
+        </QueryClientProvider>
+      </NotificationsProvider>
     </ReduxProvider>
   );
 }
