@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { objectToUrlParams } from 'helpers';
-import type { Complexity, Severity, Stage, Vulnerability } from 'Pages/Lightwell/Beacon/types';
+import type { Severity, Stage, Vulnerability } from 'Pages/Lightwell/Beacon/types';
 import { LIGHTWELL_BEACON_USE_MOCK } from 'Pages/Lightwell/constants';
 import { mockVulnerabilities } from 'Pages/Lightwell/mockVulnerabilities';
 import type { Meta } from './types';
@@ -22,7 +22,6 @@ export type BeaconVulnerabilityFlag = 'embargo' | 'duplicate';
 export type BeaconVulnerabilityFilters = {
   severities?: Severity[];
   stages?: Stage[];
-  complexities?: Complexity[];
   ltwlsuptTicketIds?: string[];
   flags?: BeaconVulnerabilityFlag[];
   search?: string;
@@ -60,7 +59,6 @@ export type LightwellVulnerabilityResponse = {
   customer_priority?: string;
   stage: string;
   language?: string;
-  complexity: string;
   submitted_date: string;
   last_updated: string;
   age_days: number;
@@ -128,7 +126,6 @@ export function mapLightwellVulnerability(
     customerPriority: vulnerability.customer_priority as Vulnerability['customerPriority'],
     stage,
     language: vulnerability.language ?? '',
-    complexity: vulnerability.complexity as Complexity,
     submittedDate: formatDate(vulnerability.submitted_date),
     lastUpdated: formatDateTime(vulnerability.last_updated),
     ageDays: vulnerability.age_days,
@@ -168,9 +165,6 @@ export function buildVulnerabilityQueryParams(
   if (filters?.stages?.length) {
     params.stage = filters.stages.join(',');
   }
-  if (filters?.complexities?.length) {
-    params.complexity = filters.complexities.join(',');
-  }
   if (filters?.ltwlsuptTicketIds?.length) {
     params.ltwlsupt_ticket_id = filters.ltwlsuptTicketIds.join(',');
   }
@@ -201,9 +195,6 @@ function filterMockVulnerabilities(
       return false;
     }
     if (filters?.stages?.length && !filters.stages.includes(vulnerability.stage)) {
-      return false;
-    }
-    if (filters?.complexities?.length && !filters.complexities.includes(vulnerability.complexity)) {
       return false;
     }
     if (filters?.ltwlsuptTicketIds?.length) {

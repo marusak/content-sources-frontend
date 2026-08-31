@@ -39,7 +39,6 @@ const COLUMN_PDF_WIDTH: Record<string, number> = {
   age: 14,
   flags: 14,
   title: 28,
-  complexity: 16,
   customerPriority: 14,
 };
 

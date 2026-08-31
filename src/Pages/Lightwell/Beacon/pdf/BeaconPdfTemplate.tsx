@@ -132,7 +132,6 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
         .beacon-pdf .beacon-pdf-col-repository,
         .beacon-pdf .beacon-pdf-col-age,
         .beacon-pdf .beacon-pdf-col-flags,
-        .beacon-pdf .beacon-pdf-col-complexity,
         .beacon-pdf .beacon-pdf-col-customerPriority {
           width: 1%;
           white-space: nowrap;
