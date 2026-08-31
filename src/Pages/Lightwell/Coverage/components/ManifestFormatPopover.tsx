@@ -6,9 +6,9 @@ const ManifestFormatPopover = () => (
     hasAutoWidth
     maxWidth='60rem'
     position='right'
-    headerContent='What should my manifest contain?'
     bodyContent={
       <Content>
+        <Content component='h6'>What should my manifest contain?</Content>
         <Content component={ContentVariants.p}>
           Each format must include a Package URL (PURL) so that packages can be identified.
         </Content>
@@ -42,6 +42,11 @@ const ManifestFormatPopover = () => (
         <Content component={ContentVariants.p}>
           The PURL format is <code>pkg:ecosystem/group/name@version</code>, for example{' '}
           <code>pkg:maven/org.springframework/spring-core@5.3.20</code>.
+        </Content>
+        <Content component='h6'>What is the maximum manifest size?</Content>
+        <Content component={ContentVariants.p}>
+          Maximum upload size is 15 MB per file. For <code>.pom</code> and <code>.xml</code> files,
+          the limit is 10 MB.
         </Content>
       </Content>
     }

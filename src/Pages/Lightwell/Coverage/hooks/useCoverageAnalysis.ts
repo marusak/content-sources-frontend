@@ -3,7 +3,7 @@ import {
   useCreateCoverageReportMutation,
   useCoverageReportQuery,
 } from 'services/Lightwell/CoverageReportsQueries';
-import { validateManifestFile } from '../utils/validateManifestFile';
+import { validateManifestFile, getMaxFileSizeMB, toBytes } from '../utils/validateManifestFile';
 import type { CompletedCoverageReport } from 'services/Lightwell/CoverageReportsApi';
 import { LIGHTWELL_LENS_USE_MOCK } from 'Pages/Lightwell/constants';
 import { MOCK_ANALYSIS } from '../../mockCoverageAnalysis';
@@ -14,8 +14,6 @@ export type ProcessStep = 'select' | 'uploading' | 'analyzing' | 'complete' | 'e
 export type FileUploadStatus = 'success' | 'error' | 'default';
 
 const POLLING_RETRY_LIMIT = 40;
-const MAX_FILE_SIZE_MB = 15;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export const useCoverageAnalysis = () => {
   if (LIGHTWELL_LENS_USE_MOCK) return MOCK_ANALYSIS;
@@ -60,8 +58,9 @@ export const useCoverageAnalysis = () => {
   // where onFileInputChange fires twice when selecting a file via the browser dialog
   const handleFileAccepted = (acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0];
-    if (selectedFile.size > MAX_FILE_SIZE_BYTES) {
-      setFileError(`File exceeds the ${MAX_FILE_SIZE_MB}MB size limit. Please try a smaller file.`);
+    const limitMB = getMaxFileSizeMB(selectedFile.name);
+    if (selectedFile.size > toBytes(limitMB)) {
+      setFileError(`File exceeds the ${limitMB} MB size limit. Please try a smaller file.`);
       setFile(selectedFile);
       return;
     }

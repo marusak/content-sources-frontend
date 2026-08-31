@@ -1,4 +1,10 @@
-import { validateManifestFile } from './validateManifestFile';
+import {
+  validateManifestFile,
+  getMaxFileSizeMB,
+  toBytes,
+  MAX_FILE_SIZE_MB,
+  MAX_JAVA_FILE_SIZE_MB,
+} from './validateManifestFile';
 
 const fileWith = (name: string) => new File([''], name);
 
@@ -29,4 +35,25 @@ describe('validateManifestFile', () => {
       expect(validateManifestFile(fileWith(name))).toBe(false);
     },
   );
+});
+
+describe('getMaxFileSizeMB', () => {
+  it.each(['dependency.pom', 'pom.xml'])('returns %i MB limit for %s', (name) => {
+    expect(getMaxFileSizeMB(name)).toBe(MAX_JAVA_FILE_SIZE_MB);
+  });
+
+  it.each(['sbom.json', 'inventory.csv', 'my-app.spdx', 'requirements.txt'])(
+    'returns %i MB limit for %s',
+    (name) => {
+      expect(getMaxFileSizeMB(name)).toBe(MAX_FILE_SIZE_MB);
+    },
+  );
+});
+
+describe('toBytes', () => {
+  it('converts megabytes to bytes', () => {
+    expect(toBytes(1)).toBe(1_048_576);
+    expect(toBytes(10)).toBe(10_485_760);
+    expect(toBytes(15)).toBe(15_728_640);
+  });
 });
