@@ -38,7 +38,6 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 2,
     embargo: true,
     duplicate: false,
-    blocked: false,
     ltwlsupt_ticket_id: 'batch-1',
   },
   {
@@ -64,7 +63,6 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 7,
     embargo: false,
     duplicate: false,
-    blocked: false,
     ltwlsupt_ticket_id: 'batch-1',
   },
   {
@@ -90,7 +88,6 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 35,
     embargo: false,
     duplicate: false,
-    blocked: true,
     ltwlsupt_ticket_id: 'batch-1',
   },
 
@@ -118,7 +115,6 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 15,
     embargo: true,
     duplicate: false,
-    blocked: false,
     ltwlsupt_ticket_id: 'batch-2',
   },
   {
@@ -144,7 +140,6 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 35,
     embargo: false,
     duplicate: false,
-    blocked: false,
     ltwlsupt_ticket_id: 'batch-2',
   },
   {
@@ -170,7 +165,6 @@ export const mockVulnerabilities: Vulnerability[] = [
     ageDays: 1,
     embargo: false,
     duplicate: true,
-    blocked: false,
     duplicateOf: 'LWL-2026-4027',
     ltwlsupt_ticket_id: 'batch-2',
   },

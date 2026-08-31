@@ -37,7 +37,6 @@ export interface Vulnerability {
   ageDays: number;
   embargo: boolean;
   duplicate: boolean;
-  blocked: boolean;
   duplicateOf?: string;
   ltwlsupt_ticket_id?: string;
   ltwlsupt_ticket_ids?: string[];
