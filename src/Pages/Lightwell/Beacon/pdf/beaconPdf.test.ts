@@ -156,7 +156,7 @@ describe('buildBeaconPdfPayload', () => {
       ...visibleColumns,
       { key: 'severity', title: 'Severity' },
       { key: 'cvss', title: 'CVSS' },
-      { key: 'repository', title: 'Language' },
+      { key: 'repository', title: 'Ecosystem' },
     ];
     expect(manyColumns).toHaveLength(7);
     expect(shouldUseLandscapePdf(manyColumns)).toBe(true);
