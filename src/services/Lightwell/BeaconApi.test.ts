@@ -25,7 +25,7 @@ const baseVulnerability: LightwellVulnerabilityResponse = {
   reproducer_included: true,
   customer_priority: 'Priority 1',
   stage: 'Submitted',
-  language: 'java',
+  ecosystem: 'java',
   submitted_date: '2026-08-16T00:00:00Z',
   last_updated: '2026-08-17T08:17:00Z',
   age_days: 2,
