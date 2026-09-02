@@ -6,7 +6,7 @@ import BeaconPdfTemplate from './BeaconPdfTemplate';
 const meta = {
   count: mockVulnerabilities.length,
   criticalCount: 1,
-  stageCounts: { Submitted: 1, Classified: 1 },
+  statusCounts: { Submitted: 1, Classified: 1 },
 };
 
 describe('BeaconPdfTemplate', () => {
@@ -22,7 +22,7 @@ describe('BeaconPdfTemplate', () => {
           includeSummary: true,
           visibleColumns: [
             { key: 'vulnerabilityId', title: 'Vulnerability ID' },
-            { key: 'stage', title: 'Status' },
+            { key: 'status', title: 'Status' },
           ],
           landscape: false,
         }}
@@ -33,12 +33,12 @@ describe('BeaconPdfTemplate', () => {
     expect(document.querySelector('.beacon-pdf--portrait')).toBeInTheDocument();
     expect(screen.getByText(/Customer ID: CID-01/)).toBeInTheDocument();
     expect(screen.getByText(/Generated: 25 Aug 2026/)).toBeInTheDocument();
-    expect(screen.getByText('By Stage')).toBeInTheDocument();
+    expect(screen.getByText('By Status')).toBeInTheDocument();
     expect(screen.getByText('Total')).toBeInTheDocument();
     expect(screen.getByText('Critical')).toBeInTheDocument();
-    const pipeline = screen.getByLabelText('Vulnerability counts by stage');
+    const pipeline = screen.getByLabelText('Vulnerability counts by status');
     expect(pipeline).toHaveClass('beacon-pdf-pipeline');
-    expect(pipeline.querySelectorAll('.beacon-pdf-stage-card')).toHaveLength(5);
+    expect(pipeline.querySelectorAll('.beacon-pdf-status-card')).toHaveLength(5);
     expect(pipeline.querySelectorAll('.beacon-pdf-pipeline-arrow')).toHaveLength(4);
     expect(pipeline).toHaveTextContent('Submitted');
     expect(pipeline).toHaveTextContent('Lightwell Network');

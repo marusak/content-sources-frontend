@@ -19,8 +19,8 @@
   padding: 0 var(--pf-t--global--spacer--xs);
 }
 
-/* Stage cards (read-only pipeline visuals) */
-.lightwell-stage-card {
+/* Status cards (read-only pipeline visuals) */
+.lightwell-status-card {
   text-align: center;
   min-width: 100px;
   height: 100%;
@@ -28,13 +28,13 @@
   flex-direction: column;
 }
 
-.lightwell-stage-card-label {
+.lightwell-status-card-label {
   font-weight: var(--pf-t--global--font--weight--body--bold);
   display: block;
   margin-bottom: var(--pf-t--global--spacer--xs);
 }
 
-.lightwell-stage-card-number {
+.lightwell-status-card-number {
   display: block;
   font-size: 1.75rem;
   font-weight: var(--pf-t--global--font--weight--body--bold);

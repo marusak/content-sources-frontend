@@ -24,7 +24,7 @@ const baseVulnerability: LightwellVulnerabilityResponse = {
   exploit_tested: true,
   reproducer_included: true,
   customer_priority: 'Priority 1',
-  stage: 'Submitted',
+  status: 'Submitted',
   ecosystem: 'java',
   submitted_date: '2026-08-16T00:00:00Z',
   last_updated: '2026-08-17T08:17:00Z',
@@ -87,7 +87,7 @@ describe('getVulnerabilities', () => {
       limit: 200,
       offset,
       critical_count: 0,
-      stage_counts: {},
+      status_counts: {},
     },
   });
 

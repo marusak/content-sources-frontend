@@ -26,7 +26,7 @@ const collection = {
       cvss: 9.8,
       exploit_tested: true,
       reproducer_included: true,
-      stage: 'Submitted',
+      status: 'Submitted',
       ecosystem: 'java',
       submitted_date: '2026-08-16T00:00:00Z',
       last_updated: '2026-08-17T08:17:00Z',
@@ -40,7 +40,7 @@ const collection = {
     limit: 50,
     offset: 0,
     critical_count: 1,
-    stage_counts: { Submitted: 1 },
+    status_counts: { Submitted: 1 },
   },
 };
 
@@ -69,7 +69,7 @@ describe('fetchData', () => {
     expect(result.meta).toEqual({
       count: 1,
       criticalCount: 1,
-      stageCounts: { Submitted: 1 },
+      statusCounts: { Submitted: 1 },
     });
   });
 
@@ -141,7 +141,7 @@ describe('buildBeaconPdfPayload', () => {
     expect(
       shouldUseLandscapePdf([
         { key: 'vulnerabilityId', title: 'Vulnerability ID' },
-        { key: 'stage', title: 'Status' },
+        { key: 'status', title: 'Status' },
       ]),
     ).toBe(false);
 

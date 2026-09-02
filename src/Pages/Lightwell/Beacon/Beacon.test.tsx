@@ -32,9 +32,9 @@ const mockBeaconData = {
   meta: {
     count: mockVulnerabilities.length,
     criticalCount: mockVulnerabilities.filter((v) => v.severity === 'Critical').length,
-    stageCounts: Object.fromEntries(
+    statusCounts: Object.fromEntries(
       mockVulnerabilities.reduce<Map<string, number>>((counts, vulnerability) => {
-        counts.set(vulnerability.stage, (counts.get(vulnerability.stage) ?? 0) + 1);
+        counts.set(vulnerability.status, (counts.get(vulnerability.status) ?? 0) + 1);
         return counts;
       }, new Map()),
     ),

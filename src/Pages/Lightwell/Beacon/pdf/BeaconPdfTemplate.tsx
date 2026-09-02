@@ -2,7 +2,7 @@ import { Content, Title } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { AsyncState } from '@redhat-cloud-services/types';
 
-import { STAGES } from '../constants';
+import { STATUSES } from '../constants';
 import type { BeaconPdfAdditionalData, BeaconPdfColumn, BeaconPdfData } from './beaconPdf';
 import {
   createDefaultVulnerabilityColumns,
@@ -30,7 +30,7 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
   const customerId = additionalData?.customerId;
   const generatedAt = additionalData?.generatedAt;
   const landscape = additionalData?.landscape === true;
-  const stageCounts = meta?.stageCounts ?? {};
+  const statusCounts = meta?.statusCounts ?? {};
 
   return (
     <div className={`beacon-pdf ${landscape ? 'beacon-pdf--landscape' : 'beacon-pdf--portrait'}`}>
@@ -90,7 +90,7 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
           flex: 1 1 0;
           min-width: 0;
         }
-        .beacon-pdf .beacon-pdf-stage-card {
+        .beacon-pdf .beacon-pdf-status-card {
           flex: 1 1 auto;
           min-width: 0;
           text-align: center;
@@ -98,13 +98,13 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
           background: #fff;
           padding: 8px 6px;
         }
-        .beacon-pdf .beacon-pdf-stage-label {
+        .beacon-pdf .beacon-pdf-status-label {
           font-weight: 700;
           font-size: 10px;
           line-height: 1.2;
           margin-bottom: 4px;
         }
-        .beacon-pdf .beacon-pdf-stage-count {
+        .beacon-pdf .beacon-pdf-status-count {
           font-size: 20px;
           font-weight: 700;
           line-height: 1.2;
@@ -121,7 +121,7 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
         }
         .beacon-pdf .beacon-pdf-col-vulnerabilityId,
         .beacon-pdf .beacon-pdf-col-lastUpdated,
-        .beacon-pdf .beacon-pdf-col-stage,
+        .beacon-pdf .beacon-pdf-col-status,
         .beacon-pdf .beacon-pdf-col-severity,
         .beacon-pdf .beacon-pdf-col-cvss,
         .beacon-pdf .beacon-pdf-col-repository,
@@ -162,20 +162,20 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
             </div>
           </div>
           <Title headingLevel='h2' size='md'>
-            By Stage
+            By Status
           </Title>
           <div
             className='beacon-pdf-pipeline'
             role='list'
-            aria-label='Vulnerability counts by stage'
+            aria-label='Vulnerability counts by status'
           >
-            {STAGES.map((stage, idx) => (
-              <div key={stage} className='beacon-pdf-pipeline-item' role='listitem'>
-                <div className='beacon-pdf-stage-card'>
-                  <div className='beacon-pdf-stage-label'>{stage}</div>
-                  <div className='beacon-pdf-stage-count'>{stageCounts[stage] ?? 0}</div>
+            {STATUSES.map((status, idx) => (
+              <div key={status} className='beacon-pdf-pipeline-item' role='listitem'>
+                <div className='beacon-pdf-status-card'>
+                  <div className='beacon-pdf-status-label'>{status}</div>
+                  <div className='beacon-pdf-status-count'>{statusCounts[status] ?? 0}</div>
                 </div>
-                {idx < STAGES.length - 1 ? (
+                {idx < STATUSES.length - 1 ? (
                   <span className='beacon-pdf-pipeline-arrow' aria-hidden='true'>
                     &#9654;
                   </span>

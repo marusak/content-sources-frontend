@@ -1,6 +1,6 @@
-import type { Severity, Stage } from './types';
+import type { Severity, Status } from './types';
 
-export const STAGES: Stage[] = [
+export const STATUSES: Status[] = [
   'Submitted',
   'Classified',
   'Fix in Progress',
@@ -8,7 +8,7 @@ export const STAGES: Stage[] = [
   'Lightwell Network',
 ];
 
-export const STAGE_DESCRIPTIONS: Record<Stage, string> = {
+export const STATUS_DESCRIPTIONS: Record<Status, string> = {
   Submitted: 'Vulnerability submitted, undergoing initial review to identify a fix target.',
   Classified: 'Fix target identified.',
   'Fix in Progress': 'A fix is currently under development.',

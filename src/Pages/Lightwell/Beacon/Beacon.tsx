@@ -28,8 +28,8 @@ import UserIcon from '@patternfly/react-icons/dist/esm/icons/user-icon';
 
 import useDebounce from 'Hooks/useDebounce';
 import LightwellPageHeader from '../components/LightwellPageHeader';
-import { SEVERITIES, STAGES } from './constants';
-import type { Severity, Stage } from './types';
+import { SEVERITIES, STATUSES } from './constants';
+import type { Severity, Status } from './types';
 import { CustomerIdSelect } from './components/CustomerIdSelect';
 import { ExportMenu } from './components/ExportMenu';
 import { PipelineView } from './components/PipelineView';
@@ -52,7 +52,7 @@ const DEFAULT_PER_PAGE = 20;
 
 function buildBeaconFilters(
   selectedSeverities: Set<Severity>,
-  selectedStages: Set<Stage>,
+  selectedStatuses: Set<Status>,
   selectedLtwlsuptTickets: Set<string>,
   showDuplicates: boolean,
 ): BeaconVulnerabilityFilters | undefined {
@@ -61,14 +61,14 @@ function buildBeaconFilters(
 
   const filters: BeaconVulnerabilityFilters = {
     severities: selectedSeverities.size ? [...selectedSeverities] : undefined,
-    stages: selectedStages.size ? [...selectedStages] : undefined,
+    statuses: selectedStatuses.size ? [...selectedStatuses] : undefined,
     ltwlsuptTicketIds: selectedLtwlsuptTickets.size ? [...selectedLtwlsuptTickets] : undefined,
     flags: flags.length ? flags : undefined,
   };
 
   const hasFilters =
     (filters.severities?.length ?? 0) > 0 ||
-    (filters.stages?.length ?? 0) > 0 ||
+    (filters.statuses?.length ?? 0) > 0 ||
     (filters.ltwlsuptTicketIds?.length ?? 0) > 0 ||
     (filters.flags?.length ?? 0) > 0;
 
@@ -78,7 +78,7 @@ function buildBeaconFilters(
 const Beacon = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
   const [selectedSeverities, setSelectedSeverities] = useState<Set<Severity>>(new Set());
-  const [selectedStages, setSelectedStages] = useState<Set<Stage>>(new Set());
+  const [selectedStatuses, setSelectedStatuses] = useState<Set<Status>>(new Set());
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
   const [showDuplicates, setShowDuplicates] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
@@ -92,11 +92,11 @@ const Beacon = () => {
     () =>
       buildBeaconFilters(
         selectedSeverities,
-        selectedStages,
+        selectedStatuses,
         selectedLtwlsuptTickets,
         showDuplicates,
       ),
-    [selectedSeverities, selectedStages, selectedLtwlsuptTickets, showDuplicates],
+    [selectedSeverities, selectedStatuses, selectedLtwlsuptTickets, showDuplicates],
   );
 
   const queryFilters = useMemo((): BeaconVulnerabilityFilters | undefined => {
@@ -140,7 +140,7 @@ const Beacon = () => {
 
   const resetFilters = useCallback(() => {
     setSelectedSeverities(new Set());
-    setSelectedStages(new Set());
+    setSelectedStatuses(new Set());
     setSelectedLtwlsuptTickets(new Set());
     setShowDuplicates(false);
     setSearchQuery('');
@@ -176,11 +176,11 @@ const Beacon = () => {
     });
   };
 
-  const toggleStage = (stage: Stage) => {
-    setSelectedStages((prev) => {
+  const toggleStatus = (status: Status) => {
+    setSelectedStatuses((prev) => {
       const next = new Set(prev);
-      if (next.has(stage)) next.delete(stage);
-      else next.add(stage);
+      if (next.has(status)) next.delete(status);
+      else next.add(status);
       return next;
     });
   };
@@ -196,7 +196,7 @@ const Beacon = () => {
 
   const activeFilterCount =
     selectedSeverities.size +
-    selectedStages.size +
+    selectedStatuses.size +
     selectedLtwlsuptTickets.size +
     (showDuplicates ? 1 : 0);
 
@@ -267,13 +267,13 @@ const Beacon = () => {
                     showAll={!!showAllCategories.pipeline}
                     onShowAllToggle={() => toggleShowAllCategory('pipeline')}
                   >
-                    {STAGES.map((stage) => (
+                    {STATUSES.map((status) => (
                       <FilterSidePanelCategoryItem
-                        key={stage}
-                        checked={selectedStages.has(stage)}
-                        onClick={() => toggleStage(stage)}
+                        key={status}
+                        checked={selectedStatuses.has(status)}
+                        onClick={() => toggleStatus(status)}
                       >
-                        {stage}
+                        {status}
                       </FilterSidePanelCategoryItem>
                     ))}
                   </FilterSidePanelCategory>
@@ -387,7 +387,7 @@ const Beacon = () => {
                               </Content>
                             </FlexItem>
                           </Flex>
-                          <PipelineView stageCounts={displayMeta?.stageCounts} />
+                          <PipelineView statusCounts={displayMeta?.statusCounts} />
                         </CardBody>
                       </Card>
                     </StackItem>

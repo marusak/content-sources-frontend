@@ -1,6 +1,6 @@
 export type Severity = 'Critical' | 'Important' | 'Moderate' | 'Minor';
 
-export type Stage =
+export type Status =
   | 'Submitted'
   | 'Classified'
   | 'Fix in Progress'
@@ -26,7 +26,7 @@ export interface Vulnerability {
   exploitTested: boolean;
   reproducerIncluded: boolean;
   customerPriority?: CustomerPriority;
-  stage: Stage;
+  status: Status;
   ecosystem: string;
   submittedDate: string;
   lastUpdated: string;

@@ -30,7 +30,7 @@ const COLUMN_PDF_WIDTH: Record<string, number> = {
   vulnerabilityId: 14,
   component: 22,
   lastUpdated: 16,
-  stage: 16,
+  status: 16,
   severity: 10,
   cvss: 6,
   cvssVector: 28,
