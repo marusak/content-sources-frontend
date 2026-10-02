@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  getBeaconStatus,
   getLtwlsuptTicketIds,
   getVulnerabilities,
   type BeaconData,
@@ -10,8 +11,20 @@ import {
 
 export const BEACON_VULNERABILITIES_KEY = 'BEACON_VULNERABILITIES_KEY';
 export const BEACON_LTWLSUPT_TICKET_IDS_KEY = 'BEACON_LTWLSUPT_TICKET_IDS_KEY';
+export const BEACON_STATUS_KEY = 'BEACON_STATUS_KEY';
 
 export type { BeaconData } from './BeaconApi';
+
+export const useBeaconStatusQuery = () =>
+  useQuery({
+    queryKey: [BEACON_STATUS_KEY],
+    queryFn: getBeaconStatus,
+    staleTime: 20_000,
+    meta: {
+      title: 'Error loading beacon status',
+      id: 'get-beacon-status-error',
+    },
+  });
 
 export const useLtwlsuptTicketIdsQuery = (customerId?: string, options?: { enabled?: boolean }) =>
   useQuery({

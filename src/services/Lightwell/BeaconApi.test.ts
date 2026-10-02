@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import {
+  getBeaconStatus,
   getLtwlsuptTicketIds,
   getVulnerabilities,
   mapLightwellVulnerability,
@@ -75,6 +76,27 @@ describe('mapLightwellVulnerability', () => {
         published_versions: undefined as unknown as string[],
       }).publishedVersions,
     ).toEqual([]);
+  });
+});
+
+describe('getBeaconStatus', () => {
+  it('returns the last processed time as a 24-hour timestamp', async () => {
+    const get = jest.spyOn(axios, 'get').mockResolvedValue({
+      data: { last_processed_at: '2026-10-02T08:00:00Z' },
+    });
+
+    await expect(getBeaconStatus()).resolves.toBe('2026-10-02 08:00');
+    expect(get).toHaveBeenCalledWith('/api/content-sources/v1/lightwell/beacon/status/');
+
+    get.mockRestore();
+  });
+
+  it('returns undefined until the first successful sync', async () => {
+    const get = jest.spyOn(axios, 'get').mockResolvedValue({ data: {} });
+
+    await expect(getBeaconStatus()).resolves.toBeUndefined();
+
+    get.mockRestore();
   });
 });
 

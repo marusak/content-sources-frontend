@@ -7,6 +7,7 @@ import { mockVulnerabilities } from 'Pages/Lightwell/mockVulnerabilities';
 import type { Meta } from './types';
 
 export const VULNERABILITIES_PATH = '/api/content-sources/v1/lightwell/beacon/vulnerabilities/';
+const STATUS_PATH = '/api/content-sources/v1/lightwell/beacon/status/';
 const TICKET_IDS_PATH =
   '/api/content-sources/v1/lightwell/beacon/vulnerabilities/ltwlsupt-ticket-ids/';
 const PAGE_SIZE = 200;
@@ -240,6 +241,23 @@ const MOCK_CUSTOMER_BATCHES: Record<string, string> = {
 
 type LightwellLtwlsuptTicketIdsResponse = {
   data: string[];
+};
+
+export type LightwellBeaconStatusResponse = {
+  last_processed_at?: string;
+};
+
+export const getBeaconStatus = async (): Promise<string | undefined> => {
+  if (LIGHTWELL_BEACON_USE_MOCK) {
+    return formatDateTime(new Date().toISOString());
+  }
+
+  const { data } = await axios.get<LightwellBeaconStatusResponse>(STATUS_PATH);
+  if (!data.last_processed_at) {
+    return undefined;
+  }
+
+  return formatDateTime(data.last_processed_at);
 };
 
 function mockTicketIdsForCustomer(customerId: string): string[] {

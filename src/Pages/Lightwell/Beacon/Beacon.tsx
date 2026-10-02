@@ -42,7 +42,7 @@ import {
   type BeaconVulnerabilityFilters,
   type BeaconVulnerabilityFlag,
 } from 'services/Lightwell/BeaconApi';
-import { useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
+import { useBeaconStatusQuery, useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
 import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
 import {
   createDefaultVulnerabilityColumns,
@@ -172,6 +172,7 @@ const Beacon = () => {
     error,
   } = useBeaconData(selectedCustomerId, queryFilters, pagination);
   const { data: ltwlsuptTicketIds = [] } = useLtwlsuptTicketIdsQuery(selectedCustomerId);
+  const { data: lastUpdated } = useBeaconStatusQuery();
   const { isLoading: isLoadingCustomers } = useCustomerIdsQuery();
 
   const isLoading = !displayData && isLoadingDisplay;
@@ -229,7 +230,17 @@ const Beacon = () => {
       <LightwellPageHeader
         title='Beacon'
         ouiaId='lightwell-beacon-header'
-        description='Understand the status of your Lightwell submissions'
+        description={
+          <Content component='p' ouiaId='lightwell-beacon-header'>
+            Understand the status of your Lightwell submissions
+            {lastUpdated ? (
+              <>
+                <br />
+                Last updated: {lastUpdated}
+              </>
+            ) : null}
+          </Content>
+        }
         actions={
           <ExportMenu
             customerId={selectedCustomerId}

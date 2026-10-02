@@ -31,12 +31,13 @@ jest.mock('services/Lightwell/CustomerQueries', () => ({
 }));
 
 jest.mock('services/Lightwell/BeaconQueries', () => ({
+  useBeaconStatusQuery: jest.fn(),
   useLtwlsuptTicketIdsQuery: jest.fn(),
 }));
 
 import { useBeaconData } from './hooks/useBeaconData';
 import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
-import { useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
+import { useBeaconStatusQuery, useLtwlsuptTicketIdsQuery } from 'services/Lightwell/BeaconQueries';
 import { mockVulnerabilities } from '../mockVulnerabilities';
 
 const mockBeaconData = {
@@ -84,6 +85,29 @@ beforeEach(() => {
     isLoading: false,
     data: ['batch-1', 'batch-2'],
   });
+
+  (useBeaconStatusQuery as jest.Mock).mockReturnValue({
+    data: '2026-10-02 08:00',
+  });
+});
+
+it('shows when beacon data was last updated under the page title', async () => {
+  renderBeacon();
+
+  expect(screen.getByText(/Understand the status of your Lightwell submissions/)).toHaveTextContent(
+    'Last updated: 2026-10-02 08:00',
+  );
+});
+
+it('omits the last updated time until a sync has completed', async () => {
+  (useBeaconStatusQuery as jest.Mock).mockReturnValue({ data: undefined });
+
+  renderBeacon();
+
+  expect(
+    screen.getByText('Understand the status of your Lightwell submissions'),
+  ).toBeInTheDocument();
+  expect(screen.queryByText(/Last updated:/)).not.toBeInTheDocument();
 });
 
 it('shows an empty state until a customer is selected', async () => {
