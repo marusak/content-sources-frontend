@@ -135,6 +135,7 @@ const EcosystemBarChart = (props: EcosystemBarChartProps) => {
     <div ref={containerRef} aria-hidden style={isPdf ? undefined : { width: '100%' }}>
       <Chart
         horizontal
+        categories={{ x: exactPackages.map(({ x }) => x) }}
         domainPadding={ECOSYSTEM_CHART_DOMAIN_PADDING}
         height={height}
         width={width}
@@ -148,28 +149,28 @@ const EcosystemBarChart = (props: EcosystemBarChartProps) => {
           style={COUNT_AXIS_STYLE}
           label={showLegend ? 'Packages' : undefined}
         />
-        <ChartStack>
-          <ChartBar
-            data={exactPackages}
-            style={BAR_STYLE}
-            {...(showTooltips && hasBarData(exactPackages)
-              ? getBarTooltipProps('Exact match')
-              : {})}
-          />
-          <ChartBar
-            data={partialPackages}
-            style={BAR_STYLE}
-            {...(showTooltips && hasBarData(partialPackages)
-              ? getBarTooltipProps('Partial match')
-              : {})}
-          />
-          <ChartBar
-            data={unmatchedPackages}
-            style={BAR_STYLE}
-            {...(showTooltips && hasBarData(unmatchedPackages)
-              ? getBarTooltipProps('No match')
-              : {})}
-          />
+        <ChartStack fillInMissingData={false}>
+          {hasBarData(exactPackages) && (
+            <ChartBar
+              data={exactPackages.filter(({ y }) => y > 0)}
+              style={BAR_STYLE}
+              {...(showTooltips ? getBarTooltipProps('Exact match') : {})}
+            />
+          )}
+          {hasBarData(partialPackages) && (
+            <ChartBar
+              data={partialPackages.filter(({ y }) => y > 0)}
+              style={BAR_STYLE}
+              {...(showTooltips ? getBarTooltipProps('Partial match') : {})}
+            />
+          )}
+          {hasBarData(unmatchedPackages) && (
+            <ChartBar
+              data={unmatchedPackages.filter(({ y }) => y > 0)}
+              style={BAR_STYLE}
+              {...(showTooltips ? getBarTooltipProps('No match') : {})}
+            />
+          )}
         </ChartStack>
       </Chart>
     </div>
