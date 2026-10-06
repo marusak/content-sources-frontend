@@ -25,7 +25,8 @@ export const LONG_EXEC_TIMEOUT_MS = 660_000; // 11 min for content propagation i
 
 /** Template and repository status waits (content propagation can be slow in CI) */
 export const TEMPLATE_VALID_STATUS_TIMEOUT_MS = 660_000;
-export const REPO_VALID_STATUS_TIMEOUT_MS = 70_000;
+/** Custom repo snapshot / introspection to Valid (matches IntrospectRepo and SnapshotErrata waits) */
+export const REPO_VALID_STATUS_TIMEOUT_MS = 180_000;
 export const UPLOAD_COMPLETION_TIMEOUT_MS = 240_000;
 export const BULK_TASK_TIMEOUT_MS = 600_000;
 

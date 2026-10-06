@@ -1,5 +1,6 @@
 import path from 'path';
 import { test, expect, cleanupRepositories, waitWhileRepositoryIsPending } from 'test-utils';
+import { REPO_VALID_STATUS_TIMEOUT_MS } from '../testConstants';
 import { navigateToRepositories } from './helpers/navHelpers';
 import {
   closeGenericPopupsIfExist,
@@ -84,7 +85,7 @@ test.describe('Upload Repositories', () => {
       await page.getByRole('button', { name: 'Confirm changes' }).click();
 
       // Verify the 'Valid' status
-      await waitForValidStatus(page, uploadRepoName);
+      await waitForValidStatus(page, uploadRepoName, REPO_VALID_STATUS_TIMEOUT_MS);
     });
 
     await test.step('Delete one upload repository', async () => {

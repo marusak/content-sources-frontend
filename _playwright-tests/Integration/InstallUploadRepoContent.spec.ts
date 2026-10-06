@@ -12,6 +12,7 @@ import {
   BULK_TASK_TIMEOUT_MS,
   LONG_TEST_TIMEOUT_MS,
   MODAL_VISIBILITY_TIMEOUT_MS,
+  REPO_VALID_STATUS_TIMEOUT_MS,
   TEMPLATE_VALID_STATUS_TIMEOUT_MS,
   UPLOAD_COMPLETION_TIMEOUT_MS,
   YUM_INSTALL_QUICK_TIMEOUT_MS,
@@ -55,6 +56,14 @@ test.describe('Install Upload Repo Content', () => {
     await closeGenericPopupsIfExist(page);
     await navigateToRepositories(page);
 
+    // Custom+EPEL are selected by default; turn EPEL off so the upload repo is on the list
+    // (and visible in traces) instead of buried under community repos.
+    const epelToggle = page.getByRole('button', { name: 'EPEL', exact: true });
+    if ((await epelToggle.getAttribute('aria-pressed')) === 'true') {
+      await epelToggle.click();
+      await expect(epelToggle).toHaveAttribute('aria-pressed', 'false');
+    }
+
     await test.step('Create upload repository', async () => {
       await page.getByRole('button', { name: 'Add repositories' }).first().click();
       await expect(page.getByRole('dialog', { name: 'Add custom repositories' })).toBeVisible();
@@ -95,8 +104,8 @@ test.describe('Install Upload Repo Content', () => {
         timeout: MODAL_VISIBILITY_TIMEOUT_MS,
       });
       await closeNotificationPopup(page, `One rpm successfully uploaded to ${uploadRepoName}`);
-      // Wait for the repository row to appear, display 1 package, and reach Valid status
-      const row = await waitForValidStatus(page, uploadRepoName);
+      // Snapshot after upload can take several minutes in overnight CI
+      const row = await waitForValidStatus(page, uploadRepoName, REPO_VALID_STATUS_TIMEOUT_MS);
       await expect(row.getByTestId('package_count_button')).toHaveText('1');
     });
 

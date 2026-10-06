@@ -8,7 +8,7 @@ import {
   randomName,
   waitWhileRepositoryIsPending,
 } from 'test-utils';
-import { BULK_TASK_TIMEOUT_MS } from '../testConstants';
+import { BULK_TASK_TIMEOUT_MS, REPO_VALID_STATUS_TIMEOUT_MS } from '../testConstants';
 import {
   closeGenericPopupsIfExist,
   getRowByNameOrUrl,
@@ -77,7 +77,7 @@ test.describe('PackageModal delete packages', () => {
       await expect(page.getByText('All uploads completed!')).toBeVisible();
       await page.getByRole('button', { name: 'Confirm changes' }).click();
 
-      await waitForValidStatus(page, uploadRepoName);
+      await waitForValidStatus(page, uploadRepoName, REPO_VALID_STATUS_TIMEOUT_MS);
     });
 
     await test.step('Delete package via row actions in PackageModal', async () => {
@@ -113,7 +113,7 @@ test.describe('PackageModal delete packages', () => {
       ]);
 
       row = await getRowByNameOrUrl(page, uploadRepoName);
-      await waitForValidStatus(page, uploadRepoName);
+      await waitForValidStatus(page, uploadRepoName, REPO_VALID_STATUS_TIMEOUT_MS);
       await expect(row.getByTestId('package_count_button').getByText('0')).toBeVisible();
 
       // verify that no packages show up in the package modal
