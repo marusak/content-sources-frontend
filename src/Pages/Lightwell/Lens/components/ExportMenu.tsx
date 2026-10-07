@@ -7,7 +7,7 @@ import {
 } from 'services/Lightwell/CoverageReportsApi';
 
 import { buildCoveragePdfPayload } from '../pdf/coveragePdf';
-import { fetchAllPages, resolvePdfItemCount } from '../../utils/exportUtils';
+import { fetchAllPages } from '../../utils/exportUtils';
 import { ExportMenu as ExportMenuBase } from '../../components/ExportMenu';
 
 type ExportMenuProps = {
@@ -33,20 +33,14 @@ export function ExportMenu({ uuid, filename, filters }: ExportMenuProps) {
       csvFilename={`lightwell-match-analysis-${uuid}.csv`}
       jsonFilename={`lightwell-match-analysis-${uuid}.json`}
       fetchRows={() => fetchAllCoveragePackages(uuid!, filters)}
-      buildPdfRequest={async () => {
-        const count = await resolvePdfItemCount(0, () =>
-          getCoverageReportPackages(uuid!, 1, 1, filters).then(({ meta }) => meta.count),
-        );
-        return {
-          filename: `lightwell-match-analysis-${uuid}.pdf`,
-          payload: buildCoveragePdfPayload({
-            uuid: uuid!,
-            filename,
-            filters,
-            itemCount: count,
-          }) as unknown as PDFRequestPayload,
-        };
-      }}
+      buildPdfRequest={async () => ({
+        filename: `lightwell-match-analysis-${uuid}.pdf`,
+        payload: buildCoveragePdfPayload({
+          uuid: uuid!,
+          filename,
+          filters,
+        }) as unknown as PDFRequestPayload,
+      })}
       errorNotification={{
         title: 'Error exporting report',
         message: 'Unable to export the match analysis report',
