@@ -53,6 +53,28 @@ describe('mapLightwellVulnerability', () => {
     });
   });
 
+  it('maps a closure reason when the API sends one', () => {
+    const mapped = mapLightwellVulnerability({
+      ...baseVulnerability,
+      status: 'Unremediated',
+      resolution_reason: 'The vulnerable component is not present in this package.',
+    });
+
+    expect(mapped.status).toBe('Unremediated');
+    expect(mapped.resolutionReason).toBe(
+      'The vulnerable component is not present in this package.',
+    );
+  });
+
+  it('omits a blank closure reason', () => {
+    const mapped = mapLightwellVulnerability({
+      ...baseVulnerability,
+      resolution_reason: '   ',
+    });
+
+    expect(mapped.resolutionReason).toBeUndefined();
+  });
+
   it('maps Low severity to Minor', () => {
     const mapped = mapLightwellVulnerability({
       ...baseVulnerability,

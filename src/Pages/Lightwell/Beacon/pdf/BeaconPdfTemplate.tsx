@@ -2,7 +2,7 @@ import { Content, Title } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { AsyncState } from '@redhat-cloud-services/types';
 
-import { STATUSES } from '../constants';
+import { NO_REMEDIATION_LABEL, STATUSES, statusLabel, UNREMEDIATED_STATUS } from '../constants';
 import type { BeaconPdfAdditionalData, BeaconPdfColumn, BeaconPdfData } from './beaconPdf';
 import {
   createDefaultVulnerabilityColumns,
@@ -115,13 +115,17 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
           padding: 0 4px;
           flex: 0 0 auto;
         }
+        .beacon-pdf .beacon-pdf-status-reason {
+          display: block;
+          white-space: normal;
+          font-size: 9px;
+        }
         .beacon-pdf .beacon-pdf-vuln-table { width: 100%; }
         .beacon-pdf .beacon-pdf-vuln-table tbody tr:nth-child(even) td {
           background-color: #fafafa;
         }
         .beacon-pdf .beacon-pdf-col-vulnerabilityId,
         .beacon-pdf .beacon-pdf-col-lastUpdated,
-        .beacon-pdf .beacon-pdf-col-status,
         .beacon-pdf .beacon-pdf-col-severity,
         .beacon-pdf .beacon-pdf-col-cvss,
         .beacon-pdf .beacon-pdf-col-repository,
@@ -160,6 +164,10 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
                 {meta?.criticalCount ?? 0}
               </div>
               <div className='beacon-pdf-stat-label'>Critical</div>
+            </div>
+            <div className='beacon-pdf-stat'>
+              <div className='beacon-pdf-stat-value'>{statusCounts[UNREMEDIATED_STATUS] ?? 0}</div>
+              <div className='beacon-pdf-stat-label'>{NO_REMEDIATION_LABEL}</div>
             </div>
           </div>
           <Title headingLevel='h2' size='md'>
@@ -217,7 +225,18 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
                   dataLabel={column.title}
                   className={`beacon-pdf-col-${column.key}`}
                 >
-                  {getVulnerabilityColumnValue(column.key, vulnerability)}
+                  {column.key === 'status' ? (
+                    <>
+                      <span>{statusLabel(vulnerability.status)}</span>
+                      {vulnerability.resolutionReason ? (
+                        <Content component='small' className='beacon-pdf-status-reason'>
+                          {vulnerability.resolutionReason}
+                        </Content>
+                      ) : null}
+                    </>
+                  ) : (
+                    getVulnerabilityColumnValue(column.key, vulnerability)
+                  )}
                 </Td>
               ))}
             </Tr>

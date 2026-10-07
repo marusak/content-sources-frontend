@@ -31,7 +31,13 @@ import UserIcon from '@patternfly/react-icons/dist/esm/icons/user-icon';
 import useDebounce from 'Hooks/useDebounce';
 import { useLightwellRootPath } from '../../../Hooks/Lightwell/navigation/useLightwellRootPath';
 import LightwellPageHeader from '../components/LightwellPageHeader';
-import { SEVERITIES, STATUSES } from './constants';
+import {
+  FILTER_STATUSES,
+  NO_REMEDIATION_LABEL,
+  SEVERITIES,
+  statusLabel,
+  UNREMEDIATED_STATUS,
+} from './constants';
 import type { Severity, Status } from './types';
 import { CustomerIdSelect } from './components/CustomerIdSelect';
 import { ExportMenu } from './components/ExportMenu';
@@ -296,13 +302,13 @@ const Beacon = () => {
                     showAll={!!showAllCategories.pipeline}
                     onShowAllToggle={() => toggleShowAllCategory('pipeline')}
                   >
-                    {STATUSES.map((status) => (
+                    {FILTER_STATUSES.map((status) => (
                       <FilterSidePanelCategoryItem
                         key={status}
                         checked={selectedStatuses.has(status)}
                         onClick={() => toggleStatus(status)}
                       >
-                        {status}
+                        {statusLabel(status)}
                       </FilterSidePanelCategoryItem>
                     ))}
                   </FilterSidePanelCategory>
@@ -413,6 +419,14 @@ const Beacon = () => {
                               </span>
                               <Content component='small' style={{ display: 'block' }}>
                                 Critical
+                              </Content>
+                            </FlexItem>
+                            <FlexItem style={{ textAlign: 'center' }}>
+                              <span className='lightwell-stat-number'>
+                                {displayMeta?.statusCounts?.[UNREMEDIATED_STATUS] ?? 0}
+                              </span>
+                              <Content component='small' style={{ display: 'block' }}>
+                                {NO_REMEDIATION_LABEL}
                               </Content>
                             </FlexItem>
                           </Flex>

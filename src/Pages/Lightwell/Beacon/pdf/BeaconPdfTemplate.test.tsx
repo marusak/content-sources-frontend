@@ -36,17 +36,60 @@ describe('BeaconPdfTemplate', () => {
     expect(screen.getByText('By Status')).toBeInTheDocument();
     expect(screen.getByText('Total')).toBeInTheDocument();
     expect(screen.getByText('Critical')).toBeInTheDocument();
+    expect(screen.getByText('No remediation')).toBeInTheDocument();
     const pipeline = screen.getByLabelText('Vulnerability counts by status');
     expect(pipeline).toHaveClass('beacon-pdf-pipeline');
     expect(pipeline.querySelectorAll('.beacon-pdf-status-card')).toHaveLength(5);
     expect(pipeline.querySelectorAll('.beacon-pdf-pipeline-arrow')).toHaveLength(4);
     expect(pipeline).toHaveTextContent('Submitted');
     expect(pipeline).toHaveTextContent('Lightwell Network');
+    expect(pipeline).not.toHaveTextContent('No remediation');
     const vulnTable = screen.getByLabelText('Lightwell vulnerabilities');
     expect(vulnTable).not.toHaveClass('pf-m-grid-md', 'pf-m-grid-lg');
     const vulnRow = screen.getByText('LWL-2026-4401').closest('tr');
     expect(vulnRow).toHaveTextContent('Submitted');
+    expect(vulnRow?.querySelector('.beacon-pdf-status-reason')).not.toBeInTheDocument();
     expect(vulnRow?.querySelectorAll('td')).toHaveLength(2);
+  });
+
+  it('prints a resolution reason under the status', () => {
+    const reason = 'The vulnerable code is not present in this package at this version.';
+
+    render(
+      <BeaconPdfTemplate
+        asyncData={{
+          data: {
+            vulnerabilities: [
+              {
+                ...mockVulnerabilities[0],
+                status: 'Unremediated',
+                resolutionReason: reason,
+              },
+            ],
+            meta: { ...meta, statusCounts: { Unremediated: 1 } },
+          },
+        }}
+        additionalData={{
+          includeSummary: true,
+          visibleColumns: [
+            { key: 'vulnerabilityId', title: 'Vulnerability ID' },
+            { key: 'status', title: 'Status' },
+          ],
+        }}
+      />,
+    );
+
+    const noRemediationStat = screen
+      .getByText('No remediation', { selector: '.beacon-pdf-stat-label' })
+      .closest('.beacon-pdf-stat');
+    expect(noRemediationStat).toHaveTextContent('1');
+
+    const statusCell = screen
+      .getByText('LWL-2026-4401')
+      .closest('tr')
+      ?.querySelector('[data-label="Status"]');
+    expect(statusCell).toHaveTextContent('No remediation');
+    expect(statusCell?.querySelector('.beacon-pdf-status-reason')).toHaveTextContent(reason);
   });
 
   it('omits the cover summary on continuation pages', () => {

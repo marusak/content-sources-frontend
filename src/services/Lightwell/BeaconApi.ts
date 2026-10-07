@@ -59,6 +59,7 @@ export type LightwellVulnerabilityResponse = {
   reproducer_included: boolean;
   customer_priority?: string;
   status: string;
+  resolution_reason?: string;
   ecosystem?: string;
   submitted_date: string;
   last_updated: string;
@@ -125,6 +126,7 @@ export function mapLightwellVulnerability(
     reproducerIncluded: vulnerability.reproducer_included,
     customerPriority: vulnerability.customer_priority as Vulnerability['customerPriority'],
     status,
+    resolutionReason: vulnerability.resolution_reason?.trim() || undefined,
     ecosystem: vulnerability.ecosystem ?? '',
     submittedDate: formatDate(vulnerability.submitted_date),
     lastUpdated: formatDateTime(vulnerability.last_updated),
