@@ -4,8 +4,6 @@ import { AlertVariant } from '@patternfly/react-core';
 
 import { ExportMenu } from './ExportMenu';
 import { getCoverageReportPackages } from 'services/Lightwell/CoverageReportsApi';
-import { COVERAGE_PDF_PAGE_SIZE } from '../pdf/coveragePdf';
-
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => ({
   useChrome: jest.fn(),
 }));
@@ -53,12 +51,12 @@ beforeEach(() => {
   (getCoverageReportPackages as jest.Mock).mockResolvedValue({
     data: [],
     links: { first: '', last: '' },
-    meta: { count: COVERAGE_PDF_PAGE_SIZE * 3 - 30, limit: 1, offset: 0 },
+    meta: { count: 1, limit: 1, offset: 0 },
   });
 });
 
 describe('ExportMenu PDF', () => {
-  it('requests a split PDF from the coverage PDF module using the active filters', async () => {
+  it('requests one PDF so the package table is not split across documents', async () => {
     const user = userEvent.setup();
     render(
       <ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ match_status: ['exact'] }} />,
@@ -70,26 +68,20 @@ describe('ExportMenu PDF', () => {
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
     });
-    expect(getCoverageReportPackages).toHaveBeenCalledWith('report-uuid', 1, 1, {
-      match_status: ['exact'],
-    });
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
 
     const pdfRequest = requestPdf.mock.calls[0][0];
     expect(pdfRequest.filename).toBe('lightwell-match-analysis-report-uuid.pdf');
-    expect(pdfRequest.payload).toHaveLength(3);
+    expect(pdfRequest.payload).toHaveLength(1);
     expect(pdfRequest.payload[0]).toMatchObject({
       module: './CoveragePdfEntry',
       fetchDataParams: {
         uuid: 'report-uuid',
-        limit: COVERAGE_PDF_PAGE_SIZE,
-        offset: 0,
         includeSummary: true,
         filters: { match_status: ['exact'] },
       },
       additionalData: { includeSummary: true, filename: 'sbom.json', headerBrand: 'lightwell' },
     });
-    expect(pdfRequest.payload[1].fetchDataParams.offset).toBe(COVERAGE_PDF_PAGE_SIZE);
-    expect(pdfRequest.payload[2].fetchDataParams.offset).toBe(COVERAGE_PDF_PAGE_SIZE * 2);
   });
 
   it('closes the menu and shows generating feedback while the PDF is in progress', async () => {

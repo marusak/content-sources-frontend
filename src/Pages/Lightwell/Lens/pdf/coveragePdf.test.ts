@@ -1,9 +1,9 @@
+import { EXPORT_PAGE_SIZE } from '../../utils/exportUtils';
 import {
   buildCoveragePackagesQueryParams,
   buildCoveragePdfPayload,
   fetchData,
   formatCoveragePdfGeneratedAt,
-  COVERAGE_PDF_PAGE_SIZE,
 } from './coveragePdf';
 import { defaultCoverageReportItem } from 'testingHelpers';
 
@@ -54,7 +54,6 @@ describe('fetchData', () => {
 
     const result = await fetchData(createAsyncRequest, {
       uuid: 'report-uuid',
-      limit: 50,
       offset: 50,
       filters: { match_status: ['exact'] },
       includeSummary: true,
@@ -63,7 +62,7 @@ describe('fetchData', () => {
     expect(createAsyncRequest).toHaveBeenNthCalledWith(1, 'content-sources-backend', {
       method: 'GET',
       url: '/api/content-sources/v1/coverage_reports/report-uuid/packages',
-      params: { limit: '50', offset: '50', match_status: 'exact' },
+      params: { limit: String(EXPORT_PAGE_SIZE), offset: '50', match_status: 'exact' },
     });
     expect(createAsyncRequest).toHaveBeenNthCalledWith(2, 'content-sources-backend', {
       method: 'GET',
@@ -90,27 +89,62 @@ describe('fetchData', () => {
   it('requires a uuid', async () => {
     await expect(fetchData(jest.fn())).rejects.toThrow('uuid');
   });
+
+  it('follows package pages until the report is complete', async () => {
+    const packageRow = (name: string) => ({
+      name,
+      version: '1',
+      ecosystem: 'npm',
+      covered: false,
+      match_status: 'none' as const,
+    });
+    const fullPage = {
+      data: Array.from({ length: EXPORT_PAGE_SIZE }, (_, index) => packageRow(`pkg-${index}`)),
+      links: { first: '', last: '' },
+      meta: { count: EXPORT_PAGE_SIZE + 1, limit: EXPORT_PAGE_SIZE, offset: 0 },
+    };
+    const lastPage = {
+      data: [packageRow('pkg-last')],
+      links: { first: '', last: '' },
+      meta: { count: EXPORT_PAGE_SIZE + 1, limit: EXPORT_PAGE_SIZE, offset: EXPORT_PAGE_SIZE },
+    };
+    const createAsyncRequest = jest
+      .fn()
+      .mockResolvedValueOnce(fullPage)
+      .mockResolvedValueOnce(lastPage)
+      .mockResolvedValueOnce(defaultCoverageReportItem);
+
+    const result = await fetchData(createAsyncRequest, {
+      uuid: 'report-uuid',
+      includeSummary: true,
+    });
+
+    expect(createAsyncRequest).toHaveBeenNthCalledWith(2, 'content-sources-backend', {
+      method: 'GET',
+      url: '/api/content-sources/v1/coverage_reports/report-uuid/packages',
+      params: { limit: String(EXPORT_PAGE_SIZE), offset: String(EXPORT_PAGE_SIZE) },
+    });
+    expect(result.packages).toHaveLength(EXPORT_PAGE_SIZE + 1);
+    expect(result.packages.at(-1)?.name).toBe('pkg-last');
+    expect(result.report).toEqual(defaultCoverageReportItem);
+  });
 });
 
 describe('buildCoveragePdfPayload', () => {
-  it('splits large reports into paginated tasks', () => {
-    const itemCount = COVERAGE_PDF_PAGE_SIZE + 100;
+  it('renders the report as one document so the package table is continuous', () => {
     const payload = buildCoveragePdfPayload({
       uuid: 'report-uuid',
       filename: 'sbom.json',
-      itemCount,
       generatedAt: '25 Aug 2026',
     });
 
-    expect(payload).toHaveLength(Math.ceil(itemCount / COVERAGE_PDF_PAGE_SIZE));
+    expect(payload).toHaveLength(1);
     expect(payload[0]).toMatchObject({
       manifestLocation: '/apps/content-sources/fed-mods.json',
       scope: 'contentSources',
       module: './CoveragePdfEntry',
       fetchDataParams: {
         uuid: 'report-uuid',
-        limit: COVERAGE_PDF_PAGE_SIZE,
-        offset: 0,
         includeSummary: true,
       },
       additionalData: {
@@ -120,24 +154,19 @@ describe('buildCoveragePdfPayload', () => {
         headerBrand: 'lightwell',
       },
     });
-    expect(payload[1].fetchDataParams).toMatchObject({
-      offset: COVERAGE_PDF_PAGE_SIZE,
-      includeSummary: false,
-    });
-    expect(payload[1].additionalData).toMatchObject({ includeSummary: false });
   });
 
   it('emits a single task when the filtered set is empty', () => {
-    const payload = buildCoveragePdfPayload({ uuid: 'report-uuid', itemCount: 0 });
+    const payload = buildCoveragePdfPayload({ uuid: 'report-uuid' });
 
     expect(payload).toHaveLength(1);
-    expect(payload[0].fetchDataParams).toMatchObject({ offset: 0, limit: COVERAGE_PDF_PAGE_SIZE });
+    expect(payload[0].fetchDataParams).toMatchObject({ uuid: 'report-uuid', includeSummary: true });
   });
 
   it('defaults the generated date to a UTC display date', () => {
     expect(formatCoveragePdfGeneratedAt(new Date('2026-08-25T22:58:00Z'))).toBe('25 Aug 2026');
 
-    const payload = buildCoveragePdfPayload({ uuid: 'report-uuid', itemCount: 1 });
+    const payload = buildCoveragePdfPayload({ uuid: 'report-uuid' });
     expect(payload[0].additionalData).toEqual(
       expect.objectContaining({ generatedAt: formatCoveragePdfGeneratedAt() }),
     );
