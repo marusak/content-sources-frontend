@@ -86,6 +86,24 @@ describe('fetchData', () => {
     expect(result.report).toBeNull();
   });
 
+  it('loads only the report when the package table is omitted', async () => {
+    const createAsyncRequest = jest.fn().mockResolvedValue(defaultCoverageReportItem);
+
+    const result = await fetchData(createAsyncRequest, {
+      uuid: 'report-uuid',
+      includeSummary: true,
+      includePackages: false,
+    });
+
+    expect(createAsyncRequest).toHaveBeenCalledTimes(1);
+    expect(createAsyncRequest).toHaveBeenCalledWith('content-sources-backend', {
+      method: 'GET',
+      url: '/api/content-sources/v1/coverage_reports/report-uuid',
+    });
+    expect(result.packages).toEqual([]);
+    expect(result.report).toEqual(defaultCoverageReportItem);
+  });
+
   it('requires a uuid', async () => {
     await expect(fetchData(jest.fn())).rejects.toThrow('uuid');
   });
@@ -146,13 +164,35 @@ describe('buildCoveragePdfPayload', () => {
       fetchDataParams: {
         uuid: 'report-uuid',
         includeSummary: true,
+        includePackages: true,
       },
       additionalData: {
         filename: 'sbom.json',
         generatedAt: '25 Aug 2026',
         includeSummary: true,
+        includePackages: true,
         headerBrand: 'lightwell',
       },
+    });
+  });
+
+  it('asks for the report summary only when the package table is omitted', () => {
+    const payload = buildCoveragePdfPayload({
+      uuid: 'report-uuid',
+      filename: 'sbom.json',
+      includePackages: false,
+      generatedAt: '25 Aug 2026',
+    });
+
+    expect(payload).toHaveLength(1);
+    expect(payload[0].fetchDataParams).toMatchObject({
+      uuid: 'report-uuid',
+      includeSummary: true,
+      includePackages: false,
+    });
+    expect(payload[0].additionalData).toMatchObject({
+      includeSummary: true,
+      includePackages: false,
     });
   });
 

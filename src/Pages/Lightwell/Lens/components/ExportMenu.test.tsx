@@ -59,7 +59,12 @@ describe('ExportMenu PDF', () => {
   it('requests one PDF so the package table is not split across documents', async () => {
     const user = userEvent.setup();
     render(
-      <ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ match_status: ['exact'] }} />,
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        filters={{ match_status: ['exact'] }}
+        packageCount={1}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
@@ -78,9 +83,15 @@ describe('ExportMenu PDF', () => {
       fetchDataParams: {
         uuid: 'report-uuid',
         includeSummary: true,
+        includePackages: true,
         filters: { match_status: ['exact'] },
       },
-      additionalData: { includeSummary: true, filename: 'sbom.json', headerBrand: 'lightwell' },
+      additionalData: {
+        includeSummary: true,
+        includePackages: true,
+        filename: 'sbom.json',
+        headerBrand: 'lightwell',
+      },
     });
     // CVE data is present by default, so each page keeps it.
     expect(pdfRequest.payload[0].additionalData).toMatchObject({ includeCveData: true });
@@ -88,7 +99,14 @@ describe('ExportMenu PDF', () => {
 
   it('signals the PDF module to omit CVE columns when there is no CVE data', async () => {
     const user = userEvent.setup();
-    render(<ExportMenu uuid='report-uuid' filename='sbom.json' includeCveData={false} />);
+    render(
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        includeCveData={false}
+        packageCount={1}
+      />,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
     await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
@@ -110,7 +128,7 @@ describe('ExportMenu PDF', () => {
     );
 
     const user = userEvent.setup();
-    render(<ExportMenu uuid='report-uuid' filename='sbom.json' />);
+    render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1} />);
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
     await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
@@ -142,6 +160,180 @@ describe('ExportMenu PDF', () => {
   it('disables the toggle when no report uuid is available', () => {
     render(<ExportMenu />);
     expect(screen.getByRole('button', { name: 'Export' })).toBeDisabled();
+  });
+
+  it('exports a PDF with 1,500 packages without asking to drop the package list', async () => {
+    const user = userEvent.setup();
+    render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1500} />);
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+
+    await waitFor(() => {
+      expect(requestPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(
+      screen.queryByRole('heading', { name: 'Package list exceeds PDF export limit' }),
+    ).not.toBeInTheDocument();
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
+    expect(requestPdf.mock.calls[0][0].payload[0].fetchDataParams).toMatchObject({
+      includePackages: true,
+    });
+  });
+
+  it('explains the PDF limit and can export the overview only', async () => {
+    const user = userEvent.setup();
+    render(
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        filters={{ match_status: ['exact'] }}
+        packageCount={1501}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Package list exceeds PDF export limit' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'This list exceeds the 1,500-package PDF limit. You can export the overview as a PDF, or filter the list to 1,500 packages or fewer.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('To export the current package list, use CSV or JSON.'),
+    ).toBeInTheDocument();
+    expect(requestPdf).not.toHaveBeenCalled();
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(
+      screen.queryByRole('heading', { name: 'Package list exceeds PDF export limit' }),
+    ).not.toBeInTheDocument();
+    expect(requestPdf).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export overview PDF' }));
+
+    await waitFor(() => {
+      expect(requestPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
+    const pdfRequest = requestPdf.mock.calls[0][0];
+    expect(pdfRequest.payload).toHaveLength(1);
+    expect(pdfRequest.payload[0].fetchDataParams).toMatchObject({
+      uuid: 'report-uuid',
+      includeSummary: true,
+      includePackages: false,
+      filters: { match_status: ['exact'] },
+    });
+    expect(pdfRequest.payload[0].additionalData).toMatchObject({
+      includeSummary: true,
+      includePackages: false,
+    });
+  });
+
+  it('reads the package total once when it is not already known, then exports the overview', async () => {
+    (getCoverageReportPackages as jest.Mock).mockResolvedValue({
+      data: [],
+      links: { first: '', last: '' },
+      meta: { count: 3000, limit: 1, offset: 0 },
+    });
+
+    const user = userEvent.setup();
+    render(<ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ search: 'log4j' }} />);
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Package list exceeds PDF export limit' }),
+      ).toBeInTheDocument();
+    });
+    expect(getCoverageReportPackages).toHaveBeenCalledTimes(1);
+    expect(getCoverageReportPackages).toHaveBeenCalledWith('report-uuid', 1, 1, {
+      search: 'log4j',
+    });
+    expect(screen.getByText(/This list exceeds the 1,500-package PDF limit/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Export overview PDF' }));
+
+    await waitFor(() => {
+      expect(requestPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(getCoverageReportPackages).toHaveBeenCalledTimes(1);
+    expect(requestPdf.mock.calls[0][0].payload[0].fetchDataParams).toMatchObject({
+      includePackages: false,
+    });
+  });
+});
+
+describe('oversized PDF alternatives', () => {
+  const originalCreateObjectURL = URL.createObjectURL;
+  const originalRevokeObjectURL = URL.revokeObjectURL;
+
+  beforeEach(() => {
+    URL.createObjectURL = jest.fn(() => 'blob:coverage');
+    URL.revokeObjectURL = jest.fn();
+    jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    URL.createObjectURL = originalCreateObjectURL;
+    URL.revokeObjectURL = originalRevokeObjectURL;
+    jest.restoreAllMocks();
+  });
+
+  it.each([
+    ['CSV', 'text/csv;charset=utf-8;'],
+    ['JSON', 'application/json;charset=utf-8;'],
+  ])('exports the filtered package list as %s from the modal', async (format, mimeType) => {
+    (getCoverageReportPackages as jest.Mock).mockResolvedValue({
+      data: [
+        {
+          name: 'react',
+          version: '18.0.0',
+          ecosystem: 'npm',
+          covered: false,
+          match_status: 'none',
+        },
+      ],
+      links: { first: '', last: '' },
+      meta: { count: 1, limit: 200, offset: 0 },
+    });
+
+    const user = userEvent.setup();
+    render(
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        filters={{ match_status: ['none'] }}
+        packageCount={1501}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: `Export ${format}` }));
+
+    await waitFor(() => {
+      expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+    });
+    expect(getCoverageReportPackages).toHaveBeenCalledWith('report-uuid', 1, 200, {
+      match_status: ['none'],
+    });
+    expect(requestPdf).not.toHaveBeenCalled();
+    expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledTimes(1);
+
+    const blob = (URL.createObjectURL as jest.Mock).mock.calls[0][0] as Blob;
+    expect(blob.type).toBe(mimeType);
+    expect(await readBlob(blob)).toContain('react');
   });
 });
 

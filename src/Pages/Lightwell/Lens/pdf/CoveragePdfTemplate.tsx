@@ -70,6 +70,7 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
   const includeSummary = additionalData?.includeSummary !== false && !!report;
   // Mirror the on-screen report: hide every CVE surface when there is no data.
   const includeCveData = additionalData?.includeCveData !== false;
+  const includePackages = additionalData?.includePackages !== false;
   const packageColumns = includeCveData
     ? PACKAGE_COLUMNS
     : PACKAGE_COLUMNS.filter(({ slug }) => slug !== 'cve' && slug !== 'cvss');
@@ -194,167 +195,173 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
         }
       `}</style>
       {includeSummary && report ? (
-        <>
-          <div className='coverage-pdf-cover'>
-            <div className='coverage-pdf-cover-header'>
-              <Title headingLevel='h1' size='xl'>
-                Lightwell Match Analysis Report
-              </Title>
-              <Content className='coverage-pdf-meta'>
-                {filename ? `Manifest: ${filename}` : null}
-                {filename && generatedAt ? ' · ' : null}
-                {generatedAt ? `Generated: ${generatedAt}` : null}
-              </Content>
-            </div>
-            <div className='coverage-pdf-match-section'>
-              <Title headingLevel='h2' size='md'>
-                Match analysis
-              </Title>
-              <div className='coverage-pdf-summary'>
-                <MatchDonutChart
-                  surface='pdf'
-                  report={report}
-                  width={PDF_DONUT_WIDTH}
-                  height={PDF_DONUT_HEIGHT}
-                />
-                <div className='coverage-pdf-summary-detail'>
-                  <div className='coverage-pdf-summary-text'>
-                    <strong>
-                      {getMatchedPackagePercentage(report)}% of packages match the Lightwell Network
-                      catalog
-                    </strong>
-                    <br />
-                    <span className='coverage-pdf-summary-subtext'>
-                      Includes packages from every detected ecosystem, including ecosystems the
-                      catalog does not support.
-                    </span>
-                  </div>
-                  <div className='coverage-pdf-stats'>
-                    {[
-                      {
-                        value: report.exact_matches,
-                        label: 'Exact match',
-                        color: 'exact' as const,
-                      },
-                      {
-                        value: report.partial_matches,
-                        label: 'Partial match',
-                        color: 'partial' as const,
-                      },
-                      { value: report.unmatched, label: 'No match', color: 'none' as const },
-                    ].map(({ value, label, color }) => (
-                      <div key={label} className='coverage-pdf-stat'>
-                        <div className='coverage-pdf-stat-value'>{value}</div>
-                        <span
-                          className='coverage-pdf-stat-bar'
-                          style={{ backgroundColor: STAT_COLORS[color] }}
-                        />
-                        <div className='coverage-pdf-stat-label'>{label}</div>
-                      </div>
-                    ))}
-                  </div>
+        <div className='coverage-pdf-cover'>
+          <div className='coverage-pdf-cover-header'>
+            <Title headingLevel='h1' size='xl'>
+              Lightwell Match Analysis Report
+            </Title>
+            <Content className='coverage-pdf-meta'>
+              {filename ? `Manifest: ${filename}` : null}
+              {filename && generatedAt ? ' · ' : null}
+              {generatedAt ? `Generated: ${generatedAt}` : null}
+            </Content>
+          </div>
+          <div className='coverage-pdf-match-section'>
+            <Title headingLevel='h2' size='md'>
+              Match analysis
+            </Title>
+            <div className='coverage-pdf-summary'>
+              <MatchDonutChart
+                surface='pdf'
+                report={report}
+                width={PDF_DONUT_WIDTH}
+                height={PDF_DONUT_HEIGHT}
+              />
+              <div className='coverage-pdf-summary-detail'>
+                <div className='coverage-pdf-summary-text'>
+                  <strong>
+                    {getMatchedPackagePercentage(report)}% of packages match the Lightwell Network
+                    catalog
+                  </strong>
+                  <br />
+                  <span className='coverage-pdf-summary-subtext'>
+                    Includes packages from every detected ecosystem, including ecosystems the
+                    catalog does not support.
+                  </span>
                 </div>
-              </div>
-            </div>
-            {includeCveData ? (
-              <div className='coverage-pdf-cve-section'>
-                <Title headingLevel='h2' size='md'>
-                  CVEs fixed
-                </Title>
-                <Content component='p' className='coverage-pdf-cve-subtitle'>
-                  Net delta of CVEs fixed by Lightwell (vs. unpatched version)
-                </Content>
-                <div className='coverage-pdf-cve-summary-stats'>
-                  {CVE_SEVERITIES.map((meta) => (
-                    <div key={meta.key} className='coverage-pdf-cve-summary-stat'>
-                      <div className='coverage-pdf-stat-value'>{report.cve_summary[meta.key]}</div>
-                      <div className='coverage-pdf-cve-summary-label'>
-                        <SeverityGlyph meta={meta} /> {meta.label}
-                      </div>
+                <div className='coverage-pdf-stats'>
+                  {[
+                    {
+                      value: report.exact_matches,
+                      label: 'Exact match',
+                      color: 'exact' as const,
+                    },
+                    {
+                      value: report.partial_matches,
+                      label: 'Partial match',
+                      color: 'partial' as const,
+                    },
+                    { value: report.unmatched, label: 'No match', color: 'none' as const },
+                  ].map(({ value, label, color }) => (
+                    <div key={label} className='coverage-pdf-stat'>
+                      <div className='coverage-pdf-stat-value'>{value}</div>
+                      <span
+                        className='coverage-pdf-stat-bar'
+                        style={{ backgroundColor: STAT_COLORS[color] }}
+                      />
+                      <div className='coverage-pdf-stat-label'>{label}</div>
                     </div>
                   ))}
                 </div>
               </div>
-            ) : null}
-            <div className='coverage-pdf-ecosystem-section'>
-              <Title headingLevel='h2' size='md'>
-                Packages by ecosystem
-              </Title>
-              <Content component='p' className='coverage-pdf-ecosystem-subtitle'>
-                <strong>{report.exact_matches + report.partial_matches}</strong> of{' '}
-                <strong>{report.total}</strong> packages found in the Lightwell Network catalog.
-              </Content>
-              <div className='coverage-pdf-ecosystem-chart'>
-                <EcosystemBarChart
-                  surface='pdf'
-                  showLegend={false}
-                  report={report}
-                  width={PDF_BAR_CHART_WIDTH}
-                  height={getEcosystemBarChartHeight(report.ecosystem_coverage_summary.length)}
-                />
-              </div>
             </div>
           </div>
-          <Title headingLevel='h2' size='md' style={{ pageBreakBefore: 'always' }}>
-            Packages
-          </Title>
+          {includeCveData ? (
+            <div className='coverage-pdf-cve-section'>
+              <Title headingLevel='h2' size='md'>
+                CVEs fixed
+              </Title>
+              <Content component='p' className='coverage-pdf-cve-subtitle'>
+                Net delta of CVEs fixed by Lightwell (vs. unpatched version)
+              </Content>
+              <div className='coverage-pdf-cve-summary-stats'>
+                {CVE_SEVERITIES.map((meta) => (
+                  <div key={meta.key} className='coverage-pdf-cve-summary-stat'>
+                    <div className='coverage-pdf-stat-value'>{report.cve_summary[meta.key]}</div>
+                    <div className='coverage-pdf-cve-summary-label'>
+                      <SeverityGlyph meta={meta} /> {meta.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <div className='coverage-pdf-ecosystem-section'>
+            <Title headingLevel='h2' size='md'>
+              Packages by ecosystem
+            </Title>
+            <Content component='p' className='coverage-pdf-ecosystem-subtitle'>
+              <strong>{report.exact_matches + report.partial_matches}</strong> of{' '}
+              <strong>{report.total}</strong> packages found in the Lightwell Network catalog.
+            </Content>
+            <div className='coverage-pdf-ecosystem-chart'>
+              <EcosystemBarChart
+                surface='pdf'
+                showLegend={false}
+                report={report}
+                width={PDF_BAR_CHART_WIDTH}
+                height={getEcosystemBarChartHeight(report.ecosystem_coverage_summary.length)}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {includePackages ? (
+        <>
+          {includeSummary && report ? (
+            <Title headingLevel='h2' size='md' style={{ pageBreakBefore: 'always' }}>
+              Packages
+            </Title>
+          ) : null}
+          <Table
+            variant='compact'
+            className='coverage-pdf-table'
+            aria-label='Coverage report packages'
+            gridBreakPoint=''
+          >
+            <Thead>
+              <Tr>
+                {packageColumns.map(({ label, slug }) => (
+                  <Th key={slug} className={`coverage-pdf-col-${slug}`}>
+                    {label}
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {packages.map((pkg) => (
+                <Tr key={`${pkg.ecosystem}-${pkg.name}-${pkg.version}`}>
+                  <Td dataLabel='Package' className='coverage-pdf-col-package'>
+                    {pkg.name}
+                  </Td>
+                  <Td dataLabel='Version' className='coverage-pdf-col-version'>
+                    {pkg.version || '—'}
+                  </Td>
+                  <Td dataLabel='Ecosystem' className='coverage-pdf-col-ecosystem'>
+                    {pkg.ecosystem}
+                  </Td>
+                  <Td dataLabel='Match' className='coverage-pdf-col-match'>
+                    <span
+                      className='coverage-pdf-pill'
+                      style={{ backgroundColor: PILL_COLORS[pkg.match_status] }}
+                    >
+                      {MATCH_STATUS_LABEL[pkg.match_status]}
+                    </span>
+                  </Td>
+                  {includeCveData ? (
+                    <>
+                      <Td dataLabel='CVE Fixes (net delta)' className='coverage-pdf-col-cve'>
+                        {getTotalCveCount(pkg.cve_count) === 0
+                          ? '—'
+                          : CVE_SEVERITIES.filter((meta) => pkg.cve_count[meta.key] > 0).map(
+                              (meta) => (
+                                <span key={meta.key} className='coverage-pdf-cve-fix'>
+                                  <SeverityGlyph meta={meta} /> {pkg.cve_count[meta.key]}
+                                </span>
+                              ),
+                            )}
+                      </Td>
+                      <Td dataLabel='CVSS Scores' className='coverage-pdf-col-cvss'>
+                        {formatCvssRange(pkg.cve_range)}
+                      </Td>
+                    </>
+                  ) : null}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
         </>
       ) : null}
-      <Table
-        variant='compact'
-        className='coverage-pdf-table'
-        aria-label='Coverage report packages'
-        gridBreakPoint=''
-      >
-        <Thead>
-          <Tr>
-            {packageColumns.map(({ label, slug }) => (
-              <Th key={slug} className={`coverage-pdf-col-${slug}`}>
-                {label}
-              </Th>
-            ))}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {packages.map((pkg) => (
-            <Tr key={`${pkg.ecosystem}-${pkg.name}-${pkg.version}`}>
-              <Td dataLabel='Package' className='coverage-pdf-col-package'>
-                {pkg.name}
-              </Td>
-              <Td dataLabel='Version' className='coverage-pdf-col-version'>
-                {pkg.version || '—'}
-              </Td>
-              <Td dataLabel='Ecosystem' className='coverage-pdf-col-ecosystem'>
-                {pkg.ecosystem}
-              </Td>
-              <Td dataLabel='Match' className='coverage-pdf-col-match'>
-                <span
-                  className='coverage-pdf-pill'
-                  style={{ backgroundColor: PILL_COLORS[pkg.match_status] }}
-                >
-                  {MATCH_STATUS_LABEL[pkg.match_status]}
-                </span>
-              </Td>
-              {includeCveData ? (
-                <>
-                  <Td dataLabel='CVE Fixes (net delta)' className='coverage-pdf-col-cve'>
-                    {getTotalCveCount(pkg.cve_count) === 0
-                      ? '—'
-                      : CVE_SEVERITIES.filter((meta) => pkg.cve_count[meta.key] > 0).map((meta) => (
-                          <span key={meta.key} className='coverage-pdf-cve-fix'>
-                            <SeverityGlyph meta={meta} /> {pkg.cve_count[meta.key]}
-                          </span>
-                        ))}
-                  </Td>
-                  <Td dataLabel='CVSS Scores' className='coverage-pdf-col-cvss'>
-                    {formatCvssRange(pkg.cve_range)}
-                  </Td>
-                </>
-              ) : null}
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
     </div>
   );
 };

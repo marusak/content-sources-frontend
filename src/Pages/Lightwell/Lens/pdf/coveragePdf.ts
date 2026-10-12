@@ -14,6 +14,9 @@ export const COVERAGE_PDF_SCOPE = 'contentSources';
 export const COVERAGE_PDF_MODULE = './CoveragePdfEntry';
 export const COVERAGE_REPORTS_PATH = '/api/content-sources/v1/coverage_reports/';
 
+// A package count is known before rendering; the PDF's page count is not.
+export const COVERAGE_PDF_MAX_PACKAGES = 1500;
+
 export function formatCoveragePdfGeneratedAt(date: Date = new Date()): string {
   const day = date.getUTCDate();
   const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
@@ -26,6 +29,8 @@ export type CoveragePdfFetchParams = {
   offset?: number;
   filters?: CoverageReportPackageFilters;
   includeSummary?: boolean;
+  // When false, the package table is omitted and only the report summary is loaded.
+  includePackages?: boolean;
 };
 
 export type CoveragePdfAdditionalData = {
@@ -34,6 +39,8 @@ export type CoveragePdfAdditionalData = {
   includeSummary: boolean;
   // When false, the CVEs-fixed summary and the CVE table columns are omitted.
   includeCveData: boolean;
+  // When false, the package table is omitted from the document.
+  includePackages: boolean;
   headerBrand: 'lightwell';
 };
 
@@ -89,6 +96,24 @@ export const fetchData = async (
   const uuid = options?.uuid;
   if (!uuid) {
     throw new Error('Coverage report PDF export requires a report uuid');
+  }
+
+  // Overview-only: the summary lives on the report itself, so skip the package pages.
+  if (options?.includePackages === false) {
+    let report: CompletedCoverageReport | null = null;
+    if (options.includeSummary !== false) {
+      const reportResponse = await createAsyncRequest('content-sources-backend', {
+        method: 'GET',
+        url: `${COVERAGE_REPORTS_PATH}${encodeURIComponent(uuid)}`,
+      });
+      report = isCompletedReport(reportResponse) ? reportResponse : null;
+    }
+
+    return {
+      packages: [],
+      meta: { count: 0, limit: EXPORT_PAGE_SIZE, offset: options.offset ?? 0 },
+      report,
+    };
   }
 
   const packages: CoverageReportPackage[] = [];
@@ -147,12 +172,14 @@ export function buildCoveragePdfPayload({
   filename,
   filters,
   includeCveData = true,
+  includePackages = true,
   generatedAt = formatCoveragePdfGeneratedAt(),
 }: {
   uuid: string;
   filename?: string;
   filters?: CoverageReportPackageFilters;
   includeCveData?: boolean;
+  includePackages?: boolean;
   generatedAt?: string;
 }): PDFRequestPayload[] {
   return [
@@ -164,12 +191,14 @@ export function buildCoveragePdfPayload({
         uuid,
         filters,
         includeSummary: true,
+        includePackages,
       },
       additionalData: {
         filename,
         generatedAt,
         includeSummary: true,
         includeCveData,
+        includePackages,
         headerBrand: 'lightwell',
       } satisfies CoveragePdfAdditionalData,
     },
