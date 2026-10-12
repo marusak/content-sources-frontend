@@ -14,16 +14,8 @@ export const COVERAGE_PDF_SCOPE = 'contentSources';
 export const COVERAGE_PDF_MODULE = './CoveragePdfEntry';
 export const COVERAGE_REPORTS_PATH = '/api/content-sources/v1/coverage_reports/';
 
-// The printed package table fits this many rows on one page.
-export const COVERAGE_PDF_PACKAGES_PER_PAGE = 30;
-export const COVERAGE_PDF_MAX_PAGES = 50;
-
-export function coveragePdfPageCount(packageCount: number): number {
-  if (packageCount <= 0) {
-    return 0;
-  }
-  return Math.ceil(packageCount / COVERAGE_PDF_PACKAGES_PER_PAGE);
-}
+// A package count is known before rendering; the PDF's page count is not.
+export const COVERAGE_PDF_MAX_PACKAGES = 1500;
 
 export function formatCoveragePdfGeneratedAt(date: Date = new Date()): string {
   const day = date.getUTCDate();

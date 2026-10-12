@@ -36,8 +36,9 @@ export type ExportMenuProps = {
   fetchRows: () => Promise<object[]>;
   // Build the filename + payload for the split PDF export.
   buildPdfRequest: () => Promise<ExportPdfRequest>;
-  // Runs before a PDF export starts. Return false to cancel without an error.
-  beforePdfExport?: () => Promise<boolean>;
+  // Runs before a PDF export starts. Return false to cancel or another format
+  // to continue through the existing CSV/JSON export path.
+  beforePdfExport?: () => Promise<boolean | Exclude<ExportFormat, 'pdf'>>;
   errorNotification: {
     title: string;
     message: string;
@@ -71,17 +72,21 @@ export function ExportMenu({
 
     setIsOpen(false);
     try {
+      let selectedFormat = format;
       if (format === 'pdf' && beforePdfExport) {
         setIsPreparingPdf(true);
-        const proceed = await beforePdfExport();
+        const decision = await beforePdfExport();
         setIsPreparingPdf(false);
-        if (!proceed) {
+        if (decision === false) {
           return;
+        }
+        if (decision !== true) {
+          selectedFormat = decision;
         }
       }
 
       setIsExporting(true);
-      if (format === 'pdf') {
+      if (selectedFormat === 'pdf') {
         notify(PDF_GENERATING_NOTIFICATION);
         const { filename, payload } = await buildPdfRequest();
         await requestPdf({ filename, payload });
@@ -91,7 +96,7 @@ export function ExportMenu({
 
       const rows = await fetchRows();
 
-      if (format === 'csv') {
+      if (selectedFormat === 'csv') {
         exportToCsv(rows, csvFilename);
       } else {
         exportToJson(rows, jsonFilename);

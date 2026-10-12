@@ -162,7 +162,7 @@ describe('ExportMenu PDF', () => {
     expect(screen.getByRole('button', { name: 'Export' })).toBeDisabled();
   });
 
-  it('exports a 50 page PDF without asking to drop the package list', async () => {
+  it('exports a PDF with 1,500 packages without asking to drop the package list', async () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1500} />);
 
@@ -173,7 +173,7 @@ describe('ExportMenu PDF', () => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
     });
     expect(
-      screen.queryByRole('heading', { name: 'The exported PDF is going to be too large' }),
+      screen.queryByRole('heading', { name: 'Package list exceeds PDF export limit' }),
     ).not.toBeInTheDocument();
     expect(getCoverageReportPackages).not.toHaveBeenCalled();
     expect(requestPdf.mock.calls[0][0].payload[0].fetchDataParams).toMatchObject({
@@ -181,7 +181,7 @@ describe('ExportMenu PDF', () => {
     });
   });
 
-  it('warns when the PDF would be longer than 50 pages and can export the overview only', async () => {
+  it('explains the PDF limit and can export the overview only', async () => {
     const user = userEvent.setup();
     render(
       <ExportMenu
@@ -196,29 +196,29 @@ describe('ExportMenu PDF', () => {
     await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
 
     expect(
-      screen.getByRole('heading', { name: 'The exported PDF is going to be too large' }),
+      screen.getByRole('heading', { name: 'Package list exceeds PDF export limit' }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'The exported PDF is going to be 51 pages long. We do not support exporting PDF larger than 50 pages. Either use filters to limit the list of packages or export only the overview. You can export CSV and JSON when needing all the details.',
+        'This list exceeds the 1,500-package PDF limit. You can export the overview as a PDF, or filter the list to 1,500 packages or fewer.',
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('To export the current package list, use CSV or JSON.'),
     ).toBeInTheDocument();
     expect(requestPdf).not.toHaveBeenCalled();
     expect(getCoverageReportPackages).not.toHaveBeenCalled();
 
-    const footerClose = screen
-      .getAllByRole('button', { name: 'Close' })
-      .find((button) => button.textContent === 'Close');
-    await user.click(footerClose!);
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(
-      screen.queryByRole('heading', { name: 'The exported PDF is going to be too large' }),
+      screen.queryByRole('heading', { name: 'Package list exceeds PDF export limit' }),
     ).not.toBeInTheDocument();
     expect(requestPdf).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
     await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
-    await user.click(screen.getByRole('button', { name: 'Export only the overview' }));
+    await user.click(screen.getByRole('button', { name: 'Export overview PDF' }));
 
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
@@ -253,16 +253,16 @@ describe('ExportMenu PDF', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'The exported PDF is going to be too large' }),
+        screen.getByRole('heading', { name: 'Package list exceeds PDF export limit' }),
       ).toBeInTheDocument();
     });
     expect(getCoverageReportPackages).toHaveBeenCalledTimes(1);
     expect(getCoverageReportPackages).toHaveBeenCalledWith('report-uuid', 1, 1, {
       search: 'log4j',
     });
-    expect(screen.getByText(/100 pages long/)).toBeInTheDocument();
+    expect(screen.getByText(/This list exceeds the 1,500-package PDF limit/)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Export only the overview' }));
+    await user.click(screen.getByRole('button', { name: 'Export overview PDF' }));
 
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
@@ -271,6 +271,69 @@ describe('ExportMenu PDF', () => {
     expect(requestPdf.mock.calls[0][0].payload[0].fetchDataParams).toMatchObject({
       includePackages: false,
     });
+  });
+});
+
+describe('oversized PDF alternatives', () => {
+  const originalCreateObjectURL = URL.createObjectURL;
+  const originalRevokeObjectURL = URL.revokeObjectURL;
+
+  beforeEach(() => {
+    URL.createObjectURL = jest.fn(() => 'blob:coverage');
+    URL.revokeObjectURL = jest.fn();
+    jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    URL.createObjectURL = originalCreateObjectURL;
+    URL.revokeObjectURL = originalRevokeObjectURL;
+    jest.restoreAllMocks();
+  });
+
+  it.each([
+    ['CSV', 'text/csv;charset=utf-8;'],
+    ['JSON', 'application/json;charset=utf-8;'],
+  ])('exports the filtered package list as %s from the modal', async (format, mimeType) => {
+    (getCoverageReportPackages as jest.Mock).mockResolvedValue({
+      data: [
+        {
+          name: 'react',
+          version: '18.0.0',
+          ecosystem: 'npm',
+          covered: false,
+          match_status: 'none',
+        },
+      ],
+      links: { first: '', last: '' },
+      meta: { count: 1, limit: 200, offset: 0 },
+    });
+
+    const user = userEvent.setup();
+    render(
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        filters={{ match_status: ['none'] }}
+        packageCount={1501}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: `Export ${format}` }));
+
+    await waitFor(() => {
+      expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+    });
+    expect(getCoverageReportPackages).toHaveBeenCalledWith('report-uuid', 1, 200, {
+      match_status: ['none'],
+    });
+    expect(requestPdf).not.toHaveBeenCalled();
+    expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledTimes(1);
+
+    const blob = (URL.createObjectURL as jest.Mock).mock.calls[0][0] as Blob;
+    expect(blob.type).toBe(mimeType);
+    expect(await readBlob(blob)).toContain('react');
   });
 });
 

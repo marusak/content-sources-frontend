@@ -16,11 +16,7 @@ import {
   type CoverageReportPackageFilters,
 } from 'services/Lightwell/CoverageReportsApi';
 
-import {
-  buildCoveragePdfPayload,
-  COVERAGE_PDF_MAX_PAGES,
-  coveragePdfPageCount,
-} from '../pdf/coveragePdf';
+import { buildCoveragePdfPayload, COVERAGE_PDF_MAX_PACKAGES } from '../pdf/coveragePdf';
 import { fetchAllPages } from '../../utils/exportUtils';
 import { ExportMenu as ExportMenuBase } from '../../components/ExportMenu';
 
@@ -36,7 +32,7 @@ type ExportMenuProps = {
   packageCount?: number;
 };
 
-type PdfSizeDecision = 'overview' | 'close';
+type PdfSizeDecision = 'overview' | 'csv' | 'json' | 'close';
 
 export function fetchAllCoveragePackages(
   uuid: string,
@@ -64,14 +60,14 @@ export function ExportMenu({
   includeCveData = true,
   packageCount,
 }: ExportMenuProps) {
-  const [oversizedPageCount, setOversizedPageCount] = useState<number | null>(null);
+  const [isPdfLimitModalOpen, setIsPdfLimitModalOpen] = useState(false);
   const decisionRef = useRef<((decision: PdfSizeDecision) => void) | null>(null);
   const overviewOnlyRef = useRef(false);
 
   const settleDecision = (decision: PdfSizeDecision) => {
     const resolve = decisionRef.current;
     decisionRef.current = null;
-    setOversizedPageCount(null);
+    setIsPdfLimitModalOpen(false);
     resolve?.(decision);
   };
 
@@ -79,20 +75,19 @@ export function ExportMenu({
     overviewOnlyRef.current = false;
     const count =
       packageCount ?? (await getCoverageReportPackages(uuid!, 1, 1, filters)).meta.count;
-    const pages = coveragePdfPageCount(count);
-    if (pages <= COVERAGE_PDF_MAX_PAGES) {
+    if (count <= COVERAGE_PDF_MAX_PACKAGES) {
       return true;
     }
 
     const decision = await new Promise<PdfSizeDecision>((resolve) => {
       decisionRef.current = resolve;
-      setOversizedPageCount(pages);
+      setIsPdfLimitModalOpen(true);
     });
     if (decision === 'overview') {
       overviewOnlyRef.current = true;
       return true;
     }
-    return false;
+    return decision === 'close' ? false : decision;
   };
 
   return (
@@ -126,24 +121,22 @@ export function ExportMenu({
       <Modal
         variant={ModalVariant.medium}
         position='top'
-        isOpen={oversizedPageCount !== null}
+        isOpen={isPdfLimitModalOpen}
         onClose={() => settleDecision('close')}
         aria-labelledby='lightwell-coverage-pdf-too-large-title'
         ouiaId='lightwell-coverage-pdf-too-large'
       >
         <ModalHeader
-          title='The exported PDF is going to be too large'
+          title='Package list exceeds PDF export limit'
           labelId='lightwell-coverage-pdf-too-large-title'
         />
         <ModalBody>
-          {oversizedPageCount !== null ? (
-            <Content component='p'>
-              The exported PDF is going to be {oversizedPageCount} pages long. We do not support
-              exporting PDF larger than {COVERAGE_PDF_MAX_PAGES} pages. Either use filters to limit
-              the list of packages or export only the overview. You can export CSV and JSON when
-              needing all the details.
-            </Content>
-          ) : null}
+          <Content component='p'>
+            This list exceeds the {COVERAGE_PDF_MAX_PACKAGES.toLocaleString()}-package PDF limit.
+            You can export the overview as a PDF, or filter the list to{' '}
+            {COVERAGE_PDF_MAX_PACKAGES.toLocaleString()} packages or fewer.
+          </Content>
+          <Content component='p'>To export the current package list, use CSV or JSON.</Content>
         </ModalBody>
         <ModalFooter>
           <Button
@@ -151,14 +144,28 @@ export function ExportMenu({
             ouiaId='lightwell-coverage-pdf-export-overview'
             onClick={() => settleDecision('overview')}
           >
-            Export only the overview
+            Export overview PDF
           </Button>
           <Button
             variant='secondary'
+            ouiaId='lightwell-coverage-pdf-export-csv'
+            onClick={() => settleDecision('csv')}
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant='secondary'
+            ouiaId='lightwell-coverage-pdf-export-json'
+            onClick={() => settleDecision('json')}
+          >
+            Export JSON
+          </Button>
+          <Button
+            variant='link'
             ouiaId='lightwell-coverage-pdf-too-large-close'
             onClick={() => settleDecision('close')}
           >
-            Close
+            Cancel
           </Button>
         </ModalFooter>
       </Modal>

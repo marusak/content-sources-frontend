@@ -2,9 +2,6 @@ import { EXPORT_PAGE_SIZE } from '../../utils/exportUtils';
 import {
   buildCoveragePackagesQueryParams,
   buildCoveragePdfPayload,
-  COVERAGE_PDF_MAX_PAGES,
-  COVERAGE_PDF_PACKAGES_PER_PAGE,
-  coveragePdfPageCount,
   fetchData,
   formatCoveragePdfGeneratedAt,
 } from './coveragePdf';
@@ -45,19 +42,6 @@ describe('buildCoveragePackagesQueryParams', () => {
       limit: '50',
       offset: '0',
     });
-  });
-});
-
-describe('coveragePdfPageCount', () => {
-  it('counts 30 packages per page and treats 50 pages as the last allowed size', () => {
-    expect(COVERAGE_PDF_PACKAGES_PER_PAGE).toBe(30);
-    expect(COVERAGE_PDF_MAX_PAGES).toBe(50);
-    expect(coveragePdfPageCount(0)).toBe(0);
-    expect(coveragePdfPageCount(1)).toBe(1);
-    expect(coveragePdfPageCount(30)).toBe(1);
-    expect(coveragePdfPageCount(31)).toBe(2);
-    expect(coveragePdfPageCount(1500)).toBe(50);
-    expect(coveragePdfPageCount(1501)).toBe(51);
   });
 });
 
