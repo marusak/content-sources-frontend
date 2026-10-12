@@ -2,6 +2,9 @@ import { EXPORT_PAGE_SIZE } from '../../utils/exportUtils';
 import {
   buildCoveragePackagesQueryParams,
   buildCoveragePdfPayload,
+  COVERAGE_PDF_MAX_PAGES,
+  COVERAGE_PDF_PACKAGES_PER_PAGE,
+  coveragePdfPageCount,
   fetchData,
   formatCoveragePdfGeneratedAt,
 } from './coveragePdf';
@@ -45,6 +48,19 @@ describe('buildCoveragePackagesQueryParams', () => {
   });
 });
 
+describe('coveragePdfPageCount', () => {
+  it('counts 30 packages per page and treats 50 pages as the last allowed size', () => {
+    expect(COVERAGE_PDF_PACKAGES_PER_PAGE).toBe(30);
+    expect(COVERAGE_PDF_MAX_PAGES).toBe(50);
+    expect(coveragePdfPageCount(0)).toBe(0);
+    expect(coveragePdfPageCount(1)).toBe(1);
+    expect(coveragePdfPageCount(30)).toBe(1);
+    expect(coveragePdfPageCount(31)).toBe(2);
+    expect(coveragePdfPageCount(1500)).toBe(50);
+    expect(coveragePdfPageCount(1501)).toBe(51);
+  });
+});
+
 describe('fetchData', () => {
   it('requests packages with pagination and filters, and the report only for the summary page', async () => {
     const createAsyncRequest = jest
@@ -84,6 +100,24 @@ describe('fetchData', () => {
 
     expect(createAsyncRequest).toHaveBeenCalledTimes(1);
     expect(result.report).toBeNull();
+  });
+
+  it('loads only the report when the package table is omitted', async () => {
+    const createAsyncRequest = jest.fn().mockResolvedValue(defaultCoverageReportItem);
+
+    const result = await fetchData(createAsyncRequest, {
+      uuid: 'report-uuid',
+      includeSummary: true,
+      includePackages: false,
+    });
+
+    expect(createAsyncRequest).toHaveBeenCalledTimes(1);
+    expect(createAsyncRequest).toHaveBeenCalledWith('content-sources-backend', {
+      method: 'GET',
+      url: '/api/content-sources/v1/coverage_reports/report-uuid',
+    });
+    expect(result.packages).toEqual([]);
+    expect(result.report).toEqual(defaultCoverageReportItem);
   });
 
   it('requires a uuid', async () => {
@@ -146,13 +180,35 @@ describe('buildCoveragePdfPayload', () => {
       fetchDataParams: {
         uuid: 'report-uuid',
         includeSummary: true,
+        includePackages: true,
       },
       additionalData: {
         filename: 'sbom.json',
         generatedAt: '25 Aug 2026',
         includeSummary: true,
+        includePackages: true,
         headerBrand: 'lightwell',
       },
+    });
+  });
+
+  it('asks for the report summary only when the package table is omitted', () => {
+    const payload = buildCoveragePdfPayload({
+      uuid: 'report-uuid',
+      filename: 'sbom.json',
+      includePackages: false,
+      generatedAt: '25 Aug 2026',
+    });
+
+    expect(payload).toHaveLength(1);
+    expect(payload[0].fetchDataParams).toMatchObject({
+      uuid: 'report-uuid',
+      includeSummary: true,
+      includePackages: false,
+    });
+    expect(payload[0].additionalData).toMatchObject({
+      includeSummary: true,
+      includePackages: false,
     });
   });
 

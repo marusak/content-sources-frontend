@@ -86,6 +86,34 @@ describe('CoveragePdfTemplate', () => {
     expect(screen.queryByText('5.4–9.8')).not.toBeInTheDocument();
   });
 
+  it('omits the package table when only the overview is exported', () => {
+    render(
+      <CoveragePdfTemplate
+        asyncData={{
+          data: {
+            packages: defaultCoverageReportPackagesItem,
+            meta: { count: 3, limit: 50, offset: 0 },
+            report: defaultCoverageReportItem,
+          },
+        }}
+        additionalData={{
+          filename: 'sbom.json',
+          generatedAt: '25 Aug 2026',
+          includeSummary: true,
+          includePackages: false,
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Lightwell Match Analysis Report')).toBeInTheDocument();
+    expect(screen.getByText('Packages by ecosystem')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Packages' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('table', { name: 'Coverage report packages' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('spring-web')).not.toBeInTheDocument();
+  });
+
   it('omits the cover summary on continuation pages', () => {
     render(
       <CoveragePdfTemplate

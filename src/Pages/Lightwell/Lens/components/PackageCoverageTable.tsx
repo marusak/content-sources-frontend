@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Flex,
   FlexItem,
@@ -101,6 +102,9 @@ type PackageCoverageTableProps = {
   table: ReturnType<typeof usePackageCoverageTable>;
   // Hide the CVE Fixes / CVSS Scores columns when the report has no CVE data.
   showCveColumns: boolean;
+  // Reports the filtered total once it matches the current query, so PDF export
+  // can refuse a document longer than the page limit without another request.
+  onPackageCountChange?: (count: number | undefined) => void;
 };
 
 const PackageCoverageTable = ({
@@ -108,6 +112,7 @@ const PackageCoverageTable = ({
   ecosystems,
   table,
   showCveColumns,
+  onPackageCountChange,
 }: PackageCoverageTableProps) => {
   const useMock = LIGHTWELL_LENS_USE_MOCK;
   const ecosystemNames = ecosystems.map(({ name }) => name);
@@ -148,6 +153,7 @@ const PackageCoverageTable = ({
     isLoading,
     isFetching,
     isError,
+    isPlaceholderData,
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
   } = useMock ? mockPackagesQuery : apiPackagesQuery;
 
@@ -155,6 +161,19 @@ const PackageCoverageTable = ({
     data: packages = [],
     meta: { count = 0 },
   } = data;
+
+  useEffect(() => {
+    if (!onPackageCountChange) {
+      return;
+    }
+    // Placeholder rows still describe the previous filters, so the total is not
+    // safe to use for the export that will apply the filters now on screen.
+    if (isLoading || isError || isPlaceholderData) {
+      onPackageCountChange(undefined);
+      return;
+    }
+    onPackageCountChange(count);
+  }, [onPackageCountChange, isLoading, isError, isPlaceholderData, count]);
 
   const pagination = { ...paginationProps, itemCount: count };
   const activeState = useTableActiveState({

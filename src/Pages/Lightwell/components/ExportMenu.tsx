@@ -36,6 +36,8 @@ export type ExportMenuProps = {
   fetchRows: () => Promise<object[]>;
   // Build the filename + payload for the split PDF export.
   buildPdfRequest: () => Promise<ExportPdfRequest>;
+  // Runs before a PDF export starts. Return false to cancel without an error.
+  beforePdfExport?: () => Promise<boolean>;
   errorNotification: {
     title: string;
     message: string;
@@ -52,22 +54,33 @@ export function ExportMenu({
   jsonFilename,
   fetchRows,
   buildPdfRequest,
+  beforePdfExport,
   errorNotification,
 }: ExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isPreparingPdf, setIsPreparingPdf] = useState(false);
   const errorNotifier = useErrorNotification();
   const { notify } = useNotification();
   const { requestPdf } = useChrome();
 
   const handleExport = async (format: ExportFormat) => {
-    if (!isReady || isExporting) {
+    if (!isReady || isExporting || isPreparingPdf) {
       return;
     }
 
     setIsOpen(false);
-    setIsExporting(true);
     try {
+      if (format === 'pdf' && beforePdfExport) {
+        setIsPreparingPdf(true);
+        const proceed = await beforePdfExport();
+        setIsPreparingPdf(false);
+        if (!proceed) {
+          return;
+        }
+      }
+
+      setIsExporting(true);
       if (format === 'pdf') {
         notify(PDF_GENERATING_NOTIFICATION);
         const { filename, payload } = await buildPdfRequest();
@@ -84,6 +97,7 @@ export function ExportMenu({
         exportToJson(rows, jsonFilename);
       }
     } catch (err) {
+      setIsPreparingPdf(false);
       errorNotifier(errorNotification.title, errorNotification.message, err, errorNotification.id);
     } finally {
       setIsExporting(false);
@@ -94,7 +108,7 @@ export function ExportMenu({
     <Dropdown
       isOpen={isOpen}
       onOpenChange={(open) => {
-        if (!isExporting) {
+        if (!isExporting && !isPreparingPdf) {
           setIsOpen(open);
         }
       }}
@@ -104,7 +118,7 @@ export function ExportMenu({
           ref={toggleRef}
           onClick={() => setIsOpen(!isOpen)}
           isExpanded={isOpen}
-          isDisabled={!isReady || isExporting}
+          isDisabled={!isReady || isExporting || isPreparingPdf}
           variant='secondary'
           ouiaId={ouiaId}
           aria-busy={isExporting}

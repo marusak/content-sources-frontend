@@ -59,7 +59,12 @@ describe('ExportMenu PDF', () => {
   it('requests one PDF so the package table is not split across documents', async () => {
     const user = userEvent.setup();
     render(
-      <ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ match_status: ['exact'] }} />,
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        filters={{ match_status: ['exact'] }}
+        packageCount={1}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
@@ -78,9 +83,15 @@ describe('ExportMenu PDF', () => {
       fetchDataParams: {
         uuid: 'report-uuid',
         includeSummary: true,
+        includePackages: true,
         filters: { match_status: ['exact'] },
       },
-      additionalData: { includeSummary: true, filename: 'sbom.json', headerBrand: 'lightwell' },
+      additionalData: {
+        includeSummary: true,
+        includePackages: true,
+        filename: 'sbom.json',
+        headerBrand: 'lightwell',
+      },
     });
     // CVE data is present by default, so each page keeps it.
     expect(pdfRequest.payload[0].additionalData).toMatchObject({ includeCveData: true });
@@ -88,7 +99,14 @@ describe('ExportMenu PDF', () => {
 
   it('signals the PDF module to omit CVE columns when there is no CVE data', async () => {
     const user = userEvent.setup();
-    render(<ExportMenu uuid='report-uuid' filename='sbom.json' includeCveData={false} />);
+    render(
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        includeCveData={false}
+        packageCount={1}
+      />,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
     await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
@@ -110,7 +128,7 @@ describe('ExportMenu PDF', () => {
     );
 
     const user = userEvent.setup();
-    render(<ExportMenu uuid='report-uuid' filename='sbom.json' />);
+    render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1} />);
 
     await user.click(screen.getByRole('button', { name: 'Export' }));
     await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
@@ -142,6 +160,117 @@ describe('ExportMenu PDF', () => {
   it('disables the toggle when no report uuid is available', () => {
     render(<ExportMenu />);
     expect(screen.getByRole('button', { name: 'Export' })).toBeDisabled();
+  });
+
+  it('exports a 50 page PDF without asking to drop the package list', async () => {
+    const user = userEvent.setup();
+    render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1500} />);
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+
+    await waitFor(() => {
+      expect(requestPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(
+      screen.queryByRole('heading', { name: 'The exported PDF is going to be too large' }),
+    ).not.toBeInTheDocument();
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
+    expect(requestPdf.mock.calls[0][0].payload[0].fetchDataParams).toMatchObject({
+      includePackages: true,
+    });
+  });
+
+  it('warns when the PDF would be longer than 50 pages and can export the overview only', async () => {
+    const user = userEvent.setup();
+    render(
+      <ExportMenu
+        uuid='report-uuid'
+        filename='sbom.json'
+        filters={{ match_status: ['exact'] }}
+        packageCount={1501}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'The exported PDF is going to be too large' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'The exported PDF is going to be 51 pages long. We do not support exporting PDF larger than 50 pages. Either use filters to limit the list of packages or export only the overview. You can export CSV and JSON when needing all the details.',
+      ),
+    ).toBeInTheDocument();
+    expect(requestPdf).not.toHaveBeenCalled();
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
+
+    const footerClose = screen
+      .getAllByRole('button', { name: 'Close' })
+      .find((button) => button.textContent === 'Close');
+    await user.click(footerClose!);
+
+    expect(
+      screen.queryByRole('heading', { name: 'The exported PDF is going to be too large' }),
+    ).not.toBeInTheDocument();
+    expect(requestPdf).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export only the overview' }));
+
+    await waitFor(() => {
+      expect(requestPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(getCoverageReportPackages).not.toHaveBeenCalled();
+    const pdfRequest = requestPdf.mock.calls[0][0];
+    expect(pdfRequest.payload).toHaveLength(1);
+    expect(pdfRequest.payload[0].fetchDataParams).toMatchObject({
+      uuid: 'report-uuid',
+      includeSummary: true,
+      includePackages: false,
+      filters: { match_status: ['exact'] },
+    });
+    expect(pdfRequest.payload[0].additionalData).toMatchObject({
+      includeSummary: true,
+      includePackages: false,
+    });
+  });
+
+  it('reads the package total once when it is not already known, then exports the overview', async () => {
+    (getCoverageReportPackages as jest.Mock).mockResolvedValue({
+      data: [],
+      links: { first: '', last: '' },
+      meta: { count: 3000, limit: 1, offset: 0 },
+    });
+
+    const user = userEvent.setup();
+    render(<ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ search: 'log4j' }} />);
+
+    await user.click(screen.getByRole('button', { name: 'Export' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'The exported PDF is going to be too large' }),
+      ).toBeInTheDocument();
+    });
+    expect(getCoverageReportPackages).toHaveBeenCalledTimes(1);
+    expect(getCoverageReportPackages).toHaveBeenCalledWith('report-uuid', 1, 1, {
+      search: 'log4j',
+    });
+    expect(screen.getByText(/100 pages long/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Export only the overview' }));
+
+    await waitFor(() => {
+      expect(requestPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(getCoverageReportPackages).toHaveBeenCalledTimes(1);
+    expect(requestPdf.mock.calls[0][0].payload[0].fetchDataParams).toMatchObject({
+      includePackages: false,
+    });
   });
 });
 

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRemoteHook } from '@scalprum/react-core';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -60,6 +60,7 @@ const CoverageReport = () => {
 
   // Lifted so the export reuses whatever filters the table currently has applied.
   const table = usePackageCoverageTable(ecosystems);
+  const [packageCount, setPackageCount] = useState<number | undefined>();
 
   if (isLoading) return <Loader />;
   if (isError) throw error;
@@ -101,6 +102,7 @@ const CoverageReport = () => {
                 filename={filename}
                 filters={table.debouncedFilters}
                 includeCveData={hasCveData}
+                packageCount={packageCount}
               />
             </FlexItem>
             <FlexItem>
@@ -144,6 +146,7 @@ const CoverageReport = () => {
                   ecosystems={ecosystems}
                   table={table}
                   showCveColumns={hasCveData}
+                  onPackageCountChange={setPackageCount}
                 />
               </CardBody>
             </Card>
