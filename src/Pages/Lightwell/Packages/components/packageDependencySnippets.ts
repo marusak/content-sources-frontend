@@ -29,6 +29,17 @@ pip install --index-url ${pkg.sourceUrl.replace(/\/+$/, '')}/simple ${pkg.name}=
     ],
   },
   {
+    eventKey: 'uv',
+    title: 'uv',
+    snippets: [
+      {
+        label: 'Install with uv:',
+        code: `# Source: ${pkg.sourceUrl}
+uv pip install --system-certs --index-url ${pkg.sourceUrl.replace(/\/+$/, '')}/simple ${pkg.name}==${pkg.release}`,
+      },
+    ],
+  },
+  {
     eventKey: 'requirements.txt',
     title: 'requirements.txt',
     snippets: [

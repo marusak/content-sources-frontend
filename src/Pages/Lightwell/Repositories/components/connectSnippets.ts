@@ -191,6 +191,27 @@ const getPythonSnippetTabs = (repository: RepositoryContext): ConnectSnippetTab[
       ],
     },
     {
+      eventKey: 'uv',
+      title: 'uv',
+      snippets: [
+        {
+          label: 'Add credentials to ~/.netrc:',
+          code: `machine packages.redhat.com login <service_account_username> password <service_account_token>`,
+          description: 'Username format: XXXXXXX|service-account-name',
+        },
+        {
+          label: 'Set as default index:',
+          code: `system-certs = true
+
+[[index]]
+name = "lightwell"
+url = "${distributionUrl.replace(/\/+$/, '')}/simple"
+default = true`,
+          description: 'Add to ~/.config/uv/uv.toml',
+        },
+      ],
+    },
+    {
       eventKey: 'artifactory',
       title: 'Artifactory',
       docsUrl:

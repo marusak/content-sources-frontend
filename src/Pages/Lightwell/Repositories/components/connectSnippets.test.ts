@@ -19,5 +19,16 @@ it.each(['validated', 'remediated'])(
     expect(tabs.find((tab) => tab.eventKey === 'poetry')?.snippets[1].code).toBe(
       `poetry source add --priority=default lightwell ${distributionUrl}`,
     );
+    expect(tabs.find((tab) => tab.eventKey === 'uv')?.snippets[0].code).toBe(
+      'machine packages.redhat.com login <service_account_username> password <service_account_token>',
+    );
+    expect(tabs.find((tab) => tab.eventKey === 'uv')?.snippets[1].code).toBe(
+      `system-certs = true
+
+[[index]]
+name = "lightwell"
+url = "${distributionUrl}simple"
+default = true`,
+    );
   },
 );

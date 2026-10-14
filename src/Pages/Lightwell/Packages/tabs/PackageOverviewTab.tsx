@@ -175,7 +175,7 @@ const PackageOverviewTab = ({
                 <Button variant='link' isInline>
                   {isMaven
                     ? 'configure your build tool (Maven, Gradle, Artifactory, or Nexus)'
-                    : 'configure your build tool (pip, Pipenv, Poetry, Artifactory, or Nexus)'}
+                    : 'configure your build tool (pip, Pipenv, Poetry, uv, Artifactory, or Nexus)'}
                 </Button>
               </ConnectRepositoryModal>{' '}
               to use this repository.
@@ -184,7 +184,7 @@ const PackageOverviewTab = ({
             <span>
               {isMaven
                 ? 'First, configure your build tool (Maven, Gradle, Artifactory, or Nexus) to use this repository.'
-                : 'First, configure your build tool (pip, Pipenv, Poetry, Artifactory, or Nexus) to use this repository.'}
+                : 'First, configure your build tool (pip, Pipenv, Poetry, uv, Artifactory, or Nexus) to use this repository.'}
             </span>
           )}
         </Content>

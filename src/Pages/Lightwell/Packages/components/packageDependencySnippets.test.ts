@@ -14,6 +14,9 @@ it.each([
   expect(tabs.find((tab) => tab.eventKey === 'pip')?.snippets[0].code).toContain(
     `pip install --index-url ${sourceUrl}/simple lightwell-fixture==${version}`,
   );
+  expect(tabs.find((tab) => tab.eventKey === 'uv')?.snippets[0].code).toContain(
+    `uv pip install --system-certs --index-url ${sourceUrl}/simple lightwell-fixture==${version}`,
+  );
   expect(tabs.find((tab) => tab.eventKey === 'requirements.txt')?.snippets[0].code).toContain(
     `--index-url ${sourceUrl}\nlightwell-fixture==${version}`,
   );
@@ -34,6 +37,9 @@ it.each(['validated', 'remediated'])(
 
     expect(tabs.find((tab) => tab.eventKey === 'pip')?.snippets[0].code).toContain(
       `pip install --index-url ${sourceUrl}simple lightwell-fixture==3.0.1+rhlw.2`,
+    );
+    expect(tabs.find((tab) => tab.eventKey === 'uv')?.snippets[0].code).toContain(
+      `uv pip install --system-certs --index-url ${sourceUrl}simple lightwell-fixture==3.0.1+rhlw.2`,
     );
   },
 );

@@ -276,6 +276,9 @@ describe('PackageOverviewTab', () => {
     const pipTab = screen.getByRole('tab', { name: 'pip' });
     expect(pipTab).toBeInTheDocument();
 
+    const uvTab = screen.getByRole('tab', { name: 'uv' });
+    expect(uvTab).toBeInTheDocument();
+
     // Check for requirements.txt tab
     const requirementsTab = screen.getByRole('tab', { name: 'requirements.txt' });
     expect(requirementsTab).toBeInTheDocument();
@@ -299,6 +302,15 @@ describe('PackageOverviewTab', () => {
     expect(
       within(requirementsPanel).getByText(
         /--index-url https:\/\/example.com\/python-repo\s+requests==/,
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(uvTab);
+    expect(screen.getByText(/Install with uv:/)).toBeInTheDocument();
+    const uvPanel = screen.getByRole('tabpanel');
+    expect(
+      within(uvPanel).getByText(
+        /uv pip install --system-certs --index-url .*requests==2\.31\.0\+rhlw-00001/,
       ),
     ).toBeInTheDocument();
   });
@@ -345,7 +357,7 @@ describe('PackageOverviewTab', () => {
     );
 
     const connectButton = screen.getByRole('button', {
-      name: 'configure your build tool (pip, Pipenv, Poetry, Artifactory, or Nexus)',
+      name: 'configure your build tool (pip, Pipenv, Poetry, uv, Artifactory, or Nexus)',
     });
     expect(connectButton).toBeInTheDocument();
   });
