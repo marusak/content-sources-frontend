@@ -55,6 +55,8 @@ type CoverageReportBase = {
   created_at: string;
   input_format?: string;
   analysis_task_uuid?: string;
+  // True when the backend stored a parser log of ignored entries.
+  parse_log_available?: boolean;
 };
 
 type PendingCoverageReport = CoverageReportBase & {
@@ -91,6 +93,19 @@ export const createCoverageReport = async (file: File): Promise<CoverageReportRe
     formData,
   );
   return data;
+};
+
+export const coverageParseLogPath = (uuid: string): string =>
+  `/api/content-sources/v1/coverage_reports/${encodeURIComponent(uuid)}/parse_log`;
+
+export const downloadCoverageParseLog = async (uuid: string): Promise<void> => {
+  const { data } = await axios.get<Blob>(coverageParseLogPath(uuid), { responseType: 'blob' });
+  const url = URL.createObjectURL(data);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'parser-log.txt';
+  link.click();
+  URL.revokeObjectURL(url);
 };
 
 export const getCoverageReport = async (uuid: string): Promise<CoverageReportResponse> => {

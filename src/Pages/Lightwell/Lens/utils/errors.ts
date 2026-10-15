@@ -1,4 +1,4 @@
-export type ProcessError = { title: string; description: string };
+export type ProcessError = { title: string; description: string; parseLogAvailable?: boolean };
 
 const API_ERROR_DEFAULTS = {
   upload: ['Could not upload manifest', 'Something went wrong while uploading your manifest'],
@@ -10,12 +10,13 @@ export function apiError(context: 'upload' | 'fetch'): ProcessError {
   return { title, description };
 }
 
-export function taskError(error?: string): ProcessError {
+export function taskError(error?: string, parseLogAvailable?: boolean): ProcessError {
   return {
     title: 'Could not prepare analysis report',
     description: error
       ? error[0].toUpperCase() + error.slice(1)
       : 'Something went wrong while preparing your report',
+    parseLogAvailable,
   };
 }
 

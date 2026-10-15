@@ -132,8 +132,20 @@ describe('CoverageReport', () => {
       await userEvent.click(screen.getByRole('button', { name: 'View supported formats' }));
       expect(await screen.findByText('What should my manifest contain?')).toBeInTheDocument();
       expect(screen.getByText('What is the maximum manifest size?')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Download parser log' })).not.toBeInTheDocument();
     },
   );
+
+  it('links the parser log when ignored entries were recorded', () => {
+    (useCoverageReport as jest.Mock).mockReturnValue({
+      filename: 'test-sbom.json',
+      report: { ...defaultCoverageReportItem, skipped_entries: 2, parse_log_available: true },
+      isLoading: false,
+      startOver: jest.fn(),
+    });
+    renderCoverageReport();
+    expect(screen.getByRole('button', { name: 'Download parser log' })).toBeInTheDocument();
+  });
 
   it('displays the CVEs fixed card with per-severity counts', () => {
     renderCoverageReport();

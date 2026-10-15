@@ -131,6 +131,23 @@ describe('ManifestUpload', () => {
     expect(screen.getByRole('button', { name: 'Reupload file' })).toBeInTheDocument();
   });
 
+  it('shows the parser failure reason and log download', () => {
+    const reason = 'Parsing file foo.xml\nCould not determine the manifest format';
+    (useManifestUpload as jest.Mock).mockReturnValue({
+      uploadProps: {
+        ...defaultUploadProps,
+        step: 'error',
+        reportUUID: 'test-uuid',
+        processError: taskError(reason, true),
+      },
+    });
+
+    renderManifestUpload();
+    expect(screen.getByText(/Parsing file foo.xml/)).toBeInTheDocument();
+    expect(screen.getByText(/Could not determine the manifest format/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Download parser log' })).toBeInTheDocument();
+  });
+
   it('shows upload instructions and supported formats when no report exists', () => {
     renderManifestUpload();
     expect(screen.getByText('Lightwell Lens')).toBeInTheDocument();

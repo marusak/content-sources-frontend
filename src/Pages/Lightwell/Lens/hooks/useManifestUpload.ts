@@ -43,7 +43,7 @@ export const useManifestUpload = () => {
     }
 
     if (report.status === 'failed') {
-      setProcessError(taskError(report.analysis_task_error));
+      setProcessError(taskError(report.analysis_task_error, report.parse_log_available));
       setStep('error');
     }
   }, [report, shouldPoll]);

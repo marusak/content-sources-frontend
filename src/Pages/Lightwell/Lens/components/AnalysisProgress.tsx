@@ -13,6 +13,7 @@ import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 import type { ProcessStep } from '../hooks/useManifestUpload';
 import { type ProcessError } from '../utils/errors';
+import ParseLogLink from './ParseLogLink';
 
 const ANALYSIS_STEPS = [
   { id: 'uploading_manifest', label: 'Uploading manifest' },
@@ -116,7 +117,25 @@ const AnalysisProgress = ({ step, reportUUID, processError, onRetry }: AnalysisP
                   alignItems={{ default: 'alignItemsCenter' }}
                 >
                   <Alert variant='danger' isInline isPlain title={processError.title}>
-                    <span style={{ whiteSpace: 'pre-line' }}>{processError.description}</span>
+                    {processError.description.includes('\n') ? (
+                      <pre
+                        style={{
+                          whiteSpace: 'pre-wrap',
+                          margin: 0,
+                          maxHeight: '16rem',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {processError.description}
+                      </pre>
+                    ) : (
+                      processError.description
+                    )}
+                    {processError.parseLogAvailable && reportUUID ? (
+                      <div>
+                        <ParseLogLink uuid={reportUUID} />
+                      </div>
+                    ) : null}
                   </Alert>
                   <Button variant='primary' onClick={onRetry}>
                     Reupload file

@@ -21,6 +21,7 @@ import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import CoverageSummaryBlock from './components/CoverageSummaryBlock';
 import CveFixesBlock from './components/CveFixesBlock';
 import ManifestFormatPopover from './components/ManifestFormatPopover';
+import ParseLogLink from './components/ParseLogLink';
 import EcosystemBreakdownBlock from './components/EcosystemBreakdownBlock';
 import PackageCoverageTable from './components/PackageCoverageTable';
 import { ExportMenu } from './components/ExportMenu';
@@ -72,6 +73,7 @@ const CoverageReport = () => {
   // net-delta totals are all zero no package has CVE data worth showing.
   const hasCveData = getTotalCveCount(report.cve_summary) > 0;
   const skippedEntries = report.skipped_entries ?? 0;
+  const parseLog = report.parse_log_available ? <ParseLogLink uuid={report.uuid} /> : null;
 
   const matchAnalysisTitle = filename ? (
     <Title headingLevel='h1'>
@@ -109,6 +111,11 @@ const CoverageReport = () => {
                   : "Their entries don't match a supported format."}{' '}
                 <ManifestFormatPopover label='View supported formats' />
               </div>
+              {parseLog}
+            </Alert>
+          ) : parseLog ? (
+            <Alert variant='warning' isInline title='Some manifest entries were ignored'>
+              {parseLog}
             </Alert>
           ) : undefined
         }
