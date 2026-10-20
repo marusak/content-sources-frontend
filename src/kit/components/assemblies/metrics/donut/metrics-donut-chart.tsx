@@ -1,8 +1,8 @@
 import { ChartDonut, ChartLabel } from '@patternfly/react-charts/victory';
 import { chart_donut_label_subtitle_Fill } from '@patternfly/react-tokens/dist/esm/chart_donut_label_subtitle_Fill';
 import { chart_donut_label_title_Fill } from '@patternfly/react-tokens/dist/esm/chart_donut_label_title_Fill';
-import { chart_global_FontSize_2xl } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_2xl';
 import { chart_global_FontSize_sm } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_sm';
+import { chart_global_FontSize_xs } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_xs';
 import { t_global_font_weight_body_default } from '@patternfly/react-tokens/dist/esm/t_global_font_weight_body_default';
 import type { CSSProperties, Ref } from 'react';
 
@@ -21,7 +21,7 @@ const DEFAULT_TITLE_LINE_HEIGHT = 1.6;
 const DEFAULT_TITLE_STYLE: CSSProperties[] = [
   {
     fill: chart_donut_label_title_Fill.var,
-    fontSize: chart_global_FontSize_2xl.value,
+    fontSize: chart_global_FontSize_xs.value * 3,
     fontWeight: t_global_font_weight_body_default.var,
   },
   {
