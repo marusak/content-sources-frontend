@@ -306,10 +306,18 @@ const CoverageReport = () => {
               flexWrap={{ default: 'wrap' }}
               style={{ width: '100%' }}
             >
-              <LwMetricsCard>
-                <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
-              </LwMetricsCard>
-              {hasCveData ? <CveFixesBlock report={report} /> : null}
+              <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                <LwTitle headingLevel='h4'>Summary</LwTitle>
+                <LwMetricsCard>
+                  <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
+                </LwMetricsCard>
+              </Flex>
+              {hasCveData ? (
+                <Flex direction={{ default: 'column' }} gap={{ default: 'gapMd' }}>
+                  <LwTitle headingLevel='h4'>Fixed CVEs</LwTitle>
+                  <CveFixesBlock report={report} />
+                </Flex>
+              ) : null}
             </Flex>
           </PageChromeSlot>
         </PageChromeSlots>

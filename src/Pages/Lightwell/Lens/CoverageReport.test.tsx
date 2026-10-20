@@ -106,6 +106,7 @@ describe('CoverageReport', () => {
     expect(screen.getByRole('heading', { level: 4, name: '60' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: '15' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: '25' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'Summary' })).toBeInTheDocument();
     expect(screen.getByText('Exact match')).toBeInTheDocument();
     expect(screen.getByText('Partial match')).toBeInTheDocument();
   });
@@ -146,6 +147,7 @@ describe('CoverageReport', () => {
 
   it('displays the CVEs fixed card with per-severity counts', () => {
     renderCoverageReport();
+    expect(screen.getByRole('heading', { level: 4, name: 'Fixed CVEs' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 3, name: 'CVEs fixed' })).not.toBeInTheDocument();
     expect(screen.getByText('Critical')).toBeInTheDocument();
     expect(screen.getByText('Important')).toBeInTheDocument();
@@ -171,6 +173,7 @@ describe('CoverageReport', () => {
     renderCoverageReport();
 
     expect(screen.queryByRole('heading', { level: 3, name: 'CVEs fixed' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Fixed CVEs' })).not.toBeInTheDocument();
   });
 
   it('displays ecosystem breakdown with package counts', () => {
