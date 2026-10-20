@@ -17,6 +17,21 @@ export type LwMetricsDonutDatum = {
 
 const DEFAULT_PADDING = { bottom: 10, left: 10, right: 10, top: 10 };
 const DEFAULT_TITLE_LINE_HEIGHT = 1.6;
+// PF draws a 9px band when innerRadius is omitted. This share of the outer radius is the ring.
+const RING_THICKNESS_RATIO = 0.14;
+
+const getInnerRadius = (
+  width: number,
+  height: number,
+  padding: { bottom?: number; left?: number; right?: number; top?: number },
+): number => {
+  const radius =
+    Math.min(
+      width - (padding.left ?? 0) - (padding.right ?? 0),
+      height - (padding.top ?? 0) - (padding.bottom ?? 0),
+    ) / 2;
+  return radius * (1 - RING_THICKNESS_RATIO);
+};
 
 const DEFAULT_TITLE_STYLE: CSSProperties[] = [
   {
@@ -85,6 +100,7 @@ export function LwMetricsDonutChart({
       width={width}
       height={height}
       padding={padding}
+      innerRadius={getInnerRadius(width, height, padding)}
     />
   );
 
