@@ -3,7 +3,7 @@ import { chart_donut_label_subtitle_Fill } from '@patternfly/react-tokens/dist/e
 import { chart_donut_label_title_Fill } from '@patternfly/react-tokens/dist/esm/chart_donut_label_title_Fill';
 import { chart_global_FontSize_sm } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_sm';
 import { chart_global_FontSize_xs } from '@patternfly/react-tokens/dist/esm/chart_global_FontSize_xs';
-import { t_global_font_weight_body_default } from '@patternfly/react-tokens/dist/esm/t_global_font_weight_body_default';
+import { t_global_font_weight_heading_bold } from '@patternfly/react-tokens/dist/esm/t_global_font_weight_heading_bold';
 import type { CSSProperties, Ref } from 'react';
 
 import { mergeClassNames } from 'kit/components/components.config';
@@ -22,7 +22,7 @@ const DEFAULT_TITLE_STYLE: CSSProperties[] = [
   {
     fill: chart_donut_label_title_Fill.var,
     fontSize: chart_global_FontSize_xs.value * 3,
-    fontWeight: t_global_font_weight_body_default.var,
+    fontWeight: t_global_font_weight_heading_bold.var,
   },
   {
     fill: chart_donut_label_subtitle_Fill.var,
