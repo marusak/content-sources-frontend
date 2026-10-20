@@ -59,7 +59,7 @@ export function LwMetricsCount({
       )}
       style={
         colorToken != null
-          ? ({ ...style, '--lw-metrics-count-bar-color': colorToken } as CSSProperties)
+          ? ({ '--lw-metrics-count-bar-color': colorToken, ...style } as CSSProperties)
           : style
       }
     >

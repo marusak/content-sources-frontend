@@ -300,19 +300,19 @@ const CoverageReport = () => {
               Includes packages from every detected ecosystem, including ecosystems the catalog does
               not support.
             </Content>
-            <LwMetricsCard>
-              <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
-            </LwMetricsCard>
+            <Flex
+              gap={{ default: 'gapXl' }}
+              alignItems={{ default: 'alignItemsFlexStart' }}
+              flexWrap={{ default: 'wrap' }}
+              style={{ width: '100%' }}
+            >
+              <LwMetricsCard>
+                <LwMetricsCountSlots>{matchCountItems}</LwMetricsCountSlots>
+              </LwMetricsCard>
+              {hasCveData ? <CveFixesBlock report={report} /> : null}
+            </Flex>
           </PageChromeSlot>
         </PageChromeSlots>
-
-        {hasCveData ? (
-          <PageChromeSlots>
-            <PageChromeSlot>
-              <CveFixesBlock report={report} />
-            </PageChromeSlot>
-          </PageChromeSlots>
-        ) : null}
 
         <PageChromeSlots>
           <PageChromeSlot>

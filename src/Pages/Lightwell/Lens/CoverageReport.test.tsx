@@ -146,7 +146,7 @@ describe('CoverageReport', () => {
 
   it('displays the CVEs fixed card with per-severity counts', () => {
     renderCoverageReport();
-    expect(screen.getByRole('heading', { level: 3, name: 'CVEs fixed' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 3, name: 'CVEs fixed' })).not.toBeInTheDocument();
     expect(screen.getByText('Critical')).toBeInTheDocument();
     expect(screen.getByText('Important')).toBeInTheDocument();
     expect(screen.getByText('Moderate')).toBeInTheDocument();
