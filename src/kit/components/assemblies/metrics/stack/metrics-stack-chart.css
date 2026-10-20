@@ -1,4 +1,13 @@
-/* LwMetricsStackChart — plot host for call-site resize observer. */
+/* Fills the slot so the resize observer measures the full width.
+ * The chart is painted at that pixel size; growing this box scales the bars.
+ */
 .lw-c-metrics-stack-chart {
-  display: flex;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.lw-c-metrics-stack-chart__plot {
+  width: 100%;
+  min-width: 0;
 }

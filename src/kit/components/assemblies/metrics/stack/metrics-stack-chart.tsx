@@ -3,6 +3,7 @@ import {
   Chart,
   ChartAxis,
   ChartBar,
+  ChartContainer,
   ChartStack,
   ChartTooltip,
   type ChartBarProps,
@@ -164,6 +165,7 @@ export function LwMetricsStackChart({
     >
       <Chart
         horizontal
+        containerComponent={<ChartContainer responsive={false} />}
         domainPadding={DEFAULT_DOMAIN_PADDING}
         height={height}
         width={width}

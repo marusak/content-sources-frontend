@@ -327,7 +327,7 @@ const CoverageReport = () => {
         </PageChromeSlots>
 
         <PageChromeSlots>
-          <PageChromeSlot>
+          <PageChromeSlot style={{ width: '100%' }}>
             <LwMetricsStackChart
               series={stackSeries}
               width={stackWidth}

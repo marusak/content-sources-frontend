@@ -1,12 +1,16 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { getResizeObserver } from '@patternfly/react-core';
 
 export const useContainerWidth = (defaultWidth: number) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(defaultWidth);
 
+  // Measure when the node mounts. The hook often runs while the chart is not rendered yet.
+  const containerRef = useCallback((node: HTMLDivElement | null) => {
+    setContainer(node);
+  }, []);
+
   useLayoutEffect(() => {
-    const container = containerRef.current;
     if (!container) return;
 
     const handleResize = () => {
@@ -15,9 +19,8 @@ export const useContainerWidth = (defaultWidth: number) => {
       }
     };
     handleResize();
-    const observerCleanup = getResizeObserver(container, handleResize);
-    return observerCleanup;
-  }, []);
+    return getResizeObserver(container, handleResize);
+  }, [container]);
 
   return { containerRef, width };
 };
