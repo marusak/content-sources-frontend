@@ -147,6 +147,36 @@ it('renders the beacon page with status summary and vulnerability table', async 
 
   expect(screen.getByText('Status Summary')).toBeInTheDocument();
   expect(screen.getAllByText('No remediation')).toHaveLength(2);
+  expect(screen.getAllByText('On Hold')).toHaveLength(2);
+
+  const summary = document.querySelector('.lw-c-metrics-card');
+  expect(summary).toBeTruthy();
+  const summaryCritical = within(summary as HTMLElement).getByText('Critical');
+  const summaryOnHold = within(summary as HTMLElement).getByText('On Hold');
+  const summaryNoRemediation = within(summary as HTMLElement).getByText('No remediation');
+  expect(
+    summaryCritical.compareDocumentPosition(summaryOnHold) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    summaryOnHold.compareDocumentPosition(summaryNoRemediation) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(summaryOnHold.closest('.lw-c-metrics-count')).toHaveStyle({
+    '--lw-metrics-count-bar-color': 'var(--lw-color--match-status--none)',
+  });
+
+  const filters = document.querySelector('.lightwell-filter-panel');
+  expect(filters).toBeTruthy();
+  const filterNetwork = within(filters as HTMLElement).getByText('Lightwell Network');
+  const filterOnHold = within(filters as HTMLElement).getByText('On Hold');
+  const filterNoRemediation = within(filters as HTMLElement).getByText('No remediation');
+  expect(
+    filterNetwork.compareDocumentPosition(filterOnHold) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    filterOnHold.compareDocumentPosition(filterNoRemediation) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+
+  expect(screen.getByLabelText('Submission pipeline metrics')).not.toHaveTextContent('On Hold');
   expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
   expect(document.querySelector('.lightwell-filter-panel')).toBeInTheDocument();
   expect(screen.getByText('Customer ID')).toBeInTheDocument();

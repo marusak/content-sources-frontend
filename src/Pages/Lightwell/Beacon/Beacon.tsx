@@ -42,6 +42,7 @@ import { LwButton, LwEmptyState, LwMenu, LwPopover, LwSkeleton } from 'kit/compo
 import {
   FILTER_STATUSES,
   NO_REMEDIATION_LABEL,
+  ON_HOLD_STATUS,
   SEVERITIES,
   statusLabel,
   UNREMEDIATED_STATUS,
@@ -385,6 +386,14 @@ const Beacon = () => {
                         <LwSkeleton fontSize='3xl' width='4ch' />
                         <LwSkeleton fontSize='sm' width='5ch' />
                       </Flex>
+                      <Flex
+                        direction={{ default: 'column' }}
+                        gap={{ default: 'gapSm' }}
+                        alignItems={{ default: 'alignItemsCenter' }}
+                      >
+                        <LwSkeleton fontSize='3xl' width='4ch' />
+                        <LwSkeleton fontSize='sm' width='5ch' />
+                      </Flex>
                     </LwMetricsCountSlots>
                   }
                 >
@@ -397,6 +406,11 @@ const Beacon = () => {
                       value={displayMeta?.criticalCount ?? 0}
                       label='Critical'
                       color='red'
+                    />
+                    <LwMetricsCount
+                      value={displayMeta?.statusCounts?.[ON_HOLD_STATUS] ?? 0}
+                      label={ON_HOLD_STATUS}
+                      color='none'
                     />
                     <LwMetricsCount
                       value={displayMeta?.statusCounts?.[UNREMEDIATED_STATUS] ?? 0}

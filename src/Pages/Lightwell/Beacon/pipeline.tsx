@@ -12,7 +12,7 @@ import type { LwStepIconColorKey } from 'kit/lightwell.config';
 import { STATUSES, STATUS_DESCRIPTIONS } from './constants';
 import type { Status } from './types';
 
-type PipelineStatus = Exclude<Status, 'Upstreaming' | 'Published' | 'Unremediated'>;
+type PipelineStatus = Exclude<Status, 'Upstreaming' | 'Published' | 'Unremediated' | 'On Hold'>;
 
 type PipelineStepPresentation = {
   color: LwStepIconColorKey;

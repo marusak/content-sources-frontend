@@ -8,6 +8,7 @@ export type Status =
   | 'Lightwell Network'
   | 'Upstreaming'
   | 'Published'
+  | 'On Hold'
   | 'Unremediated';
 
 export type CustomerPriority = 'Priority 1' | 'Priority 2' | 'Priority 3' | 'Priority 4';

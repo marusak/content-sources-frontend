@@ -11,7 +11,9 @@ export const STATUSES: Status[] = [
 export const UNREMEDIATED_STATUS: Status = 'Unremediated';
 export const NO_REMEDIATION_LABEL = 'No remediation';
 
-export const FILTER_STATUSES: Status[] = [...STATUSES, UNREMEDIATED_STATUS];
+export const ON_HOLD_STATUS: Status = 'On Hold';
+
+export const FILTER_STATUSES: Status[] = [...STATUSES, ON_HOLD_STATUS, UNREMEDIATED_STATUS];
 
 export function statusLabel(status: Status): string {
   return status === UNREMEDIATED_STATUS ? NO_REMEDIATION_LABEL : status;
@@ -23,6 +25,7 @@ export const STATUS_DESCRIPTIONS: Record<Status, string> = {
   'Fix in Progress': 'A fix is currently under development.',
   Validation: 'The fix is being validated within the Red Hat pipeline.',
   'Lightwell Network': 'The fix is available in the Lightwell Repository.',
+  'On Hold': 'The vulnerability is on hold.',
   Upstreaming: 'The fix is being shared with the upstream community.',
   Published: 'The fix is available in upstream repos.',
   Unremediated: 'The vulnerability was closed without a shipped fix.',

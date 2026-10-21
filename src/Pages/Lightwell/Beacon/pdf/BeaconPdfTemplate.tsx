@@ -2,6 +2,7 @@ import { Content, Title } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import type { AsyncState } from '@redhat-cloud-services/types';
 import { t_global_border_color_nonstatus_blue_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_blue_default';
+import { t_global_border_color_nonstatus_gray_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_gray_default';
 import { t_global_border_color_nonstatus_green_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_green_default';
 import { t_global_border_color_nonstatus_orange_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_orange_default';
 import { t_global_border_color_nonstatus_purple_default } from '@patternfly/react-tokens/dist/esm/t_global_border_color_nonstatus_purple_default';
@@ -10,7 +11,13 @@ import { t_global_color_status_danger_default } from '@patternfly/react-tokens/d
 
 import type { LwStepIconColorKey } from 'kit/lightwell.config';
 
-import { NO_REMEDIATION_LABEL, STATUSES, statusLabel, UNREMEDIATED_STATUS } from '../constants';
+import {
+  NO_REMEDIATION_LABEL,
+  ON_HOLD_STATUS,
+  STATUSES,
+  statusLabel,
+  UNREMEDIATED_STATUS,
+} from '../constants';
 import { getPipelineStepPresentation } from '../pipeline';
 import type { BeaconPdfAdditionalData, BeaconPdfColumn, BeaconPdfData } from './beaconPdf';
 import {
@@ -23,6 +30,7 @@ import {
 const PDF_STEP_FILL: Partial<Record<LwStepIconColorKey, string>> = {
   blue: t_global_border_color_nonstatus_blue_default.value,
   exact: t_global_border_color_nonstatus_green_default.value,
+  none: t_global_border_color_nonstatus_gray_default.value,
   orange: t_global_border_color_nonstatus_orange_default.value,
   purple: t_global_border_color_nonstatus_purple_default.value,
   teal: t_global_border_color_nonstatus_teal_default.value,
@@ -59,6 +67,11 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
       label: 'Critical',
       value: meta?.criticalCount ?? 0,
       fill: PDF_STEP_FILL.red ?? DEFAULT_COUNT_FILL,
+    },
+    {
+      label: ON_HOLD_STATUS,
+      value: statusCounts[ON_HOLD_STATUS] ?? 0,
+      fill: PDF_STEP_FILL.none ?? DEFAULT_COUNT_FILL,
     },
     {
       label: NO_REMEDIATION_LABEL,

@@ -43,16 +43,24 @@ describe('BeaconPdfTemplate', () => {
       summary.compareDocumentPosition(pipeline) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.getByText('Total')).toBeInTheDocument();
-    expect(screen.getByText('Critical')).toBeInTheDocument();
-    expect(screen.getByText('No remediation')).toBeInTheDocument();
+    const critical = screen.getByText('Critical');
+    const onHold = screen.getByText('On Hold');
+    const noRemediation = screen.getByText('No remediation');
     expect(
-      screen
-        .getByText('Critical')
-        .closest('.beacon-pdf-stat')
-        ?.querySelector('.beacon-pdf-stat-bar'),
-    ).toHaveStyle({
-      backgroundColor: '#731f00',
+      critical.compareDocumentPosition(onHold) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      onHold.compareDocumentPosition(noRemediation) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(critical.closest('.beacon-pdf-stat')?.querySelector('.beacon-pdf-stat-bar')).toHaveStyle(
+      {
+        backgroundColor: '#731f00',
+      },
+    );
+    expect(onHold.closest('.beacon-pdf-stat')?.querySelector('.beacon-pdf-stat-bar')).toHaveStyle({
+      backgroundColor: '#4d4d4d',
     });
+    expect(pipeline).not.toHaveTextContent('On Hold');
     expect(pipeline).toHaveClass('beacon-pdf-pipeline');
     expect(pipeline.querySelectorAll('.beacon-pdf-step')).toHaveLength(5);
     expect(pipeline.querySelectorAll('.beacon-pdf-step-icon')).toHaveLength(5);
