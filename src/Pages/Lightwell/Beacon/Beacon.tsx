@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRemoteHook } from '@scalprum/react-core';
 import { useFlag } from '@unleash/proxy-client-react';
 import {
@@ -22,12 +22,6 @@ import {
 import UserIcon from '@patternfly/react-icons/dist/esm/icons/user-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
-import RhUiInProgressIcon from '@patternfly/react-icons/dist/esm/icons/rh-ui-in-progress-icon';
-import RhUiPendingIcon from '@patternfly/react-icons/dist/esm/icons/rh-ui-pending-icon';
-import CheckCircleIcon from '@patternfly/react-icons/dist/esm/icons/check-circle-icon';
-import OutlinedHourglassIcon from '@patternfly/react-icons/dist/esm/icons/outlined-hourglass-icon';
-import BundleIcon from '@patternfly/react-icons/dist/esm/icons/bundle-icon';
-
 import useDebounce from 'Hooks/useDebounce';
 import { useLightwellRootPath } from '../../../Hooks/Lightwell/navigation/useLightwellRootPath';
 import {
@@ -45,16 +39,14 @@ import {
 } from 'kit/components/assemblies';
 import { LwButton, LwEmptyState, LwMenu, LwPopover, LwSkeleton } from 'kit/components/primitives';
 
-import type { LwStepIconColorKey } from 'kit/lightwell.config';
 import {
   FILTER_STATUSES,
   NO_REMEDIATION_LABEL,
   SEVERITIES,
-  STATUS_DESCRIPTIONS,
-  STATUSES,
   statusLabel,
   UNREMEDIATED_STATUS,
 } from './constants';
+import { buildPipelineMetricSteps } from './pipeline';
 import type { Severity, Status } from './types';
 import { ExportMenu } from './components/ExportMenu';
 import { VulnerabilityTable } from './components/VulnerabilityTable';
@@ -259,39 +251,11 @@ const Beacon = () => {
     setPage(newPage);
   };
 
-  // Beacon owns domain → stepIcon mapping; kit stepper stays product-agnostic.
   const isPipelineHydrated = Boolean(selectedCustomerId && !isLoading);
-  const pipelineStepIcons: Record<Exclude<Status, 'Unremediated'>, ReactNode> = {
-    Submitted: <RhUiPendingIcon />,
-    Classified: <CheckCircleIcon />,
-    'Fix in Progress': <RhUiInProgressIcon />,
-    Validation: <OutlinedHourglassIcon />,
-    'Lightwell Network': <BundleIcon />,
-    Upstreaming: <RhUiInProgressIcon />,
-    Published: <CheckCircleIcon />,
-  };
-  /** Distinct `lightwellConfig.colors.stepIcon` key per pipeline status. */
-  const pipelineStepColors = {
-    Submitted: 'blue',
-    Classified: 'exact',
-    'Fix in Progress': 'orange',
-    Validation: 'purple',
-    'Lightwell Network': 'teal',
-  } as const satisfies Record<string, LwStepIconColorKey>;
-  const pipelineMetricSteps = STATUSES.map((status) => {
-    const count = displayMeta?.statusCounts?.[status] ?? 0;
-    return {
-      id: status,
-      label: status,
-      tooltip: STATUS_DESCRIPTIONS[status],
-      value: isPipelineHydrated ? count : undefined,
-      icon: pipelineStepIcons[status],
-      variant: isPipelineHydrated && count === 0 ? ('pending' as const) : undefined,
-      color: isPipelineHydrated
-        ? pipelineStepColors[status as keyof typeof pipelineStepColors]
-        : undefined,
-    };
-  });
+  const pipelineMetricSteps = buildPipelineMetricSteps(
+    displayMeta?.statusCounts,
+    isPipelineHydrated,
+  );
 
   const showCustomerEmpty = !selectedCustomerId && !isLoadingCustomers;
 
@@ -469,6 +433,7 @@ const Beacon = () => {
                   filters={queryFilters}
                   visibleColumns={getVisibleVulnerabilityColumns(columns)}
                   itemCount={displayMeta?.count ?? 0}
+                  lastUpdated={lastUpdated}
                 />
               </LwButtonGroup>
             </StackItem>

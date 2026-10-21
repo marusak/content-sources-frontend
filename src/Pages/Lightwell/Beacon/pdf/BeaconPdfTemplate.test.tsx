@@ -19,6 +19,7 @@ describe('BeaconPdfTemplate', () => {
         additionalData={{
           customerId: 'CID-01',
           generatedAt: '25 Aug 2026',
+          lastUpdated: '2026-10-02 08:00',
           includeSummary: true,
           visibleColumns: [
             { key: 'vulnerabilityId', title: 'Vulnerability ID' },
@@ -29,18 +30,33 @@ describe('BeaconPdfTemplate', () => {
       />,
     );
 
-    expect(screen.getByText('Lightwell Vulnerability Report')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Beacon' })).toBeInTheDocument();
+    expect(
+      screen.getByText(/Understand the status of your Lightwell submissions/),
+    ).toHaveTextContent('Last updated: 2026-10-02 08:00');
     expect(document.querySelector('.beacon-pdf--portrait')).toBeInTheDocument();
-    expect(screen.getByText(/Customer ID: CID-01/)).toBeInTheDocument();
-    expect(screen.getByText(/Generated: 25 Aug 2026/)).toBeInTheDocument();
-    expect(screen.getByText('By Status')).toBeInTheDocument();
+    expect(screen.queryByText(/Customer ID:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Generated:/)).not.toBeInTheDocument();
+    const summary = screen.getByText('Status Summary');
+    const pipeline = screen.getByLabelText('Submission pipeline metrics');
+    expect(
+      summary.compareDocumentPosition(pipeline) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByText('Total')).toBeInTheDocument();
     expect(screen.getByText('Critical')).toBeInTheDocument();
     expect(screen.getByText('No remediation')).toBeInTheDocument();
-    const pipeline = screen.getByLabelText('Vulnerability counts by status');
+    expect(
+      screen
+        .getByText('Critical')
+        .closest('.beacon-pdf-stat')
+        ?.querySelector('.beacon-pdf-stat-bar'),
+    ).toHaveStyle({
+      backgroundColor: '#731f00',
+    });
     expect(pipeline).toHaveClass('beacon-pdf-pipeline');
-    expect(pipeline.querySelectorAll('.beacon-pdf-status-card')).toHaveLength(5);
-    expect(pipeline.querySelectorAll('.beacon-pdf-pipeline-arrow')).toHaveLength(4);
+    expect(pipeline.querySelectorAll('.beacon-pdf-step')).toHaveLength(5);
+    expect(pipeline.querySelectorAll('.beacon-pdf-step-icon')).toHaveLength(5);
+    expect(pipeline.querySelectorAll('.beacon-pdf-step-connector')).toHaveLength(4);
     expect(pipeline).toHaveTextContent('Submitted');
     expect(pipeline).toHaveTextContent('Lightwell Network');
     expect(pipeline).not.toHaveTextContent('No remediation');
@@ -71,6 +87,7 @@ describe('BeaconPdfTemplate', () => {
         }}
         additionalData={{
           includeSummary: true,
+          isFiltered: true,
           visibleColumns: [
             { key: 'vulnerabilityId', title: 'Vulnerability ID' },
             { key: 'status', title: 'Status' },
@@ -78,6 +95,9 @@ describe('BeaconPdfTemplate', () => {
         }}
       />,
     );
+
+    expect(screen.getByText('Status Summary (filtered)')).toBeInTheDocument();
+    expect(screen.queryByText(/Last updated:/)).not.toBeInTheDocument();
 
     const noRemediationStat = screen
       .getByText('No remediation', { selector: '.beacon-pdf-stat-label' })
@@ -108,7 +128,8 @@ describe('BeaconPdfTemplate', () => {
       />,
     );
 
-    expect(screen.queryByText('Lightwell Vulnerability Report')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Beacon' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Status Summary')).not.toBeInTheDocument();
     expect(document.querySelector('.beacon-pdf--landscape')).toBeInTheDocument();
     expect(screen.getByText('Vulnerabilities (continued)')).toBeInTheDocument();
     expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();

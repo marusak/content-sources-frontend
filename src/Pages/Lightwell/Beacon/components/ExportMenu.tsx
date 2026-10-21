@@ -13,6 +13,7 @@ type ExportMenuProps = {
   filters?: BeaconVulnerabilityFilters;
   visibleColumns: Pick<VulnerabilityTableColumn, 'key' | 'title'>[];
   itemCount?: number;
+  lastUpdated?: string;
 };
 
 export function fetchAllFilteredVulnerabilities(
@@ -32,6 +33,7 @@ export function ExportMenu({
   filters,
   visibleColumns,
   itemCount = 0,
+  lastUpdated,
 }: ExportMenuProps) {
   return (
     <ExportMenuBase
@@ -53,6 +55,7 @@ export function ExportMenu({
             filters,
             visibleColumns,
             itemCount: count,
+            lastUpdated,
           }) as unknown as PDFRequestPayload,
         };
       }}

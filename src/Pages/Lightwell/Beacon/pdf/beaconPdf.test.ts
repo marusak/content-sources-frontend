@@ -104,6 +104,7 @@ describe('buildBeaconPdfPayload', () => {
         customerId: 'CID-01',
         headerBrand: 'lightwell',
         landscape: false,
+        isFiltered: false,
       },
     });
     expect(payload[1].fetchDataParams).toMatchObject({ offset: 50 });
@@ -120,6 +121,29 @@ describe('buildBeaconPdfPayload', () => {
 
     expect(payload).toHaveLength(1);
     expect(payload[0].fetchDataParams).toMatchObject({ offset: 0, limit: 50 });
+  });
+
+  it('marks the status summary filtered for side-panel filters, not search', () => {
+    const filtered = buildBeaconPdfPayload({
+      customerId: 'CID-01',
+      filters: { statuses: ['Submitted'] },
+      visibleColumns,
+      itemCount: 1,
+      generatedAt: '25 Aug 2026',
+      lastUpdated: '2026-10-02 08:00',
+    });
+    expect(filtered[0].additionalData).toEqual(
+      expect.objectContaining({ isFiltered: true, lastUpdated: '2026-10-02 08:00' }),
+    );
+
+    const searched = buildBeaconPdfPayload({
+      customerId: 'CID-01',
+      filters: { search: 'log4j' },
+      visibleColumns,
+      itemCount: 1,
+      generatedAt: '25 Aug 2026',
+    });
+    expect(searched[0].additionalData).toEqual(expect.objectContaining({ isFiltered: false }));
   });
 
   it('formats the generated date as a UTC display date', () => {

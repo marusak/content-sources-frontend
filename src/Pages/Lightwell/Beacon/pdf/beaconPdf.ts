@@ -74,7 +74,19 @@ export type BeaconPdfAdditionalData = {
   customerId: string;
   headerBrand: 'lightwell';
   landscape: boolean;
+  /** True when side-panel filters are applied. Search does not count — same as the page label. */
+  isFiltered: boolean;
+  lastUpdated?: string;
 };
+
+function hasSummaryFilters(filters?: BeaconVulnerabilityFilters): boolean {
+  return (
+    (filters?.severities?.length ?? 0) > 0 ||
+    (filters?.statuses?.length ?? 0) > 0 ||
+    (filters?.ltwlsuptTicketIds?.length ?? 0) > 0 ||
+    (filters?.flags?.length ?? 0) > 0
+  );
+}
 
 export type BeaconPdfData = BeaconData;
 
@@ -121,12 +133,14 @@ export function buildBeaconPdfPayload({
   visibleColumns,
   itemCount,
   generatedAt = formatBeaconPdfGeneratedAt(),
+  lastUpdated,
 }: {
   customerId: string;
   filters?: BeaconVulnerabilityFilters;
   visibleColumns: BeaconPdfColumn[];
   itemCount: number;
   generatedAt?: string;
+  lastUpdated?: string;
 }): PDFRequestPayload[] {
   const pageCount = Math.max(1, Math.ceil(Math.max(itemCount, 0) / BEACON_PDF_PAGE_SIZE));
   const landscape = shouldUseLandscapePdf(visibleColumns);
@@ -149,6 +163,8 @@ export function buildBeaconPdfPayload({
       customerId,
       headerBrand: 'lightwell',
       landscape,
+      isFiltered: hasSummaryFilters(filters),
+      lastUpdated,
     } satisfies BeaconPdfAdditionalData,
   }));
 }
