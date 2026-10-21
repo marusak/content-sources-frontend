@@ -12,8 +12,8 @@ jest.mock('@patternfly/react-charts/victory', () => ({
   ChartTooltip: () => null,
   ChartDonut: ({ title, subTitle }: { title?: string; subTitle?: string }) => (
     <div>
-      {title}
-      {subTitle}
+      <span>{title}</span>
+      <span>{subTitle}</span>
     </div>
   ),
   ChartLabel: () => null,
@@ -39,17 +39,31 @@ describe('CoveragePdfTemplate', () => {
     );
 
     expect(screen.getByText('Lightwell Match Analysis Report')).toBeInTheDocument();
-    expect(screen.getByText(/Manifest: sbom.json/)).toBeInTheDocument();
-    expect(screen.getByText(/Generated: 25 Aug 2026/)).toBeInTheDocument();
+    expect(screen.getByText('Manifest: sbom.json · Generated: 25 Aug 2026')).toBeInTheDocument();
+    expect(screen.getByText('75%')).toBeInTheDocument();
+    expect(screen.getByText('packages matched')).toBeInTheDocument();
+    expect(screen.getByText('Summary')).toBeInTheDocument();
+    const summary = document.querySelector('.coverage-pdf-summary');
+    const metricRow = document.querySelector('.coverage-pdf-metric-row');
+    expect(summary?.contains(metricRow)).toBe(false);
+    expect(
+      summary &&
+        metricRow &&
+        summary.compareDocumentPosition(metricRow) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     expect(screen.getByText('Packages by ecosystem')).toBeInTheDocument();
 
-    expect(screen.getByText('CVEs fixed')).toBeInTheDocument();
-    const cveSummary = screen.getByText('CVEs fixed').closest('.coverage-pdf-cve-section');
-    expect(cveSummary).toHaveTextContent('Critical');
-    expect(cveSummary).toHaveTextContent('Important');
-    expect(cveSummary).toHaveTextContent('Moderate');
-    expect(cveSummary).toHaveTextContent('Low');
+    const fixedCves = screen.getByText('Fixed CVEs').closest('.coverage-pdf-metric');
+    expect(fixedCves).toHaveTextContent('Critical');
+    expect(fixedCves).toHaveTextContent('Important');
+    expect(fixedCves).toHaveTextContent('Moderate');
+    expect(fixedCves).toHaveTextContent('Low');
+    expect(fixedCves?.querySelectorAll('.coverage-pdf-stat-bar')).toHaveLength(4);
+    expect(
+      screen.getByText('Summary').compareDocumentPosition(screen.getByText('Fixed CVEs')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     const packageRow = screen.getByText('spring-web').closest('tr');
     expect(packageRow).toHaveTextContent('6.1.5');
@@ -80,7 +94,7 @@ describe('CoveragePdfTemplate', () => {
     expect(screen.getByText('Lightwell Match Analysis Report')).toBeInTheDocument();
     expect(screen.getByText('Packages by ecosystem')).toBeInTheDocument();
 
-    expect(screen.queryByText('CVEs fixed')).not.toBeInTheDocument();
+    expect(screen.queryByText('Fixed CVEs')).not.toBeInTheDocument();
     expect(screen.queryByText('CVE Fixes (net delta)')).not.toBeInTheDocument();
     expect(screen.queryByText('CVSS Scores')).not.toBeInTheDocument();
     expect(screen.queryByText('5.4–9.8')).not.toBeInTheDocument();

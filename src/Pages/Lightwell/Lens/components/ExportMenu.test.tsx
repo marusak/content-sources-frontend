@@ -97,7 +97,7 @@ describe('ExportMenu PDF', () => {
     expect(pdfRequest.payload[0].additionalData).toMatchObject({ includeCveData: true });
   });
 
-  it('signals the PDF module to omit CVE columns when there is no CVE data', async () => {
+  it('omits CVE columns from the PDF when there is no CVE data', async () => {
     const user = userEvent.setup();
     render(
       <ExportMenu

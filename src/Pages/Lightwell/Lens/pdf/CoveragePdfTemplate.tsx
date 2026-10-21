@@ -4,9 +4,13 @@ import type { AsyncState } from '@redhat-cloud-services/types';
 
 import type { CoverageMatchStatus } from 'services/Lightwell/CoverageReportsApi';
 import { MATCH_STATUS_COLORS } from '../charts/chartTheme';
+import { t_global_color_nonstatus_gray_default } from '@patternfly/react-tokens/dist/esm/t_global_color_nonstatus_gray_default';
 import { t_global_color_nonstatus_green_default } from '@patternfly/react-tokens/dist/esm/t_global_color_nonstatus_green_default';
 import { t_global_color_nonstatus_yellow_default } from '@patternfly/react-tokens/dist/esm/t_global_color_nonstatus_yellow_default';
-import { t_global_color_nonstatus_gray_default } from '@patternfly/react-tokens/dist/esm/t_global_color_nonstatus_gray_default';
+import { t_global_icon_color_severity_critical_default } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_severity_critical_default';
+import { t_global_icon_color_severity_important_default } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_severity_important_default';
+import { t_global_icon_color_severity_minor_default } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_severity_minor_default';
+import { t_global_icon_color_severity_moderate_default } from '@patternfly/react-tokens/dist/esm/t_global_icon_color_severity_moderate_default';
 import MatchDonutChart from '../charts/MatchDonutChart';
 import EcosystemBarChart from '../charts/EcosystemBarChart';
 import { getMatchDonutChartHeight, getMatchedPackagePercentage } from '../charts/matchDonutModel';
@@ -15,6 +19,7 @@ import {
   CVE_SEVERITIES,
   formatCvssRange,
   getTotalCveCount,
+  type CveSeverity,
   type CveSeverityMeta,
 } from '../utils/cveSeverity';
 import type { CoveragePdfAdditionalData, CoveragePdfData } from './coveragePdf';
@@ -61,6 +66,13 @@ const STAT_COLORS: Record<CoverageMatchStatus, string> = {
   none: MATCH_STATUS_COLORS.none,
 };
 
+const CVE_BAR_COLORS: Record<CveSeverity, string> = {
+  critical: t_global_icon_color_severity_critical_default.value,
+  important: t_global_icon_color_severity_important_default.value,
+  moderate: t_global_icon_color_severity_moderate_default.value,
+  low: t_global_icon_color_severity_minor_default.value,
+};
+
 const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateProps) => {
   const { data } = asyncData;
   const packages = data?.packages ?? [];
@@ -85,21 +97,18 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-        .coverage-pdf h1 { color: #c9190b; margin: 0 0 4px; font-size: 22px; }
-        .coverage-pdf h2 { margin: 28px 0 12px; page-break-after: avoid; }
-        .coverage-pdf .coverage-pdf-meta { color: #6a6e73; margin-bottom: 0; }
+        .coverage-pdf h1 { color: #151515; margin: 0 0 4px; font-size: 22px; }
+        .coverage-pdf .coverage-pdf-meta { color: #6a6e73; margin: 0; font-size: 12px; }
+        .coverage-pdf h2 { margin: 0 0 8px; page-break-after: avoid; }
         .coverage-pdf .coverage-pdf-cover {
           display: flex;
           flex-direction: column;
-          gap: 64px;
-          min-height: 860px;
+          gap: 32px;
           padding: 8px 0;
         }
-        .coverage-pdf .coverage-pdf-cover-header { margin-bottom: 16px; }
-        .coverage-pdf .coverage-pdf-match-section h2 { margin: 0 0 8px; }
         .coverage-pdf .coverage-pdf-summary {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 32px;
         }
         .coverage-pdf .coverage-pdf-summary-detail {
@@ -107,15 +116,34 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
           flex-direction: column;
           gap: 16px;
           flex: 1;
+          min-width: 0;
         }
-        .coverage-pdf .coverage-pdf-summary-text { font-size: 14px; line-height: 1.5; }
-        .coverage-pdf .coverage-pdf-summary-subtext { color: #6a6e73; font-size: 11px; }
-        .coverage-pdf .coverage-pdf-stats {
+        .coverage-pdf .coverage-pdf-summary-text { font-size: 16px; line-height: 1.4; }
+        .coverage-pdf .coverage-pdf-summary-subtext { color: #6a6e73; font-size: 12px; }
+        .coverage-pdf .coverage-pdf-metric-row {
           display: flex;
+          align-items: stretch;
+          flex-wrap: nowrap;
           gap: 24px;
         }
+        .coverage-pdf .coverage-pdf-metric { flex: 1; min-width: 0; }
+        .coverage-pdf .coverage-pdf-metric-title {
+          font-size: 16px;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+        .coverage-pdf .coverage-pdf-metric-card {
+          border: 1px solid #d2d2d2;
+          border-radius: 16px;
+          padding: 16px 20px;
+        }
+        .coverage-pdf .coverage-pdf-stats {
+          display: flex;
+          justify-content: space-around;
+          gap: 16px;
+        }
         .coverage-pdf .coverage-pdf-stat { text-align: center; }
-        .coverage-pdf .coverage-pdf-stat-value { font-size: 24px; font-weight: 700; }
+        .coverage-pdf .coverage-pdf-stat-value { font-size: 22px; font-weight: 700; line-height: 1.2; }
         .coverage-pdf .coverage-pdf-stat-bar {
           display: block;
           width: 2.5rem;
@@ -123,15 +151,18 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
           border-radius: 9999px;
           margin: 6px auto 0;
         }
-        .coverage-pdf .coverage-pdf-stat-label { font-size: 11px; color: #6a6e73; margin-top: 6px; }
-        .coverage-pdf .coverage-pdf-ecosystem-section { }
+        .coverage-pdf .coverage-pdf-stat-label {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          font-size: 11px;
+          color: #6a6e73;
+          margin-top: 6px;
+        }
         .coverage-pdf .coverage-pdf-ecosystem-section h2 { margin: 0 0 8px; }
         .coverage-pdf .coverage-pdf-ecosystem-subtitle { margin-bottom: 12px; }
-        .coverage-pdf .coverage-pdf-ecosystem-chart {
-          page-break-inside: avoid;
-          transform: scale(0.85);
-          transform-origin: top left;
-        }
+        .coverage-pdf .coverage-pdf-ecosystem-chart { page-break-inside: avoid; }
         .coverage-pdf table,
         .coverage-pdf .pf-v6-c-table,
         .coverage-pdf .pf-v5-c-table {
@@ -172,19 +203,6 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
         }
         .coverage-pdf .coverage-pdf-cve-fix { display: inline-block; margin-right: 10px; }
         .coverage-pdf .coverage-pdf-cve-fix:last-child { margin-right: 0; }
-        .coverage-pdf .coverage-pdf-cve-section h2 { margin: 0 0 8px; }
-        .coverage-pdf .coverage-pdf-cve-subtitle {
-          color: #6a6e73;
-          font-size: 11px;
-          margin-bottom: 12px;
-        }
-        .coverage-pdf .coverage-pdf-cve-summary-stats { display: flex; gap: 48px; }
-        .coverage-pdf .coverage-pdf-cve-summary-stat { text-align: center; }
-        .coverage-pdf .coverage-pdf-cve-summary-label {
-          font-size: 11px;
-          color: #6a6e73;
-          margin-top: 6px;
-        }
         .coverage-pdf .coverage-pdf-pill {
           display: inline-block;
           font-size: 10px;
@@ -196,39 +214,43 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
       `}</style>
       {includeSummary && report ? (
         <div className='coverage-pdf-cover'>
-          <div className='coverage-pdf-cover-header'>
-            <Title headingLevel='h1' size='xl'>
+          <div>
+            <Title headingLevel='h1' size='2xl'>
               Lightwell Match Analysis Report
             </Title>
-            <Content className='coverage-pdf-meta'>
-              {filename ? `Manifest: ${filename}` : null}
-              {filename && generatedAt ? ' · ' : null}
-              {generatedAt ? `Generated: ${generatedAt}` : null}
-            </Content>
+            {filename || generatedAt ? (
+              <Content className='coverage-pdf-meta'>
+                {filename ? `Manifest: ${filename}` : null}
+                {filename && generatedAt ? ' · ' : null}
+                {generatedAt ? `Generated: ${generatedAt}` : null}
+              </Content>
+            ) : null}
           </div>
-          <div className='coverage-pdf-match-section'>
-            <Title headingLevel='h2' size='md'>
-              Match analysis
-            </Title>
-            <div className='coverage-pdf-summary'>
-              <MatchDonutChart
-                surface='pdf'
-                report={report}
-                width={PDF_DONUT_WIDTH}
-                height={PDF_DONUT_HEIGHT}
-              />
-              <div className='coverage-pdf-summary-detail'>
-                <div className='coverage-pdf-summary-text'>
-                  <strong>
-                    {getMatchedPackagePercentage(report)}% of packages match the Lightwell Network
-                    catalog
-                  </strong>
-                  <br />
-                  <span className='coverage-pdf-summary-subtext'>
-                    Includes packages from every detected ecosystem, including ecosystems the
-                    catalog does not support.
-                  </span>
-                </div>
+          <div className='coverage-pdf-summary'>
+            <MatchDonutChart
+              surface='pdf'
+              report={report}
+              width={PDF_DONUT_WIDTH}
+              height={PDF_DONUT_HEIGHT}
+            />
+            <div className='coverage-pdf-summary-detail'>
+              <div className='coverage-pdf-summary-text'>
+                <strong>
+                  {getMatchedPackagePercentage(report)}% of packages match the Lightwell Network
+                  catalog
+                </strong>
+                <br />
+                <span className='coverage-pdf-summary-subtext'>
+                  Includes packages from every detected ecosystem, including ecosystems the catalog
+                  does not support.
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className='coverage-pdf-metric-row'>
+            <div className='coverage-pdf-metric'>
+              <div className='coverage-pdf-metric-title'>Summary</div>
+              <div className='coverage-pdf-metric-card'>
                 <div className='coverage-pdf-stats'>
                   {[
                     {
@@ -255,27 +277,30 @@ const CoveragePdfTemplate = ({ asyncData, additionalData }: CoveragePdfTemplateP
                 </div>
               </div>
             </div>
-          </div>
-          {includeCveData ? (
-            <div className='coverage-pdf-cve-section'>
-              <Title headingLevel='h2' size='md'>
-                CVEs fixed
-              </Title>
-              <Content component='p' className='coverage-pdf-cve-subtitle'>
-                Net delta of CVEs fixed by Lightwell (vs. unpatched version)
-              </Content>
-              <div className='coverage-pdf-cve-summary-stats'>
-                {CVE_SEVERITIES.map((meta) => (
-                  <div key={meta.key} className='coverage-pdf-cve-summary-stat'>
-                    <div className='coverage-pdf-stat-value'>{report.cve_summary[meta.key]}</div>
-                    <div className='coverage-pdf-cve-summary-label'>
-                      <SeverityGlyph meta={meta} /> {meta.label}
-                    </div>
+            {includeCveData ? (
+              <div className='coverage-pdf-metric'>
+                <div className='coverage-pdf-metric-title'>Fixed CVEs</div>
+                <div className='coverage-pdf-metric-card'>
+                  <div className='coverage-pdf-stats'>
+                    {CVE_SEVERITIES.map((meta) => (
+                      <div key={meta.key} className='coverage-pdf-stat'>
+                        <div className='coverage-pdf-stat-value'>
+                          {report.cve_summary[meta.key]}
+                        </div>
+                        <span
+                          className='coverage-pdf-stat-bar'
+                          style={{ backgroundColor: CVE_BAR_COLORS[meta.key] }}
+                        />
+                        <div className='coverage-pdf-stat-label'>
+                          <SeverityGlyph meta={meta} /> {meta.label}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
           <div className='coverage-pdf-ecosystem-section'>
             <Title headingLevel='h2' size='md'>
               Packages by ecosystem

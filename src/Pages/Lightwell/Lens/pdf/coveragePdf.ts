@@ -164,7 +164,7 @@ export const fetchData = async (
     packages,
     meta: meta ?? { count: 0, limit: EXPORT_PAGE_SIZE, offset: options?.offset ?? 0 },
     report,
-  } satisfies CoveragePdfData;
+  };
 };
 
 export function buildCoveragePdfPayload({
