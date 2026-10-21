@@ -129,7 +129,7 @@ export function ExportMenu({
           aria-busy={isExporting}
           icon={isExporting ? <Spinner size='sm' aria-hidden='true' /> : undefined}
         >
-          {isExporting ? 'Exporting' : 'Export'}
+          {isExporting ? 'Exporting' : 'Export as'}
         </MenuToggle>
       )}
     >
@@ -141,7 +141,7 @@ export function ExportMenu({
             void handleExport('csv');
           }}
         >
-          Export as CSV
+          CSV
         </DropdownItem>
         <DropdownItem
           key='json'
@@ -150,7 +150,7 @@ export function ExportMenu({
             void handleExport('json');
           }}
         >
-          Export as JSON
+          JSON
         </DropdownItem>
         <DropdownItem
           key='pdf'
@@ -159,7 +159,7 @@ export function ExportMenu({
             void handleExport('pdf');
           }}
         >
-          Export as PDF
+          PDF
         </DropdownItem>
       </DropdownList>
     </Dropdown>

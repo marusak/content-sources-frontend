@@ -53,8 +53,8 @@ describe('ExportMenu PDF', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
@@ -90,11 +90,11 @@ describe('ExportMenu PDF', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
-      expect(screen.queryByRole('menuitem', { name: 'Export as PDF' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'PDF' })).not.toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Exporting' })).toBeDisabled();
     expect(notify).toHaveBeenCalledWith(
@@ -107,7 +107,7 @@ describe('ExportMenu PDF', () => {
     resolvePdf();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Export' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Export as' })).toBeEnabled();
     });
     expect(notify).toHaveBeenCalledWith(
       expect.objectContaining({

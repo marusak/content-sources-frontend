@@ -78,17 +78,27 @@ export type LightwellVulnerabilityCollectionResponse = {
 };
 
 function formatDate(value: string): string {
-  return value.split('T')[0];
+  const [datePart] = value.split('T');
+  const [year, month, day] = datePart.split('-');
+  if (!year || !month || !day) {
+    return datePart;
+  }
+  return `${month}-${day}-${year}`;
 }
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return value.replace('T', ' ').slice(0, 16);
+    const [datePart, timePart = ''] = value.replace('T', ' ').split(' ');
+    const [year, month, day] = datePart.split('-');
+    if (!year || !month || !day) {
+      return value.replace('T', ' ').slice(0, 16);
+    }
+    return `${month}-${day}-${year} ${timePart.slice(0, 5)}`.trim();
   }
 
   const pad = (part: number) => part.toString().padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return `${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function mapSeverity(severity: string): Severity {

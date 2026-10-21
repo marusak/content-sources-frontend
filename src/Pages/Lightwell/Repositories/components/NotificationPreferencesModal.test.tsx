@@ -58,7 +58,7 @@ it('shows the form when preferences are ready', async () => {
 
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
   expect(
-    within(modal).getByRole('switch', { name: 'Notify me when fixes are available' }),
+    within(modal).getByRole('switch', { name: 'Email notifications' }),
   ).toBeInTheDocument();
 });
 
@@ -71,7 +71,7 @@ it('closes the modal after a successful save', async () => {
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
   await user.click(
-    within(modal).getByRole('switch', { name: 'Notify me when fixes are available' }),
+    within(modal).getByRole('switch', { name: 'Email notifications' }),
   );
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
@@ -95,7 +95,7 @@ it('keeps the modal open when save fails', async () => {
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
   await user.click(
-    within(modal).getByRole('switch', { name: 'Notify me when fixes are available' }),
+    within(modal).getByRole('switch', { name: 'Email notifications' }),
   );
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
@@ -139,7 +139,7 @@ it('unsubscribes all repos when notifications are turned off', async () => {
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
   await user.click(
-    within(modal).getByRole('switch', { name: 'Notify me when fixes are available' }),
+    within(modal).getByRole('switch', { name: 'Email notifications' }),
   );
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
@@ -157,7 +157,7 @@ it('does not sync subscribed repo severities when enabling notifications', async
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
   await user.click(
-    within(modal).getByRole('switch', { name: 'Notify me when fixes are available' }),
+    within(modal).getByRole('switch', { name: 'Email notifications' }),
   );
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 

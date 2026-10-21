@@ -123,14 +123,14 @@ const CoverageReport = () => {
         key='partial'
         value={report.partial_matches}
         label='Partial match'
-        tooltip='Package name found in the catalog, but not the specific version you are running.'
+        tooltip="Package name found in the catalog, but not the specific version you're running."
         color='partial'
       />,
       <LwMetricsCount
         key='none'
         value={report.unmatched}
         label='No match'
-        tooltip='Package not found in the catalog, or belongs to an ecosystem not yet supported. Unmatched packages are logged as demand signals, but do not guarantee a build.'
+        tooltip='Package not found in the catalog or belongs to an unsupported ecosystem. No match packages are automatically logged for future consideration.'
         color='none'
       />,
     ];
@@ -211,7 +211,7 @@ const CoverageReport = () => {
 
   const matchAnalysisTitle = filename ? (
     <Title headingLevel='h1' ouiaId='lightwell-coverage-header'>
-      Match analysis for manifest{' '}
+      Match analysis for{' '}
       <strong>
         <span
           style={{
@@ -250,7 +250,7 @@ const CoverageReport = () => {
                   New analysis
                 </LwButton>
                 <LwMenu
-                  label='Export'
+                  label='Export as'
                   busyLabel='Exporting'
                   isBusy={isExporting}
                   isDisabled={!report.uuid}
@@ -259,17 +259,17 @@ const CoverageReport = () => {
                   items={[
                     {
                       id: 'csv',
-                      children: 'Export as CSV',
+                      children: 'CSV',
                       onSelect: () => void handleExport('csv'),
                     },
                     {
                       id: 'json',
-                      children: 'Export as JSON',
+                      children: 'JSON',
                       onSelect: () => void handleExport('json'),
                     },
                     {
                       id: 'pdf',
-                      children: 'Export as PDF',
+                      children: 'PDF',
                       onSelect: () => void handleExport('pdf'),
                     },
                   ]}
@@ -297,8 +297,8 @@ const CoverageReport = () => {
               <strong>{percentage}%</strong> of packages match the Lightwell Network catalog
             </LwTitle>
             <Content component='p' className={text.textColorSubtle}>
-              Includes packages from every detected ecosystem, including ecosystems the catalog does
-              not support.
+              Includes packages from every detected ecosystem, even those the catalog does not
+              support.
             </Content>
             <Flex
               gap={{ default: 'gapXl' }}

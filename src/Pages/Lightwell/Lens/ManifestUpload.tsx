@@ -48,7 +48,7 @@ const ManifestUpload = () => {
         <PageChromeSlot>
           <PageTitleStack
             title='Lens'
-            description='Upload your SBOM or package manifest to assess your stack against the Lightwell Network catalog.'
+            description='Get an analysis of your stack against the Lightwell Network catalog to immediately surface missing components, alternative options, and compatibility insights.'
             ouiaId='lightwell-coverage-header'
           />
         </PageChromeSlot>
@@ -67,7 +67,7 @@ const ManifestUpload = () => {
           ) : (
             <LwCard
               isGlass={false}
-              hasHeader='Select your manifest file'
+              hasHeader='Upload SBOM or package manifest'
               hasAction={<ManifestFormatPopover />}
             >
               <MultipleFileUpload
@@ -78,7 +78,7 @@ const ManifestUpload = () => {
                   titleIcon={<UploadIcon />}
                   titleText='Drag and drop a file here'
                   titleTextSeparator='or'
-                  browseButtonText='Choose file'
+                  browseButtonText='Select file'
                 />
               </MultipleFileUpload>
               {fileError ? (

@@ -67,8 +67,8 @@ describe('ExportMenu PDF', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
@@ -108,8 +108,8 @@ describe('ExportMenu PDF', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
@@ -130,11 +130,11 @@ describe('ExportMenu PDF', () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1} />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
-      expect(screen.queryByRole('menuitem', { name: 'Export as PDF' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'PDF' })).not.toBeInTheDocument();
     });
     expect(screen.getByRole('button', { name: 'Exporting' })).toBeDisabled();
     expect(notify).toHaveBeenCalledWith(
@@ -147,7 +147,7 @@ describe('ExportMenu PDF', () => {
     resolvePdf();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Export' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Export as' })).toBeEnabled();
     });
     expect(notify).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -159,15 +159,15 @@ describe('ExportMenu PDF', () => {
 
   it('disables the toggle when no report uuid is available', () => {
     render(<ExportMenu />);
-    expect(screen.getByRole('button', { name: 'Export' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Export as' })).toBeDisabled();
   });
 
   it('exports a PDF with 1,500 packages without asking to drop the package list', async () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' packageCount={1500} />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
       expect(requestPdf).toHaveBeenCalledTimes(1);
@@ -192,8 +192,8 @@ describe('ExportMenu PDF', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     expect(
       screen.getByRole('heading', { name: 'Package list exceeds PDF export limit' }),
@@ -216,8 +216,8 @@ describe('ExportMenu PDF', () => {
     ).not.toBeInTheDocument();
     expect(requestPdf).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
     await user.click(screen.getByRole('button', { name: 'Export overview PDF' }));
 
     await waitFor(() => {
@@ -248,8 +248,8 @@ describe('ExportMenu PDF', () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ search: 'log4j' }} />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
 
     await waitFor(() => {
       expect(
@@ -318,8 +318,8 @@ describe('oversized PDF alternatives', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'PDF' }));
     await user.click(screen.getByRole('button', { name: `Export ${format}` }));
 
     await waitFor(() => {
@@ -373,8 +373,8 @@ describe('ExportMenu CSV', () => {
       <ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ match_status: ['exact'] }} />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as CSV' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'CSV' }));
 
     await waitFor(() => {
       expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
@@ -392,11 +392,11 @@ describe('ExportMenu CSV', () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as CSV' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'CSV' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Export' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Export as' })).toBeEnabled();
     });
     expect(URL.createObjectURL).not.toHaveBeenCalled();
   });
@@ -419,8 +419,8 @@ describe('ExportMenu CSV', () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as CSV' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'CSV' }));
 
     await waitFor(() => {
       expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
@@ -468,8 +468,8 @@ describe('ExportMenu JSON', () => {
       <ExportMenu uuid='report-uuid' filename='sbom.json' filters={{ match_status: ['exact'] }} />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as JSON' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'JSON' }));
 
     await waitFor(() => {
       expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
@@ -503,8 +503,8 @@ describe('ExportMenu JSON', () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' includeCveData={false} />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as JSON' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'JSON' }));
 
     await waitFor(() => {
       expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
@@ -525,11 +525,11 @@ describe('ExportMenu JSON', () => {
     const user = userEvent.setup();
     render(<ExportMenu uuid='report-uuid' filename='sbom.json' />);
 
-    await user.click(screen.getByRole('button', { name: 'Export' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Export as JSON' }));
+    await user.click(screen.getByRole('button', { name: 'Export as' }));
+    await user.click(screen.getByRole('menuitem', { name: 'JSON' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Export' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Export as' })).toBeEnabled();
     });
     expect(URL.createObjectURL).not.toHaveBeenCalled();
   });

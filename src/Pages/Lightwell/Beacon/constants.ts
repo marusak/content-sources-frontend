@@ -16,12 +16,28 @@ export const ON_HOLD_STATUS: Status = 'On Hold';
 export const FILTER_STATUSES: Status[] = [...STATUSES, ON_HOLD_STATUS, UNREMEDIATED_STATUS];
 
 export function statusLabel(status: Status): string {
-  return status === UNREMEDIATED_STATUS ? NO_REMEDIATION_LABEL : status;
+  switch (status) {
+    case UNREMEDIATED_STATUS:
+      return NO_REMEDIATION_LABEL;
+    case 'Fix in Progress':
+      return 'Fix in progress';
+    case 'Validation':
+      return 'Validating';
+    case 'Lightwell Network':
+      return 'Available in Lightwell Network';
+    default:
+      return status;
+  }
+}
+
+export function severityLabel(severity: Severity): string {
+  return severity === 'Minor' ? 'Low' : severity;
 }
 
 export const STATUS_DESCRIPTIONS: Record<Status, string> = {
-  Submitted: 'Vulnerability submitted, undergoing initial review to identify a fix target.',
-  Classified: 'Fix target identified.',
+  Submitted:
+    'The submitted vulnerability is undergoing an initial review to classify a target fix.',
+  Classified: 'Target fix identified.',
   'Fix in Progress': 'A fix is currently under development.',
   Validation: 'The fix is being validated within the Red Hat pipeline.',
   'Lightwell Network': 'The fix is available in the Lightwell Repository.',
@@ -32,3 +48,5 @@ export const STATUS_DESCRIPTIONS: Record<Status, string> = {
 };
 
 export const SEVERITIES: Severity[] = ['Critical', 'Important', 'Moderate', 'Minor'];
+
+export const SLA_POLICY_HEADER = 'Service Level Agreement policy';

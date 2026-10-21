@@ -184,9 +184,11 @@ const RepositoriesTable = () => {
     ...(showNotificationsColumn
       ? [
           {
-            title: 'Notify',
+            title: 'Email alerts',
             width: 10 as const,
-            info: { tooltip: 'Toggle email notifications for new packages in this repository.' },
+            info: {
+              tooltip: 'Receive email alerts when new packages are added to this repository.',
+            },
           },
         ]
       : []),
@@ -220,7 +222,7 @@ const RepositoriesTable = () => {
           <PageChromeSlot>
             <PageTitleStack
               title='Repositories'
-              description='Browse Lightwell repositories by ecosystem and security level.'
+              description='Connect to Lightwell repositories to access validated and remediated packages for your applications.'
               ouiaId='lightwell-header'
             />
             {shouldShowNotificationButton ? (
@@ -336,6 +338,7 @@ const RepositoriesTable = () => {
                                       name,
                                       published_distribution_url,
                                       content_type,
+                                      security_level,
                                     }}
                                   >
                                     <Label
@@ -345,7 +348,7 @@ const RepositoriesTable = () => {
                                       variant='outline'
                                       color='blue'
                                     >
-                                      Connect to this repository
+                                      {`Connect to ${formatRepositoryName(content_type, security_level, name)}`}
                                     </Label>
                                   </ConnectRepositoryModal>
                                 </FlexItem>

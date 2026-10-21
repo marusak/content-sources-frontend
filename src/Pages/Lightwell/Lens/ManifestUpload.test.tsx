@@ -136,7 +136,7 @@ describe('ManifestUpload', () => {
     expect(screen.getByText('Lens')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Upload your SBOM or package manifest to assess your stack against the Lightwell Network catalog.',
+        'Get an analysis of your stack against the Lightwell Network catalog to immediately surface missing components, alternative options, and compatibility insights.',
       ),
     ).toBeInTheDocument();
     expect(

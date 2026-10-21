@@ -234,7 +234,7 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
               Beacon
             </Title>
             <Content className='beacon-pdf-description'>
-              Understand the status of your Lightwell submissions
+              Track your Lightwell submissions from initial review to fix availability.
               {lastUpdated ? (
                 <>
                   <br />
@@ -279,7 +279,7 @@ const BeaconPdfTemplate = ({ asyncData, additionalData }: BeaconPdfTemplateProps
                   </div>
                   <div className='beacon-pdf-step-count'>{statusCounts[status] ?? 0}</div>
                   <div className='beacon-pdf-step-label' style={{ borderBottomColor: fill }}>
-                    {status}
+                    {statusLabel(status)}
                   </div>
                 </div>
               );

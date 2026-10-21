@@ -48,8 +48,7 @@ const NotificationPreferencesContent = ({
         <Switch
           id='lightwell-notification-enabled-switch'
           name='lightwell-notification-enabled-switch'
-          label={enabled ? 'Notify me when fixes are available' : 'Notifications are off'}
-          aria-label='Notify me when fixes are available'
+          aria-label='Email notifications'
           ouiaId={`lightwell-notification-enabled-switch-${enabled ? 'on' : 'off'}`}
           isChecked={enabled}
           isDisabled={isReadOnly}
@@ -66,7 +65,7 @@ const NotificationPreferencesContent = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem>
-                Get notified when fixes are available for vulnerabilities of the following severity.
+                Which severity levels do you want to receive notifications for?
               </HelperTextItem>
             </HelperText>
           </FormHelperText>

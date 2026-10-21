@@ -139,7 +139,7 @@ it('shows a loading skeleton while repositories are loading', () => {
   renderRepositoriesTable();
 
   expect(
-    screen.getByText('Browse Lightwell repositories by ecosystem and security level.'),
+    screen.getByText('Connect to Lightwell repositories to access validated and remediated packages for your applications.'),
   ).toBeInTheDocument();
   expect(
     screen.queryByRole('table', { name: 'Lightwell repositories table' }),
@@ -217,7 +217,7 @@ it('renders connect action for each repository', async () => {
 
   renderRepositoriesTable();
 
-  expect(await screen.findByText('Connect to this repository')).toBeInTheDocument();
+  expect(await screen.findByText('Connect to Java Validated')).toBeInTheDocument();
 });
 
 it('renders validated and remediated security level labels', async () => {
@@ -288,7 +288,7 @@ it('shows notification column and modal when user has stored notification prefer
 
   renderRepositoriesTable();
 
-  expect(await screen.findByRole('columnheader', { name: 'Notify' })).toBeInTheDocument();
+  expect(await screen.findByRole('columnheader', { name: 'Email alerts' })).toBeInTheDocument();
   expect(screen.getByText('N/A')).toBeInTheDocument();
 
   const notificationsButton = screen.getByRole('button', { name: 'Notification preferences' });
@@ -300,7 +300,7 @@ it('shows notification column and modal when user has stored notification prefer
 
   await waitFor(() => {
     expect(
-      within(modal).getByRole('switch', { name: 'Notify me when fixes are available' }),
+      within(modal).getByRole('switch', { name: 'Email notifications' }),
     ).toBeChecked();
     expect(within(modal).getByRole('radio', { name: 'Critical' })).toBeChecked();
   });
@@ -324,7 +324,7 @@ it('disables notification features when preferences fail to load', async () => {
   renderRepositoriesTable();
 
   expect(await screen.findByRole('button', { name: 'Notification preferences' })).toBeDisabled();
-  expect(screen.queryByRole('columnheader', { name: 'Notify' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('columnheader', { name: 'Email alerts' })).not.toBeInTheDocument();
 });
 
 it('unsubscribes from repository notifications when toggle is turned off', async () => {

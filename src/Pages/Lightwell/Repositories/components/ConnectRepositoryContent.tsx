@@ -58,7 +58,7 @@ const renderTabPanel = (tab: ConnectSnippetTab) => (
           icon={<ExternalLinkAltIcon />}
           iconPosition='end'
         >
-          {tab.docsLinkText ?? `Full documentation for ${tab.title}`}
+          {tab.docsLinkText ?? `View full documentation for ${tab.title}`}
         </Button>
       </FlexItem>
     )}
@@ -93,7 +93,7 @@ const ConnectRepositoryContent = ({ repository }: ConnectRepositoryContentProps)
           Authenticate build tools
         </Content>
         <Content component='p'>
-          {'First, '}
+          {'Create or access your '}
           <Button
             variant='link'
             isInline
@@ -105,11 +105,17 @@ const ConnectRepositoryContent = ({ repository }: ConnectRepositoryContentProps)
             iconPosition='end'
             style={{ fontWeight: 'bold' }}
           >
-            create a service account
+            Lightwell service account
           </Button>
-          {
-            ' for Lightwell. Use the username and token in the snippets below. For further help, see '
-          }
+          .
+        </Content>
+      </FlexItem>
+      <FlexItem>
+        <Content component='h4' className={spacing.mbSm}>
+          Connect to your build tool
+        </Content>
+        <Content component='p' className={spacing.mbMd}>
+          {'Insert your username and token into the configuration snippets. '}
           <Button
             variant='link'
             isInline
@@ -120,14 +126,8 @@ const ConnectRepositoryContent = ({ repository }: ConnectRepositoryContentProps)
             icon={<ExternalLinkAltIcon />}
             iconPosition='end'
           >
-            Documentation
+            Learn more about Lightwell Network
           </Button>
-          .
-        </Content>
-      </FlexItem>
-      <FlexItem>
-        <Content component='h4' className={spacing.mbSm}>
-          Connect to your build tool
         </Content>
         <Tabs
           activeKey={activeTabKey}

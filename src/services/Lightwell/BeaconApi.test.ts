@@ -45,8 +45,8 @@ describe('mapLightwellVulnerability', () => {
       componentName: 'log4j-core',
       severity: 'Critical',
       ecosystem: 'java',
-      submittedDate: '2026-08-16',
-      lastUpdated: '2026-08-17 08:17',
+      submittedDate: '08-16-2026',
+      lastUpdated: '08-17-2026 08:17',
       ltwlsupt_ticket_ids: ['batch-2', 'batch-3'],
       ltwlsupt_ticket_id: 'batch-2',
       publishedVersions: [],
@@ -107,7 +107,7 @@ describe('getBeaconStatus', () => {
       data: { last_processed_at: '2026-10-02T08:00:00Z' },
     });
 
-    await expect(getBeaconStatus()).resolves.toBe('2026-10-02 08:00');
+    await expect(getBeaconStatus()).resolves.toBe('10-02-2026 08:00');
     expect(get).toHaveBeenCalledWith('/api/content-sources/v1/lightwell/beacon/status/');
 
     get.mockRestore();

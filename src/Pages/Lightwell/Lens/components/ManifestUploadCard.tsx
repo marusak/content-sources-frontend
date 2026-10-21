@@ -57,7 +57,7 @@ const ManifestUploadCard = ({
               <Flex gap={{ default: 'gapNone' }} alignItems={{ default: 'alignItemsCenter' }}>
                 <FlexItem>
                   <Title headingLevel='h3' size='md'>
-                    Select your manifest file
+                    Upload SBOM or package manifest
                   </Title>
                 </FlexItem>
                 <FlexItem>
@@ -71,7 +71,7 @@ const ManifestUploadCard = ({
                   titleIcon={<UploadIcon />}
                   titleText='Drag and drop a file here'
                   titleTextSeparator='or'
-                  browseButtonText='Choose file'
+                  browseButtonText='Select file'
                   infoText={
                     <Content>
                       Supported formats: CSV, CycloneDX, SPDX, POM, requirements.txt

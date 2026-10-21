@@ -44,6 +44,8 @@ import {
   NO_REMEDIATION_LABEL,
   ON_HOLD_STATUS,
   SEVERITIES,
+  severityLabel,
+  SLA_POLICY_HEADER,
   statusLabel,
   UNREMEDIATED_STATUS,
 } from './constants';
@@ -269,7 +271,7 @@ const Beacon = () => {
               title='Beacon'
               description={
                 <>
-                  Understand the status of your Lightwell submissions
+                  Track your Lightwell submissions from initial review to fix availability.
                   {lastUpdated ? (
                     <>
                       <br />
@@ -294,7 +296,7 @@ const Beacon = () => {
               <LwEmptyState
                 headingLevel='h2'
                 icon={UserIcon}
-                titleText='Select customer'
+                titleText='Which customer would you like to view?'
                 variant={EmptyStateVariant.sm}
               >
                 <EmptyStateFooter>
@@ -312,7 +314,7 @@ const Beacon = () => {
                   </EmptyStateActions>
                 </EmptyStateFooter>
                 <EmptyStateBody>
-                  Select a customer ID first to view the status of their Lightwell submissions.
+                  Select a customer ID to view their Lightwell submissions.
                 </EmptyStateBody>
               </LwEmptyState>
             </PageChromeSlot>
@@ -322,27 +324,23 @@ const Beacon = () => {
                 hasHeader={`Status Summary${activeFilterCount > 0 ? ' (filtered)' : ''}`}
                 hasAction={
                   <LwPopover
-                    hasHeader='SLA Policy'
+                    hasHeader={SLA_POLICY_HEADER}
                     hasBody={
                       <Content>
                         <p>
-                          <strong>Submit</strong> vulnerabilities to the clearinghouse at any time.
+                          <strong>Submit:</strong> Submit findings at any time.
                         </p>
                         <p>
-                          <strong>Triage within 48 hours.</strong>
+                          <strong>Response time:</strong> Triaged within <strong>48 hours</strong>{' '}
+                          (up to 25 findings per member per week).
                         </p>
                         <p>
-                          <strong>Priority is yours.</strong> Your severity sets the default order.
-                          Adjust at any time.
+                          <strong>Prioritize:</strong> Your severity sets the default order. Adjust
+                          at any time.
                         </p>
                         <p>
-                          A fix is complete when a patched artifact is published in the repository
-                          (or when it gets to the Lightwell Network).
-                        </p>
-                        <br />
-                        <p>
-                          SLA applies to up to 25 findings per member per week. All other findings
-                          are worked continuously on a best-effort basis.
+                          <strong>Fix completion:</strong> Applied after a patched artifact is
+                          published to the repository or Lightwell Network.
                         </p>
                       </Content>
                     }
@@ -481,7 +479,7 @@ const Beacon = () => {
                         checked={selectedSeverities.has(sev)}
                         onClick={() => toggleSeverity(sev)}
                       >
-                        {sev}
+                        {severityLabel(sev)}
                       </FilterSidePanelCategoryItem>
                     ))}
                   </FilterSidePanelCategory>
@@ -504,7 +502,7 @@ const Beacon = () => {
 
                   {ltwlsuptTicketIds.length > 0 && (
                     <FilterSidePanelCategory
-                      title='LTWLSUPT_TICKET'
+                      title='Support ticket'
                       showAll={!!showAllCategories.ltwlsuptTicket}
                       onShowAllToggle={() => toggleShowAllCategory('ltwlsuptTicket')}
                     >

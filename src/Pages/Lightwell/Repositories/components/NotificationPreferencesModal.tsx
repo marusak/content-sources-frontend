@@ -102,7 +102,7 @@ const NotificationPreferencesModal = ({ children }: NotificationPreferencesModal
       >
         <ModalHeader
           title='Notification preferences'
-          description='Get notified when vulnerability fixes are available for packages in your repositories.'
+          description='Receive email alerts when vulnerability fixes are available for packages across all connected repositories.'
           labelId='lightwell-notification-preferences-modal-title'
         />
 

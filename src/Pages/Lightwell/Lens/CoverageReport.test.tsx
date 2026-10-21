@@ -91,7 +91,7 @@ describe('CoverageReport', () => {
   it('displays the match analysis title and manifest filename', () => {
     renderCoverageReport();
     expect(
-      screen.getByRole('heading', { name: 'Match analysis for manifest test-sbom.json' }),
+      screen.getByRole('heading', { name: 'Match analysis for test-sbom.json' }),
     ).toBeInTheDocument();
   });
 

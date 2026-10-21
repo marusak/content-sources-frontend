@@ -87,16 +87,16 @@ beforeEach(() => {
   });
 
   (useBeaconStatusQuery as jest.Mock).mockReturnValue({
-    data: '2026-10-02 08:00',
+    data: '10-02-2026 08:00',
   });
 });
 
 it('shows when beacon data was last updated under the page title', async () => {
   renderBeacon();
 
-  expect(screen.getByText(/Understand the status of your Lightwell submissions/)).toHaveTextContent(
-    'Last updated: 2026-10-02 08:00',
-  );
+  expect(
+    screen.getByText(/Track your Lightwell submissions from initial review to fix availability/),
+  ).toHaveTextContent('Last updated: 10-02-2026 08:00');
 });
 
 it('omits the last updated time until a sync has completed', async () => {
@@ -105,7 +105,9 @@ it('omits the last updated time until a sync has completed', async () => {
   renderBeacon();
 
   expect(
-    screen.getByText('Understand the status of your Lightwell submissions'),
+    screen.getByText(
+      'Track your Lightwell submissions from initial review to fix availability.',
+    ),
   ).toBeInTheDocument();
   expect(screen.queryByText(/Last updated:/)).not.toBeInTheDocument();
 });
@@ -115,9 +117,7 @@ it('shows an empty state until a customer is selected', async () => {
 
   await waitFor(() => {
     expect(
-      screen.getByText(
-        'Select a customer ID first to view the status of their Lightwell submissions.',
-      ),
+      screen.getByText('Select a customer ID to view their Lightwell submissions.'),
     ).toBeInTheDocument();
   });
 
