@@ -58,7 +58,7 @@ const renderTabPanel = (tab: ConnectSnippetTab) => (
           icon={<ExternalLinkAltIcon />}
           iconPosition='end'
         >
-          Full documentation for {tab.title}
+          {tab.docsLinkText ?? `Full documentation for ${tab.title}`}
         </Button>
       </FlexItem>
     )}

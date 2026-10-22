@@ -13,9 +13,60 @@ export interface ConnectSnippetTab {
   title: string;
   snippets: ConnectCodeSnippet[];
   docsUrl?: string;
+  docsLinkText?: string;
 }
 
 type RepositoryContext = Pick<ContentItem, 'name' | 'published_distribution_url' | 'content_type'>;
+
+const RENOVATE_CONFIG_URL = 'https://github.com/lightwell-experience/renovate-config';
+const JAVA_RENOVATE_PRESET = 'github>lightwell-experience/renovate-config:java-remediated#1.0.0';
+
+const getRepositorySecurityLevel = (name: string): string | undefined => {
+  if (name.includes('predisclosure')) return 'predisclosure';
+  if (name.includes('remediated')) return 'remediated';
+  if (name.includes('validated')) return 'validated';
+  return undefined;
+};
+
+/** Same preset for remediated and predisclosure. Predisclosure only overrides registryUrls. */
+const getRenovateTab = (registryUrl?: string): ConnectSnippetTab => ({
+  eventKey: 'renovate',
+  title: 'Renovate',
+  docsUrl: RENOVATE_CONFIG_URL,
+  docsLinkText: 'Lightwell Renovate config',
+  snippets: [
+    {
+      label: 'Add a preset to renovate.json:',
+      code: `{
+  "extends": [
+    "${JAVA_RENOVATE_PRESET}"
+  ],
+  "hostRules": [
+    {
+      "matchHost": "packages.redhat.com",
+      "hostType": "maven",
+      "username": "<service_account_username>",
+      "password": "<service_account_token>"
+    }
+  ]${
+    registryUrl
+      ? `,
+  "packageRules": [
+    {
+      "matchManagers": ["custom.regex"],
+      "matchDatasources": ["maven"],
+      "registryUrls": ["${registryUrl}"]
+    }
+  ]`
+      : ''
+  }
+}`,
+      description: registryUrl
+        ? 'Username format: XXXXXXX|service-account-name. The java-remediated preset stays the same. registryUrls points it at this repository.'
+        : 'Username format: XXXXXXX|service-account-name.',
+    },
+  ],
+});
 
 const getMavenRepoId = (repository: RepositoryContext): string => {
   const securityLevel = repository.name.includes('remediated') ? 'remediated' : 'validated';
@@ -31,6 +82,13 @@ const getMavenSnippetTabs = (repository: RepositoryContext): ConnectSnippetTab[]
   const distributionUrl = formatDistributionUrl(repository.published_distribution_url || '');
   const repoId = getMavenRepoId(repository);
   const repoName = getMavenRepoName(repository);
+  const securityLevel = getRepositorySecurityLevel(repository.name);
+  const renovateTab =
+    securityLevel === 'remediated'
+      ? getRenovateTab()
+      : securityLevel === 'predisclosure'
+        ? getRenovateTab(distributionUrl)
+        : undefined;
 
   return [
     {
@@ -131,6 +189,7 @@ const getMavenSnippetTabs = (repository: RepositoryContext): ConnectSnippetTab[]
         },
       ],
     },
+    ...(renovateTab ? [renovateTab] : []),
   ];
 };
 

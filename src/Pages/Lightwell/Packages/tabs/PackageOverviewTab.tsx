@@ -85,6 +85,14 @@ const PackageOverviewTab = ({
   );
 
   const packageCoordinate = getPackageCoordinate({ name, group, isMaven });
+  const showRenovate =
+    isMaven &&
+    (repository?.security_level === 'remediated' || repository?.security_level === 'predisclosure');
+  const configureBuildToolText = isMaven
+    ? showRenovate
+      ? 'configure your build tool (Maven, Gradle, Artifactory, Nexus, or Renovate)'
+      : 'configure your build tool (Maven, Gradle, Artifactory, or Nexus)'
+    : 'configure your build tool (pip, Pipenv, Poetry, uv, Artifactory, or Nexus)';
 
   const { data: latestReleaseFixes, isLoading: isLoadingAdvisories } = useLatestReleaseFixes({
     repository: repository?.name,
@@ -173,19 +181,13 @@ const PackageOverviewTab = ({
                 }}
               >
                 <Button variant='link' isInline>
-                  {isMaven
-                    ? 'configure your build tool (Maven, Gradle, Artifactory, or Nexus)'
-                    : 'configure your build tool (pip, Pipenv, Poetry, uv, Artifactory, or Nexus)'}
+                  {configureBuildToolText}
                 </Button>
               </ConnectRepositoryModal>{' '}
               to use this repository.
             </span>
           ) : (
-            <span>
-              {isMaven
-                ? 'First, configure your build tool (Maven, Gradle, Artifactory, or Nexus) to use this repository.'
-                : 'First, configure your build tool (pip, Pipenv, Poetry, uv, Artifactory, or Nexus) to use this repository.'}
-            </span>
+            <span>{`First, ${configureBuildToolText} to use this repository.`}</span>
           )}
         </Content>
         <Tabs

@@ -30,5 +30,48 @@ name = "lightwell"
 url = "${indexUrl}"
 default = true`,
     );
+
+    expect(tabs.find((tab) => tab.eventKey === 'renovate')).toBeUndefined();
   },
 );
+
+it('documents the Java Renovate preset for remediated Maven repositories', () => {
+  const tabs = getConnectSnippetTabs({
+    name: 'lightwell/java/remediated',
+    content_type: 'maven',
+    published_distribution_url: 'https://packages.redhat.com/lightwell/java/remediated/',
+  });
+
+  const renovate = tabs.find((tab) => tab.eventKey === 'renovate');
+  expect(renovate?.title).toBe('Renovate');
+  expect(renovate?.docsUrl).toBe('https://github.com/lightwell-experience/renovate-config');
+  expect(renovate?.snippets[0].code).toContain(
+    'github>lightwell-experience/renovate-config:java-remediated#1.0.0',
+  );
+  expect(renovate?.snippets[0].code).not.toContain('registryUrls');
+});
+
+it('points the same Java preset at the predisclosure repository', () => {
+  const tabs = getConnectSnippetTabs({
+    name: 'lightwell/java/predisclosure',
+    content_type: 'maven',
+    published_distribution_url:
+      'https://packages.redhat.com/api/pulp-content/lightwell/java/predisclosure/',
+  });
+
+  const code = tabs.find((tab) => tab.eventKey === 'renovate')?.snippets[0].code;
+  expect(code).toContain('github>lightwell-experience/renovate-config:java-remediated#1.0.0');
+  expect(code).toContain(
+    '"registryUrls": ["https://packages.redhat.com/lightwell/java/predisclosure/"]',
+  );
+});
+
+it('omits Renovate for validated Maven repositories', () => {
+  const tabs = getConnectSnippetTabs({
+    name: 'lightwell/java/validated',
+    content_type: 'maven',
+    published_distribution_url: 'https://packages.redhat.com/lightwell/java/validated/',
+  });
+
+  expect(tabs.find((tab) => tab.eventKey === 'renovate')).toBeUndefined();
+});

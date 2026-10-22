@@ -147,6 +147,11 @@ describe('PackageOverviewTab', () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText(/Multiple upstream versions are available/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'configure your build tool (Maven, Gradle, Artifactory, or Nexus)',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('should not render a package description when security level is unknown', () => {
@@ -323,7 +328,7 @@ describe('PackageOverviewTab', () => {
     );
 
     const connectButton = screen.getByRole('button', {
-      name: 'configure your build tool (Maven, Gradle, Artifactory, or Nexus)',
+      name: 'configure your build tool (Maven, Gradle, Artifactory, Nexus, or Renovate)',
     });
     expect(connectButton).toBeInTheDocument();
   });
