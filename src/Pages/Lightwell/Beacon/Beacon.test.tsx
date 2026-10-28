@@ -105,9 +105,7 @@ it('omits the last updated time until a sync has completed', async () => {
   renderBeacon();
 
   expect(
-    screen.getByText(
-      'Track your Lightwell submissions from initial review to fix availability.',
-    ),
+    screen.getByText('Track your Lightwell submissions from initial review to fix availability.'),
   ).toBeInTheDocument();
   expect(screen.queryByText(/Last updated:/)).not.toBeInTheDocument();
 });
@@ -166,7 +164,7 @@ it('renders the beacon page with status summary and vulnerability table', async 
 
   const filters = document.querySelector('.lightwell-filter-panel');
   expect(filters).toBeTruthy();
-  const filterNetwork = within(filters as HTMLElement).getByText('Lightwell Network');
+  const filterNetwork = within(filters as HTMLElement).getByText('Available in Lightwell Network');
   const filterOnHold = within(filters as HTMLElement).getByText('On Hold');
   const filterNoRemediation = within(filters as HTMLElement).getByText('No remediation');
   expect(

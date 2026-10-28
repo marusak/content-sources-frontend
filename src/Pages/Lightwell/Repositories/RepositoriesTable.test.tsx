@@ -139,7 +139,9 @@ it('shows a loading skeleton while repositories are loading', () => {
   renderRepositoriesTable();
 
   expect(
-    screen.getByText('Connect to Lightwell repositories to access validated and remediated packages for your applications.'),
+    screen.getByText(
+      'Connect to Lightwell repositories to access validated and remediated packages for your applications.',
+    ),
   ).toBeInTheDocument();
   expect(
     screen.queryByRole('table', { name: 'Lightwell repositories table' }),
@@ -299,9 +301,7 @@ it('shows notification column and modal when user has stored notification prefer
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
   await waitFor(() => {
-    expect(
-      within(modal).getByRole('switch', { name: 'Email notifications' }),
-    ).toBeChecked();
+    expect(within(modal).getByRole('switch', { name: 'Email notifications' })).toBeChecked();
     expect(within(modal).getByRole('radio', { name: 'Critical' })).toBeChecked();
   });
 });

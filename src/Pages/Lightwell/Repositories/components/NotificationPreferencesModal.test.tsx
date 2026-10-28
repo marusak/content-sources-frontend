@@ -57,9 +57,7 @@ it('shows the form when preferences are ready', async () => {
   await user.click(screen.getByRole('button', { name: 'Notification preferences' }));
 
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
-  expect(
-    within(modal).getByRole('switch', { name: 'Email notifications' }),
-  ).toBeInTheDocument();
+  expect(within(modal).getByRole('switch', { name: 'Email notifications' })).toBeInTheDocument();
 });
 
 it('closes the modal after a successful save', async () => {
@@ -70,9 +68,7 @@ it('closes the modal after a successful save', async () => {
   await user.click(screen.getByRole('button', { name: 'Notification preferences' }));
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
-  await user.click(
-    within(modal).getByRole('switch', { name: 'Email notifications' }),
-  );
+  await user.click(within(modal).getByRole('switch', { name: 'Email notifications' }));
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
   await waitFor(() => {
@@ -94,9 +90,7 @@ it('keeps the modal open when save fails', async () => {
   await user.click(screen.getByRole('button', { name: 'Notification preferences' }));
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
-  await user.click(
-    within(modal).getByRole('switch', { name: 'Email notifications' }),
-  );
+  await user.click(within(modal).getByRole('switch', { name: 'Email notifications' }));
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
   expect(
@@ -138,9 +132,7 @@ it('unsubscribes all repos when notifications are turned off', async () => {
   await user.click(screen.getByRole('button', { name: 'Notification preferences' }));
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
-  await user.click(
-    within(modal).getByRole('switch', { name: 'Email notifications' }),
-  );
+  await user.click(within(modal).getByRole('switch', { name: 'Email notifications' }));
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
   await waitFor(() => {
@@ -156,9 +148,7 @@ it('does not sync subscribed repo severities when enabling notifications', async
   await user.click(screen.getByRole('button', { name: 'Notification preferences' }));
   const modal = await screen.findByRole('dialog', { name: 'Notification preferences' });
 
-  await user.click(
-    within(modal).getByRole('switch', { name: 'Email notifications' }),
-  );
+  await user.click(within(modal).getByRole('switch', { name: 'Email notifications' }));
   await user.click(within(modal).getByRole('button', { name: 'Save' }));
 
   await waitFor(() => {

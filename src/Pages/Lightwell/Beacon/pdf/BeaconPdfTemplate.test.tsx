@@ -32,7 +32,7 @@ describe('BeaconPdfTemplate', () => {
 
     expect(screen.getByRole('heading', { name: 'Beacon' })).toBeInTheDocument();
     expect(
-      screen.getByText(/Understand the status of your Lightwell submissions/),
+      screen.getByText(/Track your Lightwell submissions from initial review to fix availability/),
     ).toHaveTextContent('Last updated: 2026-10-02 08:00');
     expect(document.querySelector('.beacon-pdf--portrait')).toBeInTheDocument();
     expect(screen.queryByText(/Customer ID:/)).not.toBeInTheDocument();
