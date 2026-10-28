@@ -47,6 +47,8 @@ import {
   PageChromeSlots,
   PageTitleStack,
   LwStatItem,
+  LwDataView,
+  LwDataViewToolbar,
 } from 'kit/components/assemblies';
 
 // Kit primitives (barrel)
