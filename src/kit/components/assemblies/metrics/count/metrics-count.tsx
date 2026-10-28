@@ -7,11 +7,25 @@ import { LwSkeleton, LwTooltip } from 'kit/components/primitives';
 import { lightwellConfig, type LwStepIconColorKey } from 'kit/lightwell.config';
 import './metrics-count.css';
 
-type LwMetricsCountOwnedProps = {
-  /** Prominent metric value. Required unless `isLoading`. */
-  value?: ReactNode;
-  /** Caption (under value in column; beside in row). Required unless `isLoading`. */
-  label?: ReactNode;
+type LwMetricsCountContentProps =
+  | {
+      /** Renders matched-size skeletons instead of `value`/`label`. */
+      isLoading: true;
+      value?: ReactNode;
+      label?: ReactNode;
+      /** Screen-reader text for the loading skeleton. */
+      loadingScreenReaderText?: string;
+    }
+  | {
+      isLoading?: false;
+      /** Prominent metric value. */
+      value: ReactNode;
+      /** Caption (under value in column; beside in row). */
+      label: ReactNode;
+      loadingScreenReaderText?: string;
+    };
+
+type LwMetricsCountOwnedProps = LwMetricsCountContentProps & {
   /**
    * Status bar fill from `lightwellConfig.colors.stepIcon`
    * (includes match-status keys + stubs).
@@ -21,14 +35,6 @@ type LwMetricsCountOwnedProps = {
   tooltip?: ReactNode;
   /** Stack orientation. Default `column`. */
   direction?: 'column' | 'row';
-  /**
-   * Renders matched-size skeletons instead of `value`/`label`, on the same
-   * host/classes the loaded state uses — layout doesn't shift once data
-   * resolves, and callers never hand-roll a skeleton shell per metric.
-   */
-  isLoading?: boolean;
-  /** Screen-reader text for the loading skeleton. Only meaningful with `isLoading`. */
-  loadingScreenReaderText?: string;
 };
 
 /** Owned slots + div host passthrough. */

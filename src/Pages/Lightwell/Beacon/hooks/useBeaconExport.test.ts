@@ -3,6 +3,7 @@ import { AlertVariant } from '@patternfly/react-core';
 
 import { useBeaconExport } from './useBeaconExport';
 import { getVulnerabilities } from 'services/Lightwell/BeaconApi';
+import { buildBeaconPdfPayload } from '../pdf/beaconPdf';
 
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => ({
   useChrome: jest.fn(),
@@ -83,6 +84,14 @@ it('requests a split PDF using crc-pdf-generator without fetching every row', as
   expect(fetchAllFilteredVulnerabilities).not.toHaveBeenCalled();
   const call = requestPdf.mock.calls[0][0];
   expect(call.filename).toBe('lightwell-beacon-CID-01.pdf');
+  expect(call.payload).toEqual(
+    buildBeaconPdfPayload({
+      customerId: defaultProps.customerId,
+      filters: defaultProps.filters,
+      visibleColumns: defaultProps.visibleColumns,
+      itemCount: defaultProps.itemCount,
+    }),
+  );
   expect(notify).toHaveBeenCalledWith(
     expect.objectContaining({ variant: AlertVariant.success, title: 'PDF ready' }),
   );

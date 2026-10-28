@@ -104,14 +104,37 @@ function buildBeaconFilters(
 }
 
 /**
+ * `lastUpdated`/`submittedDate` arrive pre-formatted as display strings
+ * (`MM-DD-YYYY` or `MM-DD-YYYY HH:MM`, see `BeaconApi.ts`'s `formatDate`/
+ * `formatDateTime`) — not lexically sortable. Parse back to a timestamp;
+ * falls back to `Date.parse` for already-sortable (e.g. ISO, mock) strings.
+ */
+function parseDisplayDate(value: string): number {
+  const match = value.match(/^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}))?$/);
+  if (match) {
+    const [, month, day, year, hour = '0', minute = '0'] = match;
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+    ).getTime();
+  }
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+/**
  * Comparable value for `LwDataViewTd.props.sortValue` (content-based sort, D16) —
  * distinct from `getVulnerabilityColumnValue` (export/display string) because sort
  * needs the *orderable* form, not the *displayed* one. Severity's rank — already
  * centralized in `SEVERITIES` — not its label, so "Critical" sorts above
  * "Important" instead of alphabetically; CVSS as a number, not a string, so "10.0"
- * doesn't sort before "9.8". Every other column already has a directly-comparable
- * display string (dates are stored sortable, IDs and text sort lexicographically),
- * so delegates straight through to the existing export-value function.
+ * doesn't sort before "9.8"; dates parsed to a timestamp since their display
+ * format isn't lexically sortable. Every other column already has a directly-
+ * comparable display string (IDs and text sort lexicographically), so delegates
+ * straight through to the existing export-value function.
  */
 function getBeaconSortValue(key: string, vulnerability: Vulnerability): string | number {
   switch (key) {
@@ -119,6 +142,10 @@ function getBeaconSortValue(key: string, vulnerability: Vulnerability): string |
       return SEVERITIES.indexOf(vulnerability.severity);
     case 'cvss':
       return vulnerability.cvss;
+    case 'lastUpdated':
+      return parseDisplayDate(vulnerability.lastUpdated);
+    case 'age':
+      return parseDisplayDate(vulnerability.submittedDate);
     default:
       return getVulnerabilityColumnValue(key, vulnerability);
   }
@@ -283,7 +310,8 @@ const Beacon = () => {
     selectedSeverities.size +
     selectedStatuses.size +
     selectedLtwlsuptTickets.size +
-    (showDuplicates ? 1 : 0);
+    (showDuplicates ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
   const itemCount = displayMeta?.count ?? 0;
 
@@ -495,6 +523,10 @@ const Beacon = () => {
       >
         {selectedCustomerId ? (
           <LwDataView
+            // LwDataView tracks its active sort by column index internally; remount
+            // when the visible-column set/order changes so a stale index can't end
+            // up pointing at a different field after a column is hidden/shown.
+            key={visibleColumns.map((c) => c.key).join(',')}
             aria-label='Vulnerability tracking table'
             // Package + Vulnerability ID columns set isStickyColumn (below) —
             // isSticky is what actually activates PF's OuterScrollContainer /

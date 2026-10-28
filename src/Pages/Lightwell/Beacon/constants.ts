@@ -1,17 +1,17 @@
 import { lightwellConfig } from 'kit/lightwell.config';
-import type { Severity, Status } from './types';
+import { BEACON_WORKFLOW, type Severity, type Status } from './types';
 
 /**
  * Pipeline stages shown in the stepper and filter panel.
- * Derived from `lightwellConfig.beaconWorkflow.pipelineStages` — the subset of
- * all statuses that the Lightwell team actively manages in the UI.
+ * Derived from `BEACON_WORKFLOW.pipelineStages` — the subset of all statuses
+ * that the Lightwell team actively manages in the UI.
  */
-export const STATUSES: Status[] = [...lightwellConfig.beaconWorkflow.pipelineStages];
+export const STATUSES: Status[] = [...BEACON_WORKFLOW.pipelineStages];
 
-export const UNREMEDIATED_STATUS: Status = lightwellConfig.beaconWorkflow.unremediated;
+export const UNREMEDIATED_STATUS: Status = BEACON_WORKFLOW.unremediated;
 export const NO_REMEDIATION_LABEL = 'No remediation';
 
-export const ON_HOLD_STATUS: Status = lightwellConfig.beaconWorkflow.onHold;
+export const ON_HOLD_STATUS: Status = BEACON_WORKFLOW.onHold;
 
 /** All filter-panel statuses: pipeline stages + the on-hold and unremediated terminal states. */
 export const FILTER_STATUSES: Status[] = [...STATUSES, ON_HOLD_STATUS, UNREMEDIATED_STATUS];

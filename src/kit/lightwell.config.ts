@@ -63,49 +63,16 @@ export const lightwellConfig = {
     },
   },
   /**
-   * Vulnerability severity scale — shared by Beacon (filter panel, column rendering)
-   * and Lens (CVE count buckets). Both pages derive their `Severity` / `CveSeverity`
-   * types from this constant so a single source governs the set of values.
+   * Vulnerability severity scale, ordered most to least severe (matches the
+   * backend's `CveCount` bucket keys). Beacon derives its `Severity` type and
+   * filter-panel order from this constant. Lens's own `CveSeverity` type is
+   * defined independently from the backend `CveCount` shape (see
+   * `Lens/utils/cveSeverity.tsx`) — not derived from this scale — since its
+   * value set and ordering are a separate, chart-specific concern.
    */
   vulnerabilitySeverity: {
     /** Ordered most to least severe. Matches backend CveCount bucket keys. */
     scale: ['Critical', 'Important', 'Moderate', 'Minor'] as const,
-  },
-  /**
-   * Beacon / Lightwell workflow statuses.
-   * Centralized here so Beacon state management, filter panels, and pipeline chrome
-   * derive from the same authoritative lists.
-   *
-   * - `statuses` — exhaustive set of all valid pipeline stages; used to derive the
-   *   `Status` type and `STATUS_DESCRIPTIONS` lookup.
-   * - `pipelineStages` — ordered subset shown in the UI stepper and filter panel.
-   *   Upstreaming and Published are valid statuses a vulnerability can hold, but the
-   *   stepper/filter only surfaces the active Lightwell-managed stages.
-   * - `unremediated` — non-pipeline terminal state (closed without a fix).
-   */
-  beaconWorkflow: {
-    /** All valid pipeline stages (exhaustive — drives Status type + description lookup). */
-    statuses: [
-      'Submitted',
-      'Classified',
-      'Fix in Progress',
-      'Validation',
-      'Lightwell Network',
-      'Upstreaming',
-      'Published',
-    ] as const,
-    /** Stages displayed in the pipeline stepper and filter panel. */
-    pipelineStages: [
-      'Submitted',
-      'Classified',
-      'Fix in Progress',
-      'Validation',
-      'Lightwell Network',
-    ] as const,
-    /** Non-pipeline terminal status — vulnerability closed without a shipped fix. */
-    unremediated: 'Unremediated' as const,
-    /** Non-pipeline paused status — vulnerability work is on hold. */
-    onHold: 'On Hold' as const,
   },
 } as const;
 
@@ -119,14 +86,3 @@ export type LwStepIconColorKey = keyof typeof lightwellConfig.colors.stepIcon;
  * rather than declaring a local type per page.
  */
 export type LwVulnerabilitySeverity = (typeof lightwellConfig.vulnerabilitySeverity.scale)[number];
-
-/**
- * Beacon workflow status union — all pipeline statuses plus `'On Hold'` and
- * `'Unremediated'`. Derived from `lightwellConfig.beaconWorkflow`; import
- * from here for type consistency between Beacon state management, filter
- * panels, and API types.
- */
-export type LwBeaconStatus =
-  | (typeof lightwellConfig.beaconWorkflow.statuses)[number]
-  | typeof lightwellConfig.beaconWorkflow.unremediated
-  | typeof lightwellConfig.beaconWorkflow.onHold;
