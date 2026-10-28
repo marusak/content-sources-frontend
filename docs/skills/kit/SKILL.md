@@ -33,7 +33,7 @@ this lens. When the skill and existing code disagree, the skill wins.
 **Tenant config:** [tenant-ui-config.yaml](../tenant-ui-config.yaml) — if
 `exportPrefix` is unset, stop and define it before shared kit work.
 
-**Repo contract:** [ARCHITECTURE.md § Lightwell components](../../../ARCHITECTURE.md#lightwell-components).
+**Repo contract:** [src/kit/README.md](../../../src/kit/README.md).
 
 ---
 
@@ -70,6 +70,7 @@ stay call-site children until ≥2 surfaces need a real kit job.
 ```
 lightwell.config.ts                    ← tenant root (brand, cssPrefix, palette)
   └── components.config.ts             ← prop / behavior defaults (mergeComponentProps)
+lightwell.config.css                   ← tenant presentational baseline (shared chromatic scales)
   └── components.config.css            ← domain presentational baseline (padding, type)
         └── assemblies/page/page.config.css   ← page-family presentational overrides
               └── Lw* roots            ← merge props; co-located unit CSS
@@ -278,13 +279,13 @@ Before a new file, wrapper, hook, or DTO:
 | Header needs Hero look | `LwPageHeader hero` — surface pre-config, same grammar |
 | Body loading collapses chrome / jumps header | Keep shell mounted; `LwLoaded` in the body (default `LwSkeleton`) |
 | Assembly growing a second visual job | split into sibling assemblies (anti-God) |
-| Metric / count that could grow large | PF `Truncate` — stacked metrics count: container Truncate + `min-width: 0` on the count host; inline title runs: `maxCharsDisplayed` (`pf-m-fixed`). Never assume digit length |
+| Metric / count that could grow large | PF `Truncate` — stacked metrics count **and `LwMetricsStepper` values**: container Truncate + `min-width: 0` on the host (never `maxCharsDisplayed` — it disables width-based truncation); inline title runs only: `maxCharsDisplayed` (`pf-m-fixed`). Never assume digit length |
 | Product-named chrome shell (`SlaInfoPopover`, …) | Compose kit roots at call site; replace **usages** — do not promote the wrapper into kit; dissolve later ([dissolution-map](examples/dissolution-map.md)) |
 | Short icon-help / circle help dialect | `LwTooltip` (default trigger = `LwButton isCircle`); richer = `LwPopover` + circle `LwButton` |
 | Raw PF `EmptyState` / `Skeleton` in Lightwell chrome | Root-only `LwEmptyState` / `LwSkeleton`; Footer/Actions/Body stay call-site children |
 | ≥2 independent consumers hand-roll the same workaround for the same assembly | Not page-specific need — convergence is proof; promote the capability into the assembly |
 | Re-pointing a consumer onto an assembly before it does what that consumer needs | Finish the assembly first — the re-point should be a near-mechanical diff, not invention |
-| New logic needed, and the nearest existing file is a non-Kit component/utility the page already imports | Write it in Kit or in the page itself — an existing non-Kit file doesn't become fair game just because it's already in the dependency chain |
+| New logic needed, and the nearest existing file is a non-Kit component/utility the page already imports | UI capability → Kit; page-specific → the page. Logic genuinely shared across multiple pages/consumers may live in an appropriate product-owned domain module — being in the dependency chain alone doesn't make an existing file fair game, but a real cross-page domain concern isn't forced into Kit or duplicated per page either |
 
 ---
 
@@ -504,7 +505,7 @@ Example — one page header, plain or hero surface:
 | Rewrite page-local unit in place | New kit under `src/kit`; page pulls |
 | Rename Write + Delete | `git mv` |
 | tsc green, UI broken | Smoke route |
-| Bare metric number in chrome / title | PF `Truncate` — stacked count cell: container Truncate; single-line title run: `maxCharsDisplayed` (`pf-m-fixed`) so `inline-grid` does not break the line |
+| Bare metric number in chrome / title | PF `Truncate` — stacked count cell and `LwMetricsStepper` values: container Truncate (width-based; `maxCharsDisplayed` would disable it); single-line title run only: `maxCharsDisplayed` (`pf-m-fixed`) so `inline-grid` does not break the line |
 | Page hand-rolls active-state derivation, panel-expand breakpoint state, or raw PF filter wiring the assembly could own | Extend the assembly; delete the page copy. Example: three `LwDataView` consumers each independently called `useTableActiveState` and wired raw PF `DataViewFilters` before `isLoading` derivation and a filter capability existed in the assembly — the fix is in `LwDataView`, not a fourth bespoke copy |
 | Consumer re-pointed onto an assembly before the capability it needs exists there | Hold the re-point; finish the assembly first. Re-pointing early is what produced the hand-rolled copies above in the first place |
 

@@ -106,6 +106,7 @@ would fork the cascade.
 
 | File | Role |
 | ---- | ---- |
+| `src/kit/lightwell.config.css` | Tenant presentational baseline — shared chromatic scales (`lightwellConfig.colors`), the first CSS layer |
 | `src/kit/components/components.config.css` | Domain presentational defaults — title type, field label, shared control gaps |
 | `src/kit/components/assemblies/page/page.config.css` | Page-family tokens — page padding (Hero mirror), chrome-slot gap, page-title aliases |
 | Co-located `*.css` next to each `Lw*` | Unit-specific rules; **consume** tokens from the files above — do not re-declare |
@@ -355,8 +356,12 @@ block, pass data.
 **Boundary while building:** a Kit effort touches only Kit and the page/view
 consuming it. An existing non-Kit component or utility module that a page
 already imports does not become fair game for new logic just because it's
-already in the dependency chain — new logic goes in Kit or in the page,
-never into a pre-existing third file.
+already in the dependency chain. UI capability logic goes in Kit; page-specific
+logic goes in the page. Logic that is genuinely a product **domain** concern
+shared across multiple pages or consumers may live in — or be added to — an
+appropriate product-owned domain module; that's a legitimate third home, not
+an invitation to dump unrelated logic into whatever file happens to already
+be imported.
 
 ---
 
