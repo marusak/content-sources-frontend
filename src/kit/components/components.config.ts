@@ -209,6 +209,13 @@ export type LwMetricsCountConfig = {
 /** Owned defaults for `LwMetricsCard`. */
 export type LwMetricsCardConfig = object;
 
+// ─── Primitive: LwContent ─────────────────────────────────────────────────────
+
+/** Defaults for `LwContent` — Content host; call-site wins via merge. */
+export type LwContentConfig = Partial<
+  Omit<import('@patternfly/react-core').ContentProps, 'children' | 'ref'>
+>;
+
 // ─── Primitive: LwSearchInput ────────────────────────────────────────────────
 
 /** Defaults for `LwSearchInput` — SearchInput host; call-site wins via merge. */
@@ -228,6 +235,20 @@ export type LwPaginationConfig = Partial<
 /** Defaults for `LwDrawer` — Drawer host; call-site wins via merge. */
 export type LwDrawerConfig = Partial<
   Omit<import('@patternfly/react-core').DrawerProps, 'children' | 'ref'>
+>;
+
+// ─── Primitive: LwCheckbox ────────────────────────────────────────────────────
+
+/** Defaults for `LwCheckbox` — Checkbox host; call-site wins via merge. */
+export type LwCheckboxConfig = Partial<
+  Omit<import('@patternfly/react-core').CheckboxProps, 'id' | 'onChange' | 'ref'>
+>;
+
+// ─── Primitive: LwForm ───────────────────────────────────────────────────────
+
+/** Defaults for `LwForm` — Form host; call-site wins via merge. */
+export type LwFormConfig = Partial<
+  Omit<import('@patternfly/react-core').FormProps, 'children' | 'ref'>
 >;
 
 // ─── Assembly: LwLoaded (loading / loaded surface) ───────────────────────────
@@ -257,8 +278,11 @@ export interface LwComponentsConfig {
   skeleton: LwSkeletonConfig;
   title: LwTitleConfig;
   icon: LwIconConfig;
+  checkbox: LwCheckboxConfig;
   clipboardCopy: LwClipboardCopyConfig;
+  content: LwContentConfig;
   drawer: LwDrawerConfig;
+  form: LwFormConfig;
   pageHeader: LwPageHeaderConfig;
   pageHeaderHero: LwPageHeaderHeroConfig;
   buttonGroup: LwButtonGroupConfig;
@@ -283,6 +307,12 @@ export const componentsConfig: LwComponentsConfig = {
   card: {
     // Lightwell surfaces use glass cards by default.
     isGlass: true,
+  },
+  checkbox: {
+    // No Lightwell-specific Checkbox defaults yet.
+  },
+  content: {
+    // No Lightwell-specific Content defaults yet.
   },
   drawer: {
     isPill: true,
@@ -311,6 +341,9 @@ export const componentsConfig: LwComponentsConfig = {
   },
   icon: {
     // No Lightwell-specific size yet — page title rows pass size from PageTitleStack.
+  },
+  form: {
+    // No Lightwell-specific Form defaults yet.
   },
   clipboardCopy: {
     isReadOnly: true,
@@ -401,6 +434,18 @@ export function getLwTitleSizeForLevel(headingLevel: LwTitleHeadingLevel): LwTit
 
 export function getLwIconDefaults(): LwIconConfig {
   return { ...componentsConfig.icon };
+}
+
+export function getLwCheckboxDefaults(): LwCheckboxConfig {
+  return { ...componentsConfig.checkbox };
+}
+
+export function getLwContentDefaults(): LwContentConfig {
+  return { ...componentsConfig.content };
+}
+
+export function getLwFormDefaults(): LwFormConfig {
+  return { ...componentsConfig.form };
 }
 
 export function getLwClipboardCopyDefaults(): LwClipboardCopyConfig {
