@@ -1,0 +1,22 @@
+---
+description: Gate all kit and Lightwell page work on reading the kit skill first. Skill defines the architecture; code must conform to it.
+globs: src/kit/**,src/Pages/Lightwell/**,styles/lightwell-*
+alwaysApply: false
+---
+
+# Skill-first gate for kit and Lightwell work
+
+Before reasoning about, proposing changes to, or editing any file matching these paths, you MUST:
+
+1. **Read the skill** — `.cursor/skills/kit/SKILL.md` (then `perspective.md` if the work touches layers, config cascade, or DOM structure).
+2. **Operate from the skill's perspective** — the skill defines the architecture. Existing code is what needs to conform, not the reference.
+3. **Do not invert the order** — analyzing existing code first and then checking the skill is the failure mode. The skill is the lens; code is the subject.
+
+If you have not read the skill in this session, read it now before any other action.
+
+## What this means in practice
+
+- When reviewing a PR or file: read skill first, then evaluate the code through it.
+- When proposing new code: the skill's three-tier kit, config cascade, and logic passthrough model dictate structure — not what the existing code currently does.
+- When the skill and existing code disagree: the skill wins. The code is what needs to change.
+- When the skill is silent on a question: say so. Do not invent an answer from the code.

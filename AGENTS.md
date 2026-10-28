@@ -13,3 +13,12 @@ Backend: <https://github.com/content-services/content-sources-backend
 - Follow Conventional Commits format: `type(scope): description`
 - Common types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
 - Explain the "why" in the commit message, not the "what".
+
+## Skills
+- Agent skills live canonically under [`docs/skills/`](docs/skills/README.md),
+  symlinked into `.cursor/skills/` and `.claude/skills/`.
+- Before touching `src/kit/**`, `src/Pages/Lightwell/**`, or
+  `styles/lightwell-*`: read
+  [`docs/skills/kit/SKILL.md`](docs/skills/kit/SKILL.md)
+  first. It defines the architecture (Rule 0, config cascade, three-tier kit)
+  — existing code conforms to it, not the other way around.
