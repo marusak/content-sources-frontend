@@ -1,15 +1,10 @@
-export type Severity = 'Critical' | 'Important' | 'Moderate' | 'Minor';
+import type { LwBeaconStatus, LwVulnerabilitySeverity } from 'kit/lightwell.config';
 
-export type Status =
-  | 'Submitted'
-  | 'Classified'
-  | 'Fix in Progress'
-  | 'Validation'
-  | 'Lightwell Network'
-  | 'Upstreaming'
-  | 'Published'
-  | 'On Hold'
-  | 'Unremediated';
+/** Vulnerability severity — see `lightwellConfig.vulnerabilitySeverity.scale`. */
+export type Severity = LwVulnerabilitySeverity;
+
+/** Beacon workflow status — see `lightwellConfig.beaconWorkflow`. */
+export type Status = LwBeaconStatus;
 
 export type CustomerPriority = 'Priority 1' | 'Priority 2' | 'Priority 3' | 'Priority 4';
 

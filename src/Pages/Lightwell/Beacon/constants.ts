@@ -1,18 +1,19 @@
+import { lightwellConfig } from 'kit/lightwell.config';
 import type { Severity, Status } from './types';
 
-export const STATUSES: Status[] = [
-  'Submitted',
-  'Classified',
-  'Fix in Progress',
-  'Validation',
-  'Lightwell Network',
-];
+/**
+ * Pipeline stages shown in the stepper and filter panel.
+ * Derived from `lightwellConfig.beaconWorkflow.pipelineStages` — the subset of
+ * all statuses that the Lightwell team actively manages in the UI.
+ */
+export const STATUSES: Status[] = [...lightwellConfig.beaconWorkflow.pipelineStages];
 
-export const UNREMEDIATED_STATUS: Status = 'Unremediated';
+export const UNREMEDIATED_STATUS: Status = lightwellConfig.beaconWorkflow.unremediated;
 export const NO_REMEDIATION_LABEL = 'No remediation';
 
-export const ON_HOLD_STATUS: Status = 'On Hold';
+export const ON_HOLD_STATUS: Status = lightwellConfig.beaconWorkflow.onHold;
 
+/** All filter-panel statuses: pipeline stages + the on-hold and unremediated terminal states. */
 export const FILTER_STATUSES: Status[] = [...STATUSES, ON_HOLD_STATUS, UNREMEDIATED_STATUS];
 
 export function statusLabel(status: Status): string {
@@ -47,6 +48,7 @@ export const STATUS_DESCRIPTIONS: Record<Status, string> = {
   Unremediated: 'The vulnerability was closed without a shipped fix.',
 };
 
-export const SEVERITIES: Severity[] = ['Critical', 'Important', 'Moderate', 'Minor'];
+/** Severity levels ordered most to least severe — derived from `lightwellConfig.vulnerabilitySeverity.scale`. */
+export const SEVERITIES: Severity[] = [...lightwellConfig.vulnerabilitySeverity.scale];
 
 export const SLA_POLICY_HEADER = 'Service Level Agreement policy';

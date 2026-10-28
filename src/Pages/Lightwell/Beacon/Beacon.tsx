@@ -2,30 +2,22 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRemoteHook } from '@scalprum/react-core';
 import { useFlag } from '@unleash/proxy-client-react';
 import {
-  Content,
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
   EmptyStateVariant,
-  Flex,
-  FlexItem,
+  FormGroup,
   PageSection,
-  Stack,
-  StackItem,
-  Title,
 } from '@patternfly/react-core';
-import {
-  FilterSidePanel,
-  FilterSidePanelCategory,
-  FilterSidePanelCategoryItem,
-} from '@patternfly/react-catalog-view-extension';
 import UserIcon from '@patternfly/react-icons/dist/esm/icons/user-icon';
 import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
 
 import useDebounce from 'Hooks/useDebounce';
+import { usePaginationLocalStorage } from 'Hooks/tables/usePaginationLocalStorage';
 import { useLightwellRootPath } from '../../../Hooks/Lightwell/navigation/useLightwellRootPath';
 import {
   LwButtonGroup,
+  LwDataView,
   LwLoaded,
   LwMetricsCard,
   LwMetricsCount,
@@ -36,9 +28,22 @@ import {
   PageChromeSlotFooter,
   PageChromeSlots,
   PageTitleStack,
+  type LwDataViewManageColumn,
+  type LwDataViewTh,
+  type LwDataViewTr,
 } from 'kit/components/assemblies';
-import { LwButton, LwEmptyState, LwMenu, LwPopover, LwSkeleton } from 'kit/components/primitives';
+import {
+  LwButton,
+  LwCheckbox,
+  LwContent,
+  LwEmptyState,
+  LwForm,
+  LwMenu,
+  LwPopover,
+  LwTitle,
+} from 'kit/components/primitives';
 
+import { lightwellBeaconPerPageKey } from 'Pages/Lightwell/constants';
 import {
   FILTER_STATUSES,
   NO_REMEDIATION_LABEL,
@@ -50,9 +55,10 @@ import {
   UNREMEDIATED_STATUS,
 } from './constants';
 import { buildPipelineMetricSteps } from './pipeline';
-import type { Severity, Status } from './types';
-import { ExportMenu } from './components/ExportMenu';
-import { VulnerabilityTable } from './components/VulnerabilityTable';
+import type { Severity, Status, Vulnerability } from './types';
+import { useBeaconExport } from './hooks/useBeaconExport';
+import { getVulnerabilityTableCellProps } from './components/vulnerabilityTableStickyColumns';
+import { renderVulnerabilityCell } from './utils/vulnerabilityTableCells';
 import { useBeaconData } from './hooks/useBeaconData';
 import {
   type BeaconVulnerabilityFilters,
@@ -63,11 +69,12 @@ import { useCustomerIdsQuery } from 'services/Lightwell/CustomerQueries';
 import {
   createDefaultVulnerabilityColumns,
   getVisibleVulnerabilityColumns,
+  getVulnerabilityColumnValue,
+  VULNERABILITY_TABLE_COLUMN_CONFIG,
+  type VulnerabilityTableColumn,
 } from './utils/vulnerabilityTableColumns';
 
 import '../../../../styles/lightwell-beacon.scss';
-
-const DEFAULT_PER_PAGE = 20;
 
 const DROP_LAST_CHROME_SEGMENT_OPTIONS = { dropLastChromeSegment: true };
 
@@ -96,6 +103,27 @@ function buildBeaconFilters(
   return hasFilters ? filters : undefined;
 }
 
+/**
+ * Comparable value for `LwDataViewTd.props.sortValue` (content-based sort, D16) —
+ * distinct from `getVulnerabilityColumnValue` (export/display string) because sort
+ * needs the *orderable* form, not the *displayed* one. Severity's rank — already
+ * centralized in `SEVERITIES` — not its label, so "Critical" sorts above
+ * "Important" instead of alphabetically; CVSS as a number, not a string, so "10.0"
+ * doesn't sort before "9.8". Every other column already has a directly-comparable
+ * display string (dates are stored sortable, IDs and text sort lexicographically),
+ * so delegates straight through to the existing export-value function.
+ */
+function getBeaconSortValue(key: string, vulnerability: Vulnerability): string | number {
+  switch (key) {
+    case 'severity':
+      return SEVERITIES.indexOf(vulnerability.severity);
+    case 'cvss':
+      return vulnerability.cvss;
+    default:
+      return getVulnerabilityColumnValue(key, vulnerability);
+  }
+}
+
 const Beacon = () => {
   const rootPath = useLightwellRootPath();
   const appBreadcrumbsEnabled = useFlag('platform.chrome.app-breadcrumbs');
@@ -115,11 +143,13 @@ const Beacon = () => {
   const [selectedStatuses, setSelectedStatuses] = useState<Set<Status>>(new Set());
   const [selectedLtwlsuptTickets, setSelectedLtwlsuptTickets] = useState<Set<string>>(new Set());
   const [showDuplicates, setShowDuplicates] = useState(false);
-  const [showAllCategories, setShowAllCategories] = useState<Record<string, boolean>>({});
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
+  const { page, perPage, onSetPage, onPerPageSelect, setPage } = usePaginationLocalStorage({
+    key: lightwellBeaconPerPageKey,
+  });
+  const paginationProps = { page, perPage, onSetPage, onPerPageSelect };
   const [searchQuery, setSearchQuery] = useState('');
   const [columns, setColumns] = useState(createDefaultVulnerabilityColumns);
+
   const debouncedSearch = useDebounce(searchQuery, searchQuery === '' ? 0 : 500);
 
   const apiFilters = useMemo(
@@ -195,6 +225,9 @@ const Beacon = () => {
     setPage(1);
   }, []);
 
+  // TODO: pass sort params to the API query when backend supports it.
+  // Wire `onSortChange` on LwDataView when that work begins.
+
   const {
     data: displayData,
     isLoading: isLoadingDisplay,
@@ -211,9 +244,13 @@ const Beacon = () => {
   const filteredVulns = displayData?.vulnerabilities ?? [];
   const displayMeta = displayData?.meta;
 
-  const toggleShowAllCategory = (key: string) => {
-    setShowAllCategories((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const { isBusy: isExportBusy, items: exportItems } = useBeaconExport({
+    customerId: selectedCustomerId,
+    filters: queryFilters,
+    visibleColumns: getVisibleVulnerabilityColumns(columns),
+    itemCount: displayMeta?.count ?? 0,
+    lastUpdated: lastUpdated ?? undefined,
+  });
 
   const toggleSeverity = (sev: Severity) => {
     setSelectedSeverities((prev) => {
@@ -248,11 +285,53 @@ const Beacon = () => {
     selectedLtwlsuptTickets.size +
     (showDuplicates ? 1 : 0);
 
-  const onSetPage = (_event: unknown, newPage: number) => setPage(newPage);
-  const onPerPageSelect = (_event: unknown, newPerPage: number, newPage: number) => {
-    setPerPage(newPerPage);
-    setPage(newPage);
-  };
+  const itemCount = displayMeta?.count ?? 0;
+
+  const visibleColumns = useMemo(
+    () =>
+      VULNERABILITY_TABLE_COLUMN_CONFIG.filter(
+        (column) => columns.find((c) => c.key === column.key)?.isShown ?? false,
+      ),
+    [columns],
+  );
+
+  const dataViewColumns: LwDataViewTh[] = useMemo(
+    () =>
+      visibleColumns.map((column) => ({
+        cell: column.title,
+        props: getVulnerabilityTableCellProps(column.key),
+      })),
+    [visibleColumns],
+  );
+
+  const dataViewRows: LwDataViewTr[] = useMemo(
+    () =>
+      filteredVulns.map((v) => ({
+        id: v.uuid,
+        row: visibleColumns.map((column) => ({
+          cell: renderVulnerabilityCell(column.key, v),
+          props: {
+            dataLabel: column.title,
+            sortValue: getBeaconSortValue(column.key, v),
+            ...getVulnerabilityTableCellProps(column.key),
+            ...(column.key === 'component' ? { modifier: 'breakWord' as const } : null),
+          },
+        })),
+      })),
+    [filteredVulns, visibleColumns],
+  );
+
+  const manageColumnsCatalog: LwDataViewManageColumn[] = useMemo(
+    () =>
+      columns.map((column) => ({
+        key: column.key,
+        cell: column.title,
+        isShown: column.isShown,
+        isShownByDefault: column.isShownByDefault,
+        props: getVulnerabilityTableCellProps(column.key),
+      })),
+    [columns],
+  );
 
   const isPipelineHydrated = Boolean(selectedCustomerId && !isLoading);
   const pipelineMetricSteps = buildPipelineMetricSteps(
@@ -326,7 +405,7 @@ const Beacon = () => {
                   <LwPopover
                     hasHeader={SLA_POLICY_HEADER}
                     hasBody={
-                      <Content>
+                      <LwContent>
                         <p>
                           <strong>Submit:</strong> Submit findings at any time.
                         </p>
@@ -342,7 +421,7 @@ const Beacon = () => {
                           <strong>Fix completion:</strong> Applied after a patched artifact is
                           published to the repository or Lightwell Network.
                         </p>
-                      </Content>
+                      </LwContent>
                     }
                     hasTrigger={
                       <LwButton isCircle variant='plain' aria-label='SLA help'>
@@ -356,42 +435,10 @@ const Beacon = () => {
                   isLoaded={!isLoading}
                   fallback={
                     <LwMetricsCountSlots>
-                      <Flex
-                        direction={{ default: 'column' }}
-                        gap={{ default: 'gapSm' }}
-                        alignItems={{ default: 'alignItemsCenter' }}
-                      >
-                        <LwSkeleton
-                          fontSize='3xl'
-                          width='4ch'
-                          screenreaderText='Loading status summary'
-                        />
-                        <LwSkeleton fontSize='sm' width='5ch' />
-                      </Flex>
-                      <Flex
-                        direction={{ default: 'column' }}
-                        gap={{ default: 'gapSm' }}
-                        alignItems={{ default: 'alignItemsCenter' }}
-                      >
-                        <LwSkeleton fontSize='3xl' width='4ch' />
-                        <LwSkeleton fontSize='sm' width='5ch' />
-                      </Flex>
-                      <Flex
-                        direction={{ default: 'column' }}
-                        gap={{ default: 'gapSm' }}
-                        alignItems={{ default: 'alignItemsCenter' }}
-                      >
-                        <LwSkeleton fontSize='3xl' width='4ch' />
-                        <LwSkeleton fontSize='sm' width='5ch' />
-                      </Flex>
-                      <Flex
-                        direction={{ default: 'column' }}
-                        gap={{ default: 'gapSm' }}
-                        alignItems={{ default: 'alignItemsCenter' }}
-                      >
-                        <LwSkeleton fontSize='3xl' width='4ch' />
-                        <LwSkeleton fontSize='sm' width='5ch' />
-                      </Flex>
+                      <LwMetricsCount isLoading loadingScreenReaderText='Loading status summary' />
+                      <LwMetricsCount isLoading />
+                      <LwMetricsCount isLoading />
+                      <LwMetricsCount isLoading />
                     </LwMetricsCountSlots>
                   }
                 >
@@ -421,136 +468,125 @@ const Beacon = () => {
           ) : null}
         </PageChromeSlots>
       </LwPageHeader>
-      <PageSection hasBodyWrapper={false} data-ouia-component-id='lightwell-beacon-page'>
-        <Stack hasGutter className='lightwell-beacon-content'>
-          {!showCustomerEmpty ? (
-            <StackItem>
-              <LwButtonGroup>
-                {isLoadingCustomers ? (
-                  <div className='lw-c-menu lw-c-menu-group' role='group' aria-label='Customer ID'>
-                    <span className='lw-c-menu-group__label'>Customer ID</span>
-                    <LwSkeleton height='36px' />
-                  </div>
-                ) : (
-                  <LwMenu
-                    fieldLabel='Customer ID'
-                    label={selectedCustomerId ?? 'Select customer ID'}
-                    toggleProps={{ ouiaId: 'customer-id-select-toggle' }}
-                    isDisabled={customerIdMenuItems.length === 0}
-                    items={customerIdMenuItems}
-                  />
-                )}
-                <ExportMenu
-                  customerId={selectedCustomerId}
-                  filters={queryFilters}
-                  visibleColumns={getVisibleVulnerabilityColumns(columns)}
-                  itemCount={displayMeta?.count ?? 0}
-                  lastUpdated={lastUpdated ?? undefined}
-                />
-              </LwButtonGroup>
-            </StackItem>
-          ) : null}
-          <StackItem>
-            <Flex
-              gap={{ default: 'gapMd' }}
-              alignItems={{ default: 'alignItemsFlexStart' }}
-              className='lightwell-beacon-layout'
-            >
-              <FlexItem className='lightwell-filter-panel'>
-                <span className='lightwell-filter-panel-header'>
-                  <Title headingLevel='h4' size='md'>
-                    Filters
-                  </Title>
-                  {activeFilterCount > 0 && (
-                    <Content component='small' className='lightwell-filter-count'>
-                      {activeFilterCount} active
-                    </Content>
-                  )}
-                </span>
-                <FilterSidePanel id='beacon-filter-panel'>
-                  <FilterSidePanelCategory
-                    title='Severity'
-                    showAll={!!showAllCategories.severity}
-                    onShowAllToggle={() => toggleShowAllCategory('severity')}
-                  >
+      <PageSection data-ouia-component-id='lightwell-beacon-controls'>
+        {selectedCustomerId ? (
+          <LwButtonGroup>
+            <LwMenu
+              fieldLabel='Customer ID'
+              label={selectedCustomerId}
+              toggleProps={{ variant: 'primary', ouiaId: 'customer-id-select-toggle' }}
+              isDisabled={customerIdMenuItems.length === 0}
+              items={customerIdMenuItems}
+            />
+            <LwMenu
+              label='Export'
+              busyLabel='Exporting'
+              isBusy={isExportBusy}
+              toggleProps={{ variant: 'secondary', ouiaId: 'lightwell-beacon-export-toggle' }}
+              popperProps={{ position: 'right' }}
+              items={exportItems}
+            />
+          </LwButtonGroup>
+        ) : null}
+      </PageSection>
+      <PageSection
+        data-ouia-component-id='lightwell-beacon-page'
+        padding={{ default: 'noPadding' }}
+      >
+        {selectedCustomerId ? (
+          <LwDataView
+            aria-label='Vulnerability tracking table'
+            // Package + Vulnerability ID columns set isStickyColumn (below) —
+            // isSticky is what actually activates PF's OuterScrollContainer /
+            // InnerScrollContainer wrappers those columns need to render
+            // correctly. Opt-in per the skill (verified layout context, not
+            // auto-derived) — this is that verified case.
+            isSticky
+            manageColumns={{
+              columns: manageColumnsCatalog,
+              onApply: (newColumns) => setColumns(newColumns as VulnerabilityTableColumn[]),
+              onReset: () => setColumns(createDefaultVulnerabilityColumns()),
+            }}
+            columns={dataViewColumns}
+            rows={dataViewRows}
+            isLoading={isLoading}
+            emptyState={{
+              titleText: 'No results match the current filters',
+              bodyText: 'Reset filters to show more results.',
+              onClearFilters: resetFilters,
+            }}
+            search={{
+              value: searchQuery,
+              onChange: setSearchQuery,
+              placeholder: 'Filter by ID, package, or title',
+              ariaLabel: 'Filter vulnerabilities by ID, package, or title',
+            }}
+            pagination={{ ...paginationProps, itemCount }}
+            // Uncontrolled — LwDataView owns expanded state, seeded by breakpoint (D15).
+            panelToggle={{}}
+            panel={
+              <>
+                <LwForm aria-label='Filter categories' data-ouia-component-id='beacon-filter-panel'>
+                  <FormGroup label='Severity'>
                     {SEVERITIES.map((sev) => (
-                      <FilterSidePanelCategoryItem
+                      <LwCheckbox
                         key={sev}
-                        checked={selectedSeverities.has(sev)}
-                        onClick={() => toggleSeverity(sev)}
-                      >
-                        {severityLabel(sev)}
-                      </FilterSidePanelCategoryItem>
+                        id={`severity-${sev}`}
+                        label={severityLabel(sev)}
+                        isChecked={selectedSeverities.has(sev)}
+                        onChange={() => toggleSeverity(sev)}
+                      />
                     ))}
-                  </FilterSidePanelCategory>
-
-                  <FilterSidePanelCategory
-                    title='Status'
-                    showAll={!!showAllCategories.pipeline}
-                    onShowAllToggle={() => toggleShowAllCategory('pipeline')}
-                  >
+                  </FormGroup>
+                  <FormGroup label='Status'>
                     {FILTER_STATUSES.map((status) => (
-                      <FilterSidePanelCategoryItem
+                      <LwCheckbox
                         key={status}
-                        checked={selectedStatuses.has(status)}
-                        onClick={() => toggleStatus(status)}
-                      >
-                        {statusLabel(status)}
-                      </FilterSidePanelCategoryItem>
+                        id={`status-${status}`}
+                        label={statusLabel(status)}
+                        isChecked={selectedStatuses.has(status)}
+                        onChange={() => toggleStatus(status)}
+                      />
                     ))}
-                  </FilterSidePanelCategory>
-
+                  </FormGroup>
                   {ltwlsuptTicketIds.length > 0 && (
-                    <FilterSidePanelCategory
-                      title='Support ticket'
-                      showAll={!!showAllCategories.ltwlsuptTicket}
-                      onShowAllToggle={() => toggleShowAllCategory('ltwlsuptTicket')}
-                    >
+                    <FormGroup label='Support ticket'>
                       {ltwlsuptTicketIds.map((ticketId) => (
-                        <FilterSidePanelCategoryItem
+                        <LwCheckbox
                           key={ticketId}
-                          checked={selectedLtwlsuptTickets.has(ticketId)}
-                          onClick={() => toggleLtwlsuptTicket(ticketId)}
-                        >
-                          {ticketId}
-                        </FilterSidePanelCategoryItem>
+                          id={`ticket-${ticketId}`}
+                          label={ticketId}
+                          isChecked={selectedLtwlsuptTickets.has(ticketId)}
+                          onChange={() => toggleLtwlsuptTicket(ticketId)}
+                        />
                       ))}
-                    </FilterSidePanelCategory>
+                    </FormGroup>
                   )}
-
-                  <FilterSidePanelCategory title='Flags'>
-                    <FilterSidePanelCategoryItem
-                      checked={showDuplicates}
-                      onClick={() => setShowDuplicates(!showDuplicates)}
-                    >
-                      Duplicates
-                    </FilterSidePanelCategoryItem>
-                  </FilterSidePanelCategory>
-                </FilterSidePanel>
-              </FlexItem>
-              <FlexItem flex={{ default: 'flex_1' }} className='lightwell-beacon-table-area'>
-                {selectedCustomerId && !isLoading ? (
-                  <VulnerabilityTable
-                    vulnerabilities={filteredVulns}
-                    itemCount={displayMeta?.count ?? 0}
-                    page={page}
-                    perPage={perPage}
-                    onSetPage={onSetPage}
-                    onPerPageSelect={onPerPageSelect}
-                    searchValue={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    onSearchClear={() => setSearchQuery('')}
-                    onResetFilters={resetFilters}
-                    columns={columns}
-                    onColumnsChange={setColumns}
-                  />
-                ) : selectedCustomerId ? (
-                  <LwSkeleton height='400px' />
-                ) : null}
-              </FlexItem>
-            </Flex>
-          </StackItem>
-        </Stack>
+                  <FormGroup label='Flags'>
+                    <LwCheckbox
+                      id='flag-duplicates'
+                      label='Duplicates'
+                      isChecked={showDuplicates}
+                      onChange={() => setShowDuplicates(!showDuplicates)}
+                    />
+                  </FormGroup>
+                </LwForm>
+                {activeFilterCount > 0 && (
+                  <LwButton variant='secondary' size='sm' onClick={resetFilters}>
+                    Reset
+                  </LwButton>
+                )}
+              </>
+            }
+            panelHead={
+              <>
+                <LwTitle headingLevel='h4' size='md'>
+                  Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                </LwTitle>
+              </>
+            }
+          />
+        ) : null}
       </PageSection>
     </>
   );

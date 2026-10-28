@@ -3,15 +3,15 @@ import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 import { getLwMetricsCountDefaults, mergeClassNames } from 'kit/components/components.config';
-import { LwTooltip } from 'kit/components/primitives';
+import { LwSkeleton, LwTooltip } from 'kit/components/primitives';
 import { lightwellConfig, type LwStepIconColorKey } from 'kit/lightwell.config';
 import './metrics-count.css';
 
 type LwMetricsCountOwnedProps = {
-  /** Prominent metric value. */
-  value: ReactNode;
-  /** Caption (under value in column; beside in row). */
-  label: ReactNode;
+  /** Prominent metric value. Required unless `isLoading`. */
+  value?: ReactNode;
+  /** Caption (under value in column; beside in row). Required unless `isLoading`. */
+  label?: ReactNode;
   /**
    * Status bar fill from `lightwellConfig.colors.stepIcon`
    * (includes match-status keys + stubs).
@@ -21,6 +21,14 @@ type LwMetricsCountOwnedProps = {
   tooltip?: ReactNode;
   /** Stack orientation. Default `column`. */
   direction?: 'column' | 'row';
+  /**
+   * Renders matched-size skeletons instead of `value`/`label`, on the same
+   * host/classes the loaded state uses — layout doesn't shift once data
+   * resolves, and callers never hand-roll a skeleton shell per metric.
+   */
+  isLoading?: boolean;
+  /** Screen-reader text for the loading skeleton. Only meaningful with `isLoading`. */
+  loadingScreenReaderText?: string;
 };
 
 /** Owned slots + div host passthrough. */
@@ -38,6 +46,8 @@ export function LwMetricsCount({
   color,
   tooltip,
   direction: directionProp,
+  isLoading,
+  loadingScreenReaderText,
   className,
   style,
   ...rest
@@ -54,7 +64,7 @@ export function LwMetricsCount({
       className={mergeClassNames(
         'lw-c-metrics-count',
         isColumn ? 'lw-m-column' : 'lw-m-row',
-        colorToken != null ? 'lw-m-has-bar' : undefined,
+        colorToken != null && !isLoading ? 'lw-m-has-bar' : undefined,
         className,
       )}
       style={
@@ -63,20 +73,30 @@ export function LwMetricsCount({
           : style
       }
     >
-      <Title headingLevel='h4' size='3xl' className='lw-c-metrics-count__value'>
-        {value}
-      </Title>
-      {colorToken != null && <span className='lw-c-metrics-count__bar' aria-hidden='true' />}
-      <Content component='small' className='lw-c-metrics-count__label'>
-        {label}
-        {tooltip != null && (
-          <LwTooltip content={tooltip} position='bottom'>
-            <span className='lw-c-metrics-count__help' tabIndex={0}>
-              <OutlinedQuestionCircleIcon />
-            </span>
-          </LwTooltip>
-        )}
-      </Content>
+      {isLoading ? (
+        <LwSkeleton fontSize='3xl' width='4ch' screenreaderText={loadingScreenReaderText} />
+      ) : (
+        <Title headingLevel='h4' size='3xl' className='lw-c-metrics-count__value'>
+          {value}
+        </Title>
+      )}
+      {colorToken != null && !isLoading && (
+        <span className='lw-c-metrics-count__bar' aria-hidden='true' />
+      )}
+      {isLoading ? (
+        <LwSkeleton fontSize='sm' width='5ch' />
+      ) : (
+        <Content component='small' className='lw-c-metrics-count__label'>
+          {label}
+          {tooltip != null && (
+            <LwTooltip content={tooltip} position='bottom'>
+              <span className='lw-c-metrics-count__help' tabIndex={0}>
+                <OutlinedQuestionCircleIcon />
+              </span>
+            </LwTooltip>
+          )}
+        </Content>
+      )}
     </div>
   );
 }

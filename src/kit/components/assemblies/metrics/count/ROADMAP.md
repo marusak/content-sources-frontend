@@ -30,6 +30,14 @@ around an invented chrome shell.
    `lightwellConfig.colors.stepIcon` or `matchStatus`)
 3. Optional label tooltip (`LwTooltip` + help icon)
 4. `direction`: `column` (default) | `row`
+5. `isLoading` — renders matched-size `LwSkeleton`s on the same host/classes
+   instead of `value`/`label` (no bar, no tooltip). Added after Beacon
+   hand-rolled the identical skeleton shape three times (raw `Flex` +
+   `LwSkeleton` pairs mirroring this unit's own `.lw-c-metrics-count` CSS) as
+   a `LwLoaded` fallback — mechanically fixed shape (loading skeleton always
+   matches the loaded layout) justified it off one consumer, no second
+   consumer needed. `value`/`label` are optional as a result (required only
+   when not loading).
 
 ---
 

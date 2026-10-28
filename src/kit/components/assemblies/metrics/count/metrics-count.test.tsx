@@ -53,3 +53,14 @@ it('merges call-site className onto the host root', () => {
   const root = container.querySelector('.lw-c-metrics-count');
   expect(root).toHaveClass('lw-count-test');
 });
+
+it('renders matched-size skeletons instead of value/label when isLoading', () => {
+  const { container } = render(
+    <LwMetricsCount isLoading loadingScreenReaderText='Loading total' color='partial' />,
+  );
+
+  expect(container.querySelectorAll('.pf-v6-c-skeleton')).toHaveLength(2);
+  expect(screen.getByText('Loading total')).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { level: 4 })).not.toBeInTheDocument();
+  expect(container.querySelector('.lw-c-metrics-count__bar')).not.toBeInTheDocument();
+});

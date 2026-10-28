@@ -28,6 +28,7 @@ export const LIGHTWELL_LENS_CATALOG_SOURCE = 'db';
 export const lightwellReposPerPageKey = 'lightwellRepositoriesPerPage';
 export const lightwellPkgsPerPageKey = 'lightwellPackagesPerPage';
 export const lightwellCoveragePkgsPerPageKey = 'lightwellCoveragePackagesPerPage';
+export const lightwellBeaconPerPageKey = 'lightwellBeaconPerPage';
 
 export const CONTENT_TYPE_PARAMETERS: Record<string, { ecosystem: string }> = {
   maven: { ecosystem: 'Java' },

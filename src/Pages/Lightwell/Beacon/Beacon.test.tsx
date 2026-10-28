@@ -26,6 +26,17 @@ jest.mock('./hooks/useBeaconData', () => ({
   useBeaconData: jest.fn(),
 }));
 
+jest.mock('./hooks/useBeaconExport', () => ({
+  useBeaconExport: jest.fn(() => ({
+    isBusy: false,
+    items: [
+      { id: 'csv', children: 'Export as CSV' },
+      { id: 'json', children: 'Export as JSON' },
+      { id: 'pdf', children: 'Export as PDF' },
+    ],
+  })),
+}));
+
 jest.mock('services/Lightwell/CustomerQueries', () => ({
   useCustomerIdsQuery: jest.fn(),
 }));
@@ -69,6 +80,20 @@ const selectCustomer = async (customerId: string) => {
 };
 
 beforeEach(() => {
+  // Simulate a ≥2xl viewport so the filter drawer is inline and open by default.
+  // JSDOM doesn't apply CSS, so we need a matchMedia mock for useLwBreakpoint.
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn(() => ({
+      matches: true,
+      media: '',
+      onchange: null,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+
   (useCustomerIdsQuery as jest.Mock).mockReturnValue({
     isLoading: false,
     data: ['CID-01', 'CID-214'],
@@ -143,7 +168,9 @@ it('renders the beacon page with status summary and vulnerability table', async 
   renderBeacon();
   await selectCustomer('CID-01');
 
-  expect(screen.getByText('Status Summary')).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByText('Status Summary')).toBeInTheDocument();
+  });
   expect(screen.getAllByText('No remediation')).toHaveLength(2);
   expect(screen.getAllByText('On Hold')).toHaveLength(2);
 
@@ -162,8 +189,7 @@ it('renders the beacon page with status summary and vulnerability table', async 
     '--lw-metrics-count-bar-color': 'var(--lw-color--match-status--none)',
   });
 
-  const filters = document.querySelector('.lightwell-filter-panel');
-  expect(filters).toBeTruthy();
+  const filters = screen.getByRole('form', { name: 'Filter categories' });
   const filterNetwork = within(filters as HTMLElement).getByText('Available in Lightwell Network');
   const filterOnHold = within(filters as HTMLElement).getByText('On Hold');
   const filterNoRemediation = within(filters as HTMLElement).getByText('No remediation');
@@ -176,9 +202,23 @@ it('renders the beacon page with status summary and vulnerability table', async 
 
   expect(screen.getByLabelText('Submission pipeline metrics')).not.toHaveTextContent('On Hold');
   expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
-  expect(document.querySelector('.lightwell-filter-panel')).toBeInTheDocument();
+  expect(screen.getByRole('form', { name: 'Filter categories' })).toBeInTheDocument();
   expect(screen.getByText('Customer ID')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'CID-01' })).toBeInTheDocument();
+});
+
+it('renders PF scroll-container wrappers required by the sticky Package/Vulnerability ID columns', async () => {
+  const { container } = renderBeacon();
+  await selectCustomer('CID-01');
+
+  await waitFor(() => {
+    expect(screen.getByText('LWL-2026-4401')).toBeInTheDocument();
+  });
+  // isSticky must be set on LwDataView for these to render at all — without
+  // it, DataViewTableBasic renders a bare <Table> and isStickyColumn on the
+  // Package/Vulnerability ID columns has nothing to attach sticky behavior to.
+  expect(container.querySelector('.pf-v6-c-scroll-outer-wrapper')).toBeInTheDocument();
+  expect(container.querySelector('.pf-v6-c-scroll-inner-wrapper')).toBeInTheDocument();
 });
 
 it('shows support ticket IDs from the dedicated API instead of vulnerability rows', async () => {
@@ -190,11 +230,14 @@ it('shows support ticket IDs from the dedicated API instead of vulnerability row
   renderBeacon();
   await selectCustomer('CID-01');
 
-  const filterPanel = document.querySelector('.lightwell-filter-panel');
-  expect(filterPanel).not.toBeNull();
-  expect(within(filterPanel as HTMLElement).getByText('api-ticket')).toBeInTheDocument();
-  expect(within(filterPanel as HTMLElement).queryByText('batch-1')).not.toBeInTheDocument();
-  expect(within(filterPanel as HTMLElement).queryByText('batch-2')).not.toBeInTheDocument();
+  const filterPanel = await waitFor(() => {
+    const panel = screen.getByRole('form', { name: 'Filter categories' });
+    expect(panel).toBeInTheDocument();
+    return panel;
+  });
+  expect(within(filterPanel).getByText('api-ticket')).toBeInTheDocument();
+  expect(within(filterPanel).queryByText('batch-1')).not.toBeInTheDocument();
+  expect(within(filterPanel).queryByText('batch-2')).not.toBeInTheDocument();
 });
 
 it('clears the ticket filter when the customer changes and keeps other filters', async () => {
@@ -202,10 +245,10 @@ it('clears the ticket filter when the customer changes and keeps other filters',
   const user = await selectCustomer('CID-01');
 
   const filterPanel = await waitFor(() => {
-    const panel = document.querySelector('.lightwell-filter-panel');
-    expect(panel).not.toBeNull();
-    expect(within(panel as HTMLElement).getByText('batch-1')).toBeInTheDocument();
-    return panel as HTMLElement;
+    const panel = screen.getByRole('form', { name: 'Filter categories' });
+    expect(panel).toBeInTheDocument();
+    expect(within(panel).getByText('batch-1')).toBeInTheDocument();
+    return panel;
   });
 
   await user.click(within(filterPanel).getByText('batch-1'));
