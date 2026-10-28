@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Banner } from '@patternfly/react-core';
-import { InfoCircleIcon } from '@patternfly/react-icons';
+import { Alert } from '@patternfly/react-core';
+import spacing from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 
 const LightwellDemoContext = createContext(false);
 
@@ -9,10 +9,12 @@ export const useLightwellDemo = () => useContext(LightwellDemoContext);
 
 export const LightwellDemoLayout = () => (
   <LightwellDemoContext.Provider value={true}>
-    <Banner status='info' screenReaderText='Demo site notice'>
-      <InfoCircleIcon /> This is a demo site. The data shown here is for demonstration purposes
-      only.
-    </Banner>
+    <Alert
+      variant='info'
+      isInline
+      className={`${spacing.mxLg} ${spacing.mtLg}`}
+      title='This is a demo site. The data shown here is for demonstration purposes only.'
+    />
     <Outlet />
   </LightwellDemoContext.Provider>
 );
