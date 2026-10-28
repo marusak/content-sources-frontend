@@ -40,6 +40,39 @@ import { lightwellConfig, type LwStepIconColorKey } from '../lightwell.config';
 // Re-export tenant identity so consumers can reference it from one place.
 export { lightwellConfig };
 
+// ─── Shared viewport breakpoints ─────────────────────────────────────────────
+
+/**
+ * PF v6 viewport breakpoints — shared by kit components and hooks.
+ * Values match the PatternFly SCSS vars (`$pf-v6-global--breakpoint--*`)
+ * and the rem comment map in `components.config.css`.
+ *
+ * Use in `matchMedia` hooks (TS track). CSS `@media` queries copy the rem
+ * directly — they cannot use CSS custom properties.
+ */
+export const lwBreakpoints = {
+  sm: '36rem',
+  md: '48rem',
+  lg: '62rem',
+  xl: '75rem',
+  '2xl': '90.625rem',
+} as const;
+
+export type LwBreakpointKey = keyof typeof lwBreakpoints;
+
+/** Ordered breakpoint names — smallest to largest. For ordinal comparison. */
+export const LW_BREAKPOINT_ORDER: readonly LwBreakpointKey[] = ['sm', 'md', 'lg', 'xl', '2xl'];
+
+/** True when `current` is at or above `target` in the breakpoint scale.
+ * 'xs' (below sm) is below everything. */
+export function isBreakpointAtLeast(
+  current: LwBreakpointKey | 'xs',
+  target: LwBreakpointKey,
+): boolean {
+  if (current === 'xs') return false;
+  return LW_BREAKPOINT_ORDER.indexOf(current) >= LW_BREAKPOINT_ORDER.indexOf(target);
+}
+
 // ─── Shared merge constraint ─────────────────────────────────────────────────
 
 /** Props that `mergeComponentProps` handles specially — className merges, style deep-merges. */
@@ -176,6 +209,27 @@ export type LwMetricsCountConfig = {
 /** Owned defaults for `LwMetricsCard`. */
 export type LwMetricsCardConfig = object;
 
+// ─── Primitive: LwSearchInput ────────────────────────────────────────────────
+
+/** Defaults for `LwSearchInput` — SearchInput host; call-site wins via merge. */
+export type LwSearchInputConfig = Partial<
+  Omit<import('@patternfly/react-core').SearchInputProps, 'ref'>
+>;
+
+// ─── Primitive: LwPagination ─────────────────────────────────────────────────
+
+/** Defaults for `LwPagination` — Pagination host; call-site wins via merge. */
+export type LwPaginationConfig = Partial<
+  Omit<import('@patternfly/react-core').PaginationProps, 'ref'>
+>;
+
+// ─── Primitive: LwDrawer ─────────────────────────────────────────────────────
+
+/** Defaults for `LwDrawer` — Drawer host; call-site wins via merge. */
+export type LwDrawerConfig = Partial<
+  Omit<import('@patternfly/react-core').DrawerProps, 'children' | 'ref'>
+>;
+
 // ─── Assembly: LwLoaded (loading / loaded surface) ───────────────────────────
 
 /** Defaults for `LwLoaded` — default loading surface is PF `Skeleton` (text line). */
@@ -204,12 +258,15 @@ export interface LwComponentsConfig {
   title: LwTitleConfig;
   icon: LwIconConfig;
   clipboardCopy: LwClipboardCopyConfig;
+  drawer: LwDrawerConfig;
   pageHeader: LwPageHeaderConfig;
   pageHeaderHero: LwPageHeaderHeroConfig;
   buttonGroup: LwButtonGroupConfig;
   metricsStepper: LwMetricsStepperConfig;
   metricsCount: LwMetricsCountConfig;
   metricsCard: LwMetricsCardConfig;
+  pagination: LwPaginationConfig;
+  searchInput: LwSearchInputConfig;
   loaded: LwLoadedConfig;
 }
 
@@ -226,6 +283,9 @@ export const componentsConfig: LwComponentsConfig = {
   card: {
     // Lightwell surfaces use glass cards by default.
     isGlass: true,
+  },
+  drawer: {
+    isPill: true,
   },
   menu: {
     // No Lightwell-specific Dropdown defaults yet — position / plain land here when decided.
@@ -281,6 +341,12 @@ export const componentsConfig: LwComponentsConfig = {
   },
   metricsCard: {
     // Shell defaults live on LwCard / call-site composition.
+  },
+  pagination: {
+    // No Lightwell-specific Pagination defaults yet.
+  },
+  searchInput: {
+    // No Lightwell-specific SearchInput defaults yet.
   },
   loaded: {
     // PF text-line Skeleton (no fixed height slab). Call sites that know structure
@@ -341,6 +407,10 @@ export function getLwClipboardCopyDefaults(): LwClipboardCopyConfig {
   return { ...componentsConfig.clipboardCopy };
 }
 
+export function getLwDrawerDefaults(): LwDrawerConfig {
+  return { ...componentsConfig.drawer };
+}
+
 export function getLwPageHeaderDefaults(): LwPageHeaderConfig {
   return { ...componentsConfig.pageHeader };
 }
@@ -363,6 +433,14 @@ export function getLwMetricsCountDefaults(): LwMetricsCountConfig {
 
 export function getLwMetricsCardDefaults(): LwMetricsCardConfig {
   return { ...componentsConfig.metricsCard };
+}
+
+export function getLwPaginationDefaults(): LwPaginationConfig {
+  return { ...componentsConfig.pagination };
+}
+
+export function getLwSearchInputDefaults(): LwSearchInputConfig {
+  return { ...componentsConfig.searchInput };
 }
 
 export function getLwLoadedDefaults(): LwLoadedConfig {
