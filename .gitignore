@@ -46,3 +46,6 @@ creds*
 
 # Local TLS (mkcert / stage.foo.redhat.com, etc.) — never commit
 *.pem
+
+# Scratch notes — never commit
+PR_*_NOTES.md

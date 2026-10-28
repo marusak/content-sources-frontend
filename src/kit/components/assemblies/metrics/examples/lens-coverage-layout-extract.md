@@ -1,7 +1,7 @@
 # Lens coverage layout — extract roadmap
 
 **Status:** snapshot + plan (no extract code until unit README + unit ROADMAP exist).  
-**Family:** [`../ROADMAP.md`](../ROADMAP.md) · Skills: scaffold-outline (migrate usages; do not mutate product chart shells).
+**Family:** [`../ROADMAP.md`](../ROADMAP.md) · Skills: kit (migrate usages; do not mutate product chart shells).
 
 **Goal:** Keep the **current visual layout** of Lens coverage / upload chrome. Achieve it by
 extracting **kit metrics pieces**, composing them at **Lens page call sites**, then
