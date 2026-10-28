@@ -92,8 +92,19 @@ describe('compareReleasesDesc', () => {
 });
 
 describe('toLightwellRelease', () => {
-  it('joins version and release into a Lightwell release', () => {
+  it('joins Maven version and release with a dot', () => {
     expect(toLightwellRelease({ version: '5.3.18', release: 'rhlw-00007' })).toBe(
+      '5.3.18.rhlw-00007',
+    );
+  });
+
+  it('joins Python version and bare rhlw.N release with a plus', () => {
+    expect(toLightwellRelease({ version: '0.23.1', release: 'rhlw.1' })).toBe('0.23.1+rhlw.1');
+  });
+
+  it('preserves an already-prefixed release suffix', () => {
+    expect(toLightwellRelease({ version: '0.23.1', release: '+rhlw.1' })).toBe('0.23.1+rhlw.1');
+    expect(toLightwellRelease({ version: '5.3.18', release: '.rhlw-00007' })).toBe(
       '5.3.18.rhlw-00007',
     );
   });

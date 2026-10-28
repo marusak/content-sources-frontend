@@ -436,7 +436,7 @@ it('renders python remediated packages with a Latest release column', async () =
 
   expect(await screen.findByRole('heading', { name: 'Python Remediated' })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: 'Latest release' })).toBeInTheDocument();
-  expect(await screen.findByRole('button', { name: '2.32.0.rhlw-0002' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: '2.32.0+rhlw.2' })).toBeInTheDocument();
 });
 
 it('renders python predisclosure packages with a Latest release column', async () => {
@@ -458,7 +458,7 @@ it('renders python predisclosure packages with a Latest release column', async (
 
   expect(await screen.findByRole('heading', { name: 'Python Predisclosure' })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: 'Latest release' })).toBeInTheDocument();
-  expect(await screen.findByRole('button', { name: '2.32.0.rhlw-0002' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: '2.32.0+rhlw.2' })).toBeInTheDocument();
 });
 
 it('groups published Python releases and copies the latest version', async () => {
@@ -473,10 +473,10 @@ it('groups published Python releases and copies the latest version', async () =>
           {
             group: '',
             name: 'lightwell-fixture',
-            versions: ['3.0.1+rhlw.1', '3.0.1+rhlw.2'],
+            versions: ['3.0.1'],
             latest_releases: [
-              { version: '3.0.1+rhlw.1', release: '', created_at: '2026-07-01T00:00:00Z' },
-              { version: '3.0.1+rhlw.2', release: '', created_at: '2026-07-02T00:00:00Z' },
+              { version: '3.0.1', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' },
+              { version: '3.0.1', release: 'rhlw.2', created_at: '2026-07-02T00:00:00Z' },
             ],
           },
         ],

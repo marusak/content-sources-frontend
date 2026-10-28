@@ -69,13 +69,20 @@ export const compareReleasesDesc = (
   return lightwellReleaseNum(b.release) - lightwellReleaseNum(a.release);
 };
 
-// Formats a release { version, release } into a Lightwell release, e.g., 5.3.18.rhlw-00007
+// Formats a release { version, release } into a Lightwell release.
+// Maven: { version: '5.3.18', release: 'rhlw-00007' } -> 5.3.18.rhlw-00007
+// Python: { version: '1.2.3', release: 'rhlw.1' } -> 1.2.3+rhlw.1
 export const toLightwellRelease = (
   release: Pick<RepositoryPackageReleaseInfo, 'version' | 'release'>,
-) =>
-  !release.release || release.release.startsWith('+') || release.release.startsWith('.')
-    ? `${release.version}${release.release}`
-    : `${release.version}.${release.release}`;
+) => {
+  const { version, release: suffix } = release;
+  if (!suffix || suffix.startsWith('+') || suffix.startsWith('.')) {
+    return `${version}${suffix}`;
+  }
+  // Bare API suffixes: Python uses rhlw.N, Maven uses rhlw-NNNNN.
+  const separator = /^rhlw\./i.test(suffix) ? '+' : '.';
+  return `${version}${separator}${suffix}`;
+};
 
 export const getVersionSeries = (version: string): string => {
   const match = stripLightwellVersionSuffix(version).match(/^(\d+)\.(\d+)(?:\.|$)/);

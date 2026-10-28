@@ -2,20 +2,19 @@ import {
   MavenPackageVersionsListResponse,
   PythonPackageVersionsResponse,
   RepositoryPackageItem,
+  RepositoryPackageReleaseInfo,
 } from 'services/Content/ContentApi';
-import { stripLightwellVersionSuffix } from './Packages/utils/versions';
 
 const mockPackagesByRepository: Record<string, RepositoryPackageItem[]> = {
-  // Python Remediated
   '33333333-3333-4333-8333-333333333333': [
     {
       name: 'protobuf',
       group: '',
       versions: ['4.25.7'],
       latest_releases: [
-        { version: '4.25.7', release: '+rhlw.3', created_at: '2026-09-05T00:00:00Z' },
-        { version: '4.25.7', release: '+rhlw.2', created_at: '2026-08-25T00:00:00Z' },
-        { version: '4.25.7', release: '+rhlw.1', created_at: '2026-08-17T00:00:00Z' },
+        { version: '4.25.7', release: 'rhlw.3', created_at: '2026-09-05T00:00:00Z' },
+        { version: '4.25.7', release: 'rhlw.2', created_at: '2026-08-25T00:00:00Z' },
+        { version: '4.25.7', release: 'rhlw.1', created_at: '2026-08-17T00:00:00Z' },
       ],
     },
     {
@@ -23,8 +22,8 @@ const mockPackagesByRepository: Record<string, RepositoryPackageItem[]> = {
       group: '',
       versions: ['2.32.5', '2.32.6'],
       latest_releases: [
-        { version: '2.32.5', release: 'rhlw-3001', created_at: '2026-07-01T00:00:00Z' },
-        { version: '2.32.6', release: 'rhlw-3002', created_at: '2026-07-01T00:00:00Z' },
+        { version: '2.32.5', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' },
+        { version: '2.32.6', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' },
       ],
     },
     {
@@ -32,7 +31,7 @@ const mockPackagesByRepository: Record<string, RepositoryPackageItem[]> = {
       group: '',
       versions: ['2.2.3'],
       latest_releases: [
-        { version: '2.2.3', release: 'rhlw-3002', created_at: '2026-07-01T00:00:00Z' },
+        { version: '2.2.3', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' },
       ],
     },
   ],
@@ -683,7 +682,11 @@ export const getMockMavenPackageVersionsList = (
 
 const pythonPackageDetail = (
   name: string,
-  versions: { version: string; last_updated: string }[],
+  versions: {
+    version: string;
+    last_updated: string;
+    builds?: RepositoryPackageReleaseInfo[];
+  }[],
   summary: string,
   license: string,
   authorName: string,
@@ -693,12 +696,13 @@ const pythonPackageDetail = (
   versions: versions.map((v) => ({
     name,
     version: v.version,
+    builds: v.builds ?? [{ version: v.version, release: '', created_at: v.last_updated }],
     summary,
     description: summary,
     last_updated: v.last_updated,
     license,
     author: { name: authorName },
-    upstream_versions: [stripLightwellVersionSuffix(v.version)],
+    upstream_versions: [v.version],
     project_url: projectUrl,
     distributions: [],
   })),
@@ -710,14 +714,53 @@ const mockPythonVersionsByRepo: Record<string, Record<string, PythonPackageVersi
     protobuf: pythonPackageDetail(
       'protobuf',
       [
-        { version: '4.25.7+rhlw.3', last_updated: '2026-09-05T00:00:00Z' },
-        { version: '4.25.7+rhlw.2', last_updated: '2026-08-25T00:00:00Z' },
-        { version: '4.25.7+rhlw.1', last_updated: '2026-08-17T00:00:00Z' },
+        {
+          version: '4.25.7',
+          last_updated: '2026-09-05T00:00:00Z',
+          builds: [
+            { version: '4.25.7', release: 'rhlw.3', created_at: '2026-09-05T00:00:00Z' },
+            { version: '4.25.7', release: 'rhlw.2', created_at: '2026-08-25T00:00:00Z' },
+            { version: '4.25.7', release: 'rhlw.1', created_at: '2026-08-17T00:00:00Z' },
+          ],
+        },
       ],
       'Protocol Buffers runtime for Python applications.',
       'BSD-3-Clause',
       'Google',
       'https://github.com/protocolbuffers/protobuf',
+    ),
+    'python-requests': pythonPackageDetail(
+      'python-requests',
+      [
+        {
+          version: '2.32.6',
+          last_updated: '2026-07-01T00:00:00Z',
+          builds: [{ version: '2.32.6', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' }],
+        },
+        {
+          version: '2.32.5',
+          last_updated: '2026-07-01T00:00:00Z',
+          builds: [{ version: '2.32.5', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' }],
+        },
+      ],
+      'Python HTTP library.',
+      'Apache-2.0',
+      'Kenneth Reitz',
+      'https://requests.readthedocs.io/',
+    ),
+    'python-urllib3': pythonPackageDetail(
+      'python-urllib3',
+      [
+        {
+          version: '2.2.3',
+          last_updated: '2026-07-01T00:00:00Z',
+          builds: [{ version: '2.2.3', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' }],
+        },
+      ],
+      'HTTP library with thread-safe connection pooling.',
+      'MIT',
+      'Andrey Petrov',
+      'https://urllib3.readthedocs.io/',
     ),
   },
   // Python Validated

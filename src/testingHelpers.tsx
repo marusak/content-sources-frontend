@@ -472,8 +472,8 @@ export const defaultPythonRemediatedRepositoryPackageItem: RepositoryPackageItem
   name: 'requests',
   versions: ['2.31.0', '2.32.0'],
   latest_releases: [
-    { version: '2.31.0', release: 'rhlw-0001', created_at: '2026-07-01T00:00:00Z' },
-    { version: '2.32.0', release: 'rhlw-0002', created_at: '2026-06-18T00:00:00Z' },
+    { version: '2.31.0', release: 'rhlw.1', created_at: '2026-07-01T00:00:00Z' },
+    { version: '2.32.0', release: 'rhlw.2', created_at: '2026-06-18T00:00:00Z' },
   ],
 };
 
@@ -552,8 +552,8 @@ export const defaultPythonValidatedPackageVersions: PythonPackageVersionsRespons
   ],
 };
 
-export const pythonRemediatedPipCommand = `pip install ${defaultPythonRemediatedRepositoryPackageItem.name}==2.32.0.rhlw-0002`;
-export const otherPythonRemediatedPipCommand = `pip install ${defaultPythonRemediatedRepositoryPackageItem.name}==2.31.0.rhlw-0001`;
+export const pythonRemediatedPipCommand = `pip install ${defaultPythonRemediatedRepositoryPackageItem.name}==2.32.0+rhlw.2`;
+export const otherPythonRemediatedPipCommand = `pip install ${defaultPythonRemediatedRepositoryPackageItem.name}==2.31.0+rhlw.1`;
 export const pythonValidatedPipCommand = `pip install ${defaultPythonValidatedPackageItem.name}==2.21.2`;
 
 export const javaRemediatedCopyCommand = `${defaultLightwellRepositoryPackageItem.group}:${defaultLightwellRepositoryPackageItem.name}:3.14.0.rhlw-00001`;
@@ -597,11 +597,11 @@ export const gradleValidatedDependencySnippet = `// Source: ${javaDistributionUr
 implementation("${defaultLightwellRepositoryPackageItem.group}:${defaultLightwellRepositoryPackageItem.name}:2.21.2")`;
 
 export const pipRemediatedInstallSnippet = `# Source: ${pythonRemediatedDistributionUrl}
-pip install --index-url ${pythonRemediatedIndexUrl} ${defaultPythonRemediatedRepositoryPackageItem.name}==2.32.0.rhlw-0002`;
+pip install --index-url ${pythonRemediatedIndexUrl} ${defaultPythonRemediatedRepositoryPackageItem.name}==2.32.0+rhlw.2`;
 
 export const requirementsRemediatedInstallSnippet = `# Source: ${pythonRemediatedDistributionUrl}
 --index-url ${pythonRemediatedIndexUrl}
-${defaultPythonRemediatedRepositoryPackageItem.name}==2.32.0.rhlw-0002`;
+${defaultPythonRemediatedRepositoryPackageItem.name}==2.32.0+rhlw.2`;
 
 export const pipConfRemediatedInstallSnippet = `# ~/.config/pip/pip.conf
 [global]
