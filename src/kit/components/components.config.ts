@@ -14,8 +14,11 @@ import {
   type ProgressStepperProps,
   type SkeletonProps,
   type TitleProps,
+  type ToolbarItemProps,
   type TooltipProps,
 } from '@patternfly/react-core';
+import type { DataViewTableBasicProps } from '@patternfly/react-data-view/dist/dynamic/DataViewTableBasic';
+import type { DataViewToolbarProps } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 
 import { lightwellConfig, type LwStepIconColorKey } from '../lightwell.config';
 
@@ -251,6 +254,54 @@ export type LwFormConfig = Partial<
   Omit<import('@patternfly/react-core').FormProps, 'children' | 'ref'>
 >;
 
+// ─── Assembly: LwDataView (DataView + DataViewTable) ─────────────────────────
+
+/** PF `DataViewTable` props forwarded by `LwDataView` (kit builds variant/columns/rows/bodyStates/headStates/isSticky; isTreeTable not supported). */
+export type LwDataViewPassthroughProps = Omit<
+  DataViewTableBasicProps,
+  'variant' | 'columns' | 'rows' | 'bodyStates' | 'headStates' | 'isSticky' | 'isTreeTable'
+>;
+
+/**
+ * Defaults for `LwDataView` — `DataViewTable` host; call-site wins via merge.
+ * `isCompact` is kit-owned (maps to PF's `variant`, not a literal pass-through prop).
+ */
+export type LwDataViewConfig = Partial<LwDataViewPassthroughProps> & {
+  isCompact?: boolean;
+  /**
+   * `false` (default) wraps `LwDataView` in a `Card` — `CardHeader` hosts the
+   * built-in toolbar, `CardBody` hosts the full data-view surface. Set `true`
+   * to opt out for pages that already provide their own container chrome.
+   */
+  isCardless?: boolean;
+  /**
+   * Starting `perPage` for uncontrolled pagination (when `pagination` is set
+   * but `page`/`perPage`/`onSetPage`/`onPerPageSelect` are omitted — `LwDataView`
+   * owns page state internally in that case). Has no effect on controlled
+   * pagination, which always uses the call site's own `perPage`.
+   */
+  defaultPerPage?: number;
+  /**
+   * `ToolbarItem` props applied to the top pagination item in the built-in toolbar.
+   * Default: hides on small screens and shows at `md`+, matching standard responsive
+   * table patterns. Call-site-supplied `paginationItemProps` on a standalone
+   * `LwDataViewToolbar` takes precedence.
+   */
+  builtInPaginationItemProps?: Omit<ToolbarItemProps, 'variant' | 'align'>;
+};
+
+// ─── Assembly: LwDataViewToolbar (DataViewToolbar) ───────────────────────────
+
+/** PF `DataViewToolbar` props forwarded by `LwDataViewToolbar` (its own `pagination`,
+ * `filters`, and `actions` props are superseded by the kit's owned slots). */
+export type LwDataViewToolbarPassthroughProps = Omit<
+  DataViewToolbarProps,
+  'pagination' | 'filters' | 'actions'
+>;
+
+/** Defaults for `LwDataViewToolbar` — `DataViewToolbar` host; call-site wins via merge. */
+export type LwDataViewToolbarConfig = Partial<LwDataViewToolbarPassthroughProps>;
+
 // ─── Assembly: LwLoaded (loading / loaded surface) ───────────────────────────
 
 /** Defaults for `LwLoaded` — default loading surface is PF `Skeleton` (text line). */
@@ -292,6 +343,8 @@ export interface LwComponentsConfig {
   pagination: LwPaginationConfig;
   searchInput: LwSearchInputConfig;
   loaded: LwLoadedConfig;
+  dataView: LwDataViewConfig;
+  dataViewToolbar: LwDataViewToolbarConfig;
 }
 
 export const componentsConfig: LwComponentsConfig = {
@@ -386,6 +439,28 @@ export const componentsConfig: LwComponentsConfig = {
     // pass `fallback` matching the loaded layout (see Beacon status summary).
     fontSize: 'md',
     screenreaderText: 'Loading',
+  },
+  dataView: {
+    // Primary pages default to non-compact density; compact is an explicit
+    // opt-in reserved for drawers/modals (flagged 2026-10-08).
+    isCompact: false,
+    // Card wrapper on by default (D19) — opt out via isCardless for pages
+    // that already provide their own container chrome.
+    isCardless: false,
+    // Starting perPage for uncontrolled pagination (page state owned by
+    // LwDataView when the call site doesn't supply page/onSetPage).
+    defaultPerPage: 10,
+    // Responsive grid breakpoint — collapse to stacked mobile layout at lg.
+    gridBreakPoint: 'grid-lg' as const,
+    // Striped rows for legibility on dense tables.
+    isStriped: true,
+    // Flat table surface — avoids double background on pages with PF plain chrome.
+    isNoPlainOnGlass: true,
+    // Built-in toolbar: hide top pagination on small screens; reveal at md+.
+    builtInPaginationItemProps: { visibility: { default: 'hidden', md: 'visible' } },
+  },
+  dataViewToolbar: {
+    // No Lightwell-specific DataViewToolbar defaults yet.
   },
 };
 
@@ -490,6 +565,14 @@ export function getLwSearchInputDefaults(): LwSearchInputConfig {
 
 export function getLwLoadedDefaults(): LwLoadedConfig {
   return { ...componentsConfig.loaded };
+}
+
+export function getLwDataViewDefaults(): LwDataViewConfig {
+  return { ...componentsConfig.dataView };
+}
+
+export function getLwDataViewToolbarDefaults(): LwDataViewToolbarConfig {
+  return { ...componentsConfig.dataViewToolbar };
 }
 
 // ─── Merge utilities ─────────────────────────────────────────────────────────

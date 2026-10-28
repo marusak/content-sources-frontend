@@ -2,7 +2,7 @@ import '@patternfly/react-catalog-view-extension/dist/css/react-catalog-view-ext
 import './kit/lightwell.config.css';
 import './kit/components/components.config.css';
 import './kit/components/assemblies/page/page.config.css';
-import './kit/lightwell.overrides.css';
+import './kit/patternfly-base-overrides.css';
 import '../styles/lightwell-chrome-overrides.scss';
 import '../styles/lightwell-clipboard-copy.scss';
 import '../styles/lightwell-coverage-charts.scss';
